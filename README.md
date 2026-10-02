@@ -1,110 +1,113 @@
-# Coop 2D (working title)
+# Coop 2D (título provisional)
 
-A small 2D pixel-art co-op roguelite where players combine elements to trigger reactions they can't pull off alone.
+Un roguelite cooperativo 2D en pixel art donde los jugadores combinan elementos para provocar reacciones que solos no conseguirían.
 
-> **Design motto:** "You do this, I do that."
+> **Frase de diseño:** "Haz esto y yo hago aquello."
 
-This project is first and foremost a training ground: the goal is to learn how to make real games, not to finish fast.
+Este proyecto es, ante todo, un campo de entrenamiento: el objetivo es aprender a hacer juegos de verdad, no terminar rápido.
 
 ---
 
-## Requirements
+## Requisitos
 
-| Tool | Version |
+| Herramienta | Versión |
 | --- | --- |
-| Unity | **6000.3.TODO** (Unity 6.3 LTS) — everyone uses the exact same version |
-| Render pipeline | URP, Universal 2D template |
-| Networking | FishNet 4.7.3R |
-| Art | Aseprite |
-| Code editor | Rider or Visual Studio Community |
+| Unity | **6000.3.TODO** (Unity 6.3 LTS). Todos usamos exactamente la misma versión |
+| Render pipeline | URP, plantilla Universal 2D |
+| Red | FishNet 4.7.3R |
+| Arte | Aseprite |
+| Editor de código | Rider o Visual Studio Community |
 
-**Do not use Unity update releases (6.5, 6.6...).** If we upgrade, we all upgrade together, on a separate branch.
+**No usar las versiones de actualización de Unity (6.5, 6.6...).** Si actualizamos, actualizamos todos a la vez y en una rama aparte.
 
-## Getting started
+## Cómo empezar
 
-1. Install the exact Unity version above from Unity Hub, with the **Windows Build Support** module.
-2. Clone this repository.
-3. Open the project folder from Unity Hub.
-4. Open `Assets/_Project/Scenes/Bootstrap.unity` and press Play.
+1. Instala la versión exacta de Unity desde Unity Hub, con el módulo **Windows Build Support**.
+2. Clona este repositorio.
+3. Abre la carpeta del proyecto desde Unity Hub.
+4. Abre `Assets/_Project/Scenes/Bootstrap.unity` y pulsa Play.
 
-### Testing multiplayer
+### Probar el multijugador
 
-- **On one PC:** use Multiplayer Play Mode (*Window > Multiplayer > Multiplayer Play Mode*) to run extra players inside the editor.
-- **Between PCs:** connect through our VPN (TODO: Tailscale / ZeroTier). One player hosts, the others join using the host's VPN IP.
+- **En un solo PC:** usa Multiplayer Play Mode (*Window > Multiplayer > Multiplayer Play Mode*) para abrir más jugadores dentro del editor.
+- **Entre varios PCs:** conectaos por la VPN (TODO: Tailscale / ZeroTier). Un jugador hace de host y los demás se unen con la IP de la VPN del host.
 
-## Project structure
+## Estructura del proyecto
 
-Everything we make lives in `Assets/_Project`. Third-party packages stay outside it and are never edited.
+Todo lo nuestro vive en `Assets/_Project`. Los paquetes externos quedan fuera y no se editan nunca.
 
 ```
 Assets/
   _Project/
-    Art/        sprites, tiles, icons, VFX, UI, palette
+    Art/        sprites, tiles, iconos, VFX, UI, paleta
     Audio/
-    Code/       one folder per system (Core, Networking, Player, Combat, ...)
-    Data/       ScriptableObjects with design data
+    Code/       una carpeta por sistema (Core, Networking, Player, Combat...)
+    Data/       ScriptableObjects con datos de diseño
     Prefabs/
     Scenes/
-    Settings/   input actions, rendering, import presets
-  FishNet/      package files, do not edit
+    Settings/   input actions, rendering, presets de importación
+  FishNet/      archivos del paquete, no editar
   Sandbox/
-    <YourName>/ your personal test scenes, never included in builds
+    <TuNombre>/ tus escenas de prueba; nunca entran en las builds
 ```
 
-## Conventions
+## Convenciones
 
-**Everything in the repository is in English:** code, comments, folders, files, assets, scenes, branches, commits and pull requests. Design documents and team chat are in Spanish.
+### Idioma
 
-### Code
+- **En inglés:** código, comentarios, carpetas, archivos, assets, escenas, ramas, commits y títulos de pull requests e issues.
+- **En español:** este README, los documentos de diseño, las descripciones de issues y PRs, y las conversaciones del equipo.
 
-- `PascalCase` for classes, methods and files; `camelCase` for variables; `_camelCase` for private fields.
-- One class per file, with the same name as the file.
-- **No magic numbers.** Health, damage, cooldowns and other tuning values live in ScriptableObjects under `Data/`.
+### Código
 
-### Art
+- `PascalCase` para clases, métodos y archivos; `camelCase` para variables; `_camelCase` para campos privados.
+- Una clase por archivo, con el mismo nombre que el archivo.
+- **Nada de números mágicos.** Vida, daño, cooldowns y demás valores de ajuste van en ScriptableObjects dentro de `Data/`.
 
-- File names follow `type_name_variant`, lowercase: `chr_mage_idle.aseprite`, `enm_slime_walk.aseprite`, `ico_fire.aseprite`, `tile_floor_stone.aseprite`.
-- Tiles are 16×16. Characters are 16×16 or 16×24. Bosses are 32×32 or 48×48.
-- Only colors from the shared palette in `Art/Palette`.
-- Draw at real size, with no antialiasing. Same canvas size for every animation of a character, with the pivot at the feet.
-- Animations use Aseprite tags (`idle`, `walk`, `attack`...).
-- No external or AI-generated assets. Our own placeholders are always fine.
+### Arte
 
-### Scenes
+- Los archivos siguen el formato `type_name_variant`, en minúsculas: `chr_mage_idle.aseprite`, `enm_slime_walk.aseprite`, `ico_fire.aseprite`, `tile_floor_stone.aseprite`.
+- Tiles de 16×16. Personajes de 16×16 o 16×24. Jefes de 32×32 o 48×48.
+- Solo colores de la paleta común, guardada en `Art/Palette`.
+- Se dibuja a tamaño real y sin antialiasing. Mismo tamaño de lienzo en todas las animaciones de un personaje, con el pivot en los pies.
+- Las animaciones usan tags de Aseprite (`idle`, `walk`, `attack`...).
+- Nada de assets externos ni generados con IA. Los placeholders propios siempre valen.
 
-- Only one person edits a shared scene at a time. Announce it in Discord before you start and when you finish.
-- Everything else is done in prefabs or in your Sandbox folder.
+### Escenas
 
-## Git workflow
+- Una escena compartida solo la edita una persona a la vez. Avisa en Discord cuando empieces y cuando termines.
+- Todo lo demás se trabaja en prefabs o en tu carpeta de Sandbox.
 
-- `main` is protected. Everything goes in through a pull request.
-- One branch per task: `feature/health-bar`, `fix/enemy-spawn`, `art/slime-walk`.
-- Every pull request includes one sentence on **what it does** and **how to test it**.
-- Every pull request needs approval from someone else, including the lead's.
-- Tasks are tracked as issues in GitHub Projects: *To do → In progress → In review → Done*.
+## Flujo de Git
 
-## Definition of done
+- `main` está protegida. Todo entra por pull request.
+- Una rama por tarea: `feature/health-bar`, `fix/enemy-spawn`, `art/slime-walk`.
+- Cada pull request incluye una frase de **qué hace** y **cómo probarlo**.
+- Todo pull request necesita la aprobación de otra persona, también los de quien lidera.
+- Las tareas se siguen como issues en GitHub Projects: *To do → In progress → In review → Done*.
 
-A task is done when:
+## Cuándo una tarea está hecha
 
-- It works on both host and client.
-- It produces no errors in the console.
-- It has been reviewed and merged.
-- Whoever made it can explain it.
+Una tarea está hecha cuando:
 
-## AI rule
+- Funciona en host y en cliente.
+- No da errores en la consola.
+- Está revisada y fusionada.
+- Quien la hizo sabe explicarla.
 
-We write our own code and make our own art.
+## Regla de la IA
 
-| Allowed | Not allowed |
+El código y el arte los hacemos nosotros.
+
+| Permitido | No permitido |
 | --- | --- |
-| Explaining concepts, errors and compiler messages | Writing code that goes into the project |
-| Comparing approaches and their pros and cons | Pasting generated code, even "just to try it" |
-| Reviewing code we wrote and pointing out problems | Getting the full solution to a task |
-| Suggesting exercises to practice a concept | Generating art, sprites or effects |
+| Explicar conceptos, errores y mensajes del compilador | Escribir código que entra en el proyecto |
+| Comparar enfoques y sus pros y contras | Pegar código generado, aunque sea "para probar" |
+| Revisar código ya escrito y señalar problemas | Que te dé la solución completa de una tarea |
+| Proponer ejercicios para practicar un concepto | Generar arte, sprites o efectos |
 
-**Quick test:** if you can't explain something you wrote line by line, it doesn't go into `main`.
+**Prueba rápida:** si no puedes explicar línea a línea algo que has escrito, no entra en `main`.
 
-## Ideas
+## Ideas nuevas
 
-New ideas go to the **Version 2** list in the design document, not into the current version.
+Las ideas nuevas van a la lista de **Versión 2** del documento de diseño, no a la versión actual.
