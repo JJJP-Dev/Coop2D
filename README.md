@@ -55,8 +55,8 @@ Assets/
 
 ### Idioma
 
-- **En inglés:** código, carpetas, archivos, assets, escenas, ramas, commits y títulos de pull requests e issues.
-- **En español:** comentarios, este README, los documentos de diseño, las descripciones de issues y PRs, y las conversaciones del equipo.
+- **En inglés:** código, carpetas, archivos, comentarios, assets, escenas, ramas, commits y títulos de pull requests e issues.
+- **En español:** este README, los documentos de diseño, las descripciones de issues y PRs, y las conversaciones del equipo.
 
 ### Código
 
