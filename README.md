@@ -30,7 +30,7 @@ Este proyecto es, ante todo, un campo de entrenamiento: el objetivo es aprender 
 ### Probar el multijugador
 
 - **En un solo PC:** usa Multiplayer Play Mode (*Window > Multiplayer > Multiplayer Play Mode*) para abrir más jugadores dentro del editor.
-- **Entre varios PCs:** conectaos por la VPN (TODO: Tailscale / ZeroTier). Un jugador hace de host y los demás se unen con la IP de la VPN del host.
+- **Entre varios PCs:** el host abre el puerto UDP de Tugboat en su router (port-forward) y los demás se unen con su IP pública. Si el operador del host usa CGNAT, el plan B es una VPN (Tailscale o ZeroTier).
 
 ## Estructura del proyecto
 
@@ -55,8 +55,8 @@ Assets/
 
 ### Idioma
 
-- **En inglés:** código, comentarios, carpetas, archivos, assets, escenas, ramas, commits y títulos de pull requests e issues.
-- **En español:** este README, los documentos de diseño, las descripciones de issues y PRs, y las conversaciones del equipo.
+- **En inglés:** código, carpetas, archivos, assets, escenas, ramas, commits y títulos de pull requests e issues.
+- **En español:** comentarios, este README, los documentos de diseño, las descripciones de issues y PRs, y las conversaciones del equipo.
 
 ### Código
 
@@ -80,7 +80,6 @@ Assets/
 
 ## Flujo de Git
 
-- `main` está protegida. Todo entra por pull request.
 - Una rama por tarea: `feature/health-bar`, `fix/enemy-spawn`, `art/slime-walk`.
 - Cada pull request incluye una frase de **qué hace** y **cómo probarlo**.
 - Todo pull request necesita la aprobación de otra persona, también los de quien lidera.
@@ -110,4 +109,4 @@ El código y el arte los hacemos nosotros.
 
 ## Ideas nuevas
 
-Las ideas nuevas van a la lista de **Versión 2** del documento de diseño, no a la versión actual.
+Las ideas nuevas van a la **lista de ideas** del documento de diseño, no a la versión actual.
