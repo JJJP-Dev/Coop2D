@@ -1,10 +1,14 @@
 using FishNet.Managing;
+using FishNet.Transporting;
+using System;
 using UnityEngine;
 
 public class ConnectionService : MonoBehaviour
 {
     [SerializeField]
     private NetworkManager _networkManager;
+
+    public event Action ServerStarted;
 
     public void StartHost()
     {
@@ -18,12 +22,21 @@ public class ConnectionService : MonoBehaviour
         _networkManager.ServerManager.OnServerConnectionState += OnServerConnectionState;
     }
 
-    private void OnServerConnectionState(FishNet.Transporting.ServerConnectionStateArgs obj)
+    private void OnDestroy()
     {
+        _networkManager.ClientManager.OnClientConnectionState -= OnClientConnectionState;
+        _networkManager.ServerManager.OnServerConnectionState -= OnServerConnectionState;
+    }
+
+    private void OnServerConnectionState(ServerConnectionStateArgs obj)
+    {
+        if (obj.ConnectionState == LocalConnectionState.Started)
+            ServerStarted?.Invoke();
+
         Debug.Log("Server State: " + obj.ConnectionState.ToString());
     }
 
-    private void OnClientConnectionState(FishNet.Transporting.ClientConnectionStateArgs obj)
+    private void OnClientConnectionState(ClientConnectionStateArgs obj)
     {
         Debug.Log("Client State: " + obj.ConnectionState.ToString());
     }
