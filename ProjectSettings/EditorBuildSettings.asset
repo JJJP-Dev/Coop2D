@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Upgrades/Scenes/Bootstrap.unity
     guid: ca8212d2c13e2ed4380643966406c4bc
   - enabled: 1
+    path: Assets/Upgrades/Scenes/MainMenu.unity
+    guid: 5d3199bf1f70f024bb9c10b966c6ed29
+  - enabled: 1
     path: Assets/Upgrades/Scenes/Arena_Test.unity
     guid: c5b2e407746df2241a2e67d85f51e7ec
   m_configObjects:
