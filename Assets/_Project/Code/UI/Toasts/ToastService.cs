@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class ToastService : MonoBehaviour
 {
-    public static ToastService Instance { get; private set; }
-
     [Header("References")]
     [SerializeField] private ToastView _view;
 
@@ -26,34 +24,12 @@ public class ToastService : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-
         _view.SetAlpha(0f);
     }
 
-    private void OnDestroy()
+    public void Show(string text, ToastType type)
     {
-        if (Instance == this)
-        {
-            Destroy(this);
-        }
-    }
-
-    public static void Show(string text, ToastType type)
-    {
-        if (Instance == null)
-        {
-            Debug.LogError("[ToastService] Instance not found");
-            return;
-        }
-
-        Instance.Enqueue(text, type);
+        Enqueue(text, type);
     }
 
     private void Enqueue(string text, ToastType type)

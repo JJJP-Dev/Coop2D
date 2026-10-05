@@ -6,10 +6,8 @@ using UnityEngine;
 
 public class ConnectionService : MonoBehaviour
 {
-    public static ConnectionService Instance { get; private set; }
-
-    [SerializeField]
-    private NetworkManager _networkManager;
+    [SerializeField] private NetworkManager _networkManager;
+    public NetworkManager NetworkManager => _networkManager;
 
     [SerializeField]
     private float _timeoutSeconds = 10;
@@ -25,17 +23,6 @@ public class ConnectionService : MonoBehaviour
 
     private bool _hostPending = false;
 
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-    }
-
     public void StartHost()
     {
         LastFailReason = FailReason.None;
@@ -48,19 +35,14 @@ public class ConnectionService : MonoBehaviour
 
     private void Start()
     {
-        _networkManager.ClientManager.OnClientConnectionState += OnClientConnectionState;
-        _networkManager.ServerManager.OnServerConnectionState += OnServerConnectionState;
+        NetworkManager.ClientManager.OnClientConnectionState += OnClientConnectionState;
+        NetworkManager.ServerManager.OnServerConnectionState += OnServerConnectionState;
     }
 
     private void OnDestroy()
     {
-        _networkManager.ClientManager.OnClientConnectionState -= OnClientConnectionState;
-        _networkManager.ServerManager.OnServerConnectionState -= OnServerConnectionState;
-
-        if (Instance == this)
-        {
-            Instance = null;
-        }
+        NetworkManager.ClientManager.OnClientConnectionState -= OnClientConnectionState;
+        NetworkManager.ServerManager.OnServerConnectionState -= OnServerConnectionState;
     }
 
     private void OnServerConnectionState(ServerConnectionStateArgs obj)
@@ -148,39 +130,39 @@ public class ConnectionService : MonoBehaviour
         if (_currentState == SessionState.Connecting)
         {
             LastFailReason = FailReason.Timeout;
-            _networkManager.ClientManager.StopConnection();
+            GameServices.Instance.ConnectionService.NetworkManager.ClientManager.StopConnection();
         }
     }
 
     public void StartServer()
     {
-        _networkManager.ServerManager.StartConnection();
+        GameServices.Instance.ConnectionService.NetworkManager.ServerManager.StartConnection();
     }
 
     public void StartClient()
     {
         LastFailReason = FailReason.None;
         _leaveRequested = false;
-        _networkManager.ClientManager.StartConnection();
+        GameServices.Instance.ConnectionService.NetworkManager.ClientManager.StartConnection();
     }
 
     public void SetIPAddress(string address)
     {
-        _networkManager.TransportManager.Transport.SetClientAddress(address);
+        GameServices.Instance.ConnectionService.NetworkManager.TransportManager.Transport.SetClientAddress(address);
     }
 
     public void LeaveSession()
     {
         _leaveRequested = true;
 
-        if (_networkManager.IsServerStarted)
+        if (GameServices.Instance.ConnectionService.NetworkManager.IsServerStarted)
         {
-            _networkManager.ServerManager.StopConnection(true);
+            GameServices.Instance.ConnectionService.NetworkManager.ServerManager.StopConnection(true);
         }
 
-        if (_networkManager.IsClientStarted)
+        if (GameServices.Instance.ConnectionService.NetworkManager.IsClientStarted)
         {
-            _networkManager.ClientManager.StopConnection();
+            GameServices.Instance.ConnectionService.NetworkManager.ClientManager.StopConnection();
         }
     }
 }

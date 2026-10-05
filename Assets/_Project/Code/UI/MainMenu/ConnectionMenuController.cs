@@ -7,7 +7,6 @@ public class ConnectionMenuController : MonoBehaviour
 {
     [SerializeField]
     private TMP_InputField _ipField;
-    private ConnectionService _connectionService;
 
     [SerializeField]
     private Button _hostBtn;
@@ -16,17 +15,12 @@ public class ConnectionMenuController : MonoBehaviour
 
     private void OnEnable()
     {
-        if (_connectionService == null)
-        {
-            _connectionService = FindAnyObjectByType<ConnectionService>();
-        }
-
-        _connectionService.ClientConnectionStateChanged += OnClientConnectionState;
+        GameServices.Instance.ConnectionService.ClientConnectionStateChanged += OnClientConnectionState;
     }
 
     private void OnDisable()
     {
-        _connectionService.ClientConnectionStateChanged -= OnClientConnectionState;
+        GameServices.Instance.ConnectionService.ClientConnectionStateChanged -= OnClientConnectionState;
     }
 
     void OnClientConnectionState(SessionState newState)
@@ -45,7 +39,7 @@ public class ConnectionMenuController : MonoBehaviour
 
     public void OnHostBtn()
     {
-        _connectionService.StartHost();
+        GameServices.Instance.ConnectionService.StartHost();
     }
 
     public void OnClientBtn()
@@ -56,17 +50,17 @@ public class ConnectionMenuController : MonoBehaviour
 
         if (parts.Length != 4)
         {
-            ToastService.Show("IP no válida", ToastType.Warning);
+            GameServices.Instance.ToastService.Show("IP no válida", ToastType.Warning);
             return;
         }
 
         if (!IPAddress.TryParse(input, out IPAddress address))
         {
-            ToastService.Show("IP no válida", ToastType.Warning);
+            GameServices.Instance.ToastService.Show("IP no válida", ToastType.Warning);
             return;
         }
 
-        _connectionService.SetIPAddress(address.ToString());
-        _connectionService.StartClient();
+        GameServices.Instance.ConnectionService.SetIPAddress(address.ToString());
+        GameServices.Instance.ConnectionService.StartClient();
     }
 }

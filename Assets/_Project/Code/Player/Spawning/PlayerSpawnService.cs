@@ -1,20 +1,18 @@
 using FishNet.Connection;
-using FishNet.Managing;
 using UnityEngine;
 
 public class PlayerSpawnService : MonoBehaviour
 {
-    private NetworkManager _networkManager;
     private PlayerSpawnPoints _spawnPoints;
 
-    private void Awake()
+    private void Start()
     {
-        _networkManager.SceneManager.OnClientLoadedStartScenes += ClientLoadedScenes;
+        GameServices.Instance.ConnectionService.NetworkManager.SceneManager.OnClientLoadedStartScenes += ClientLoadedScenes;
     }
 
     private void OnDestroy()
     {
-        _networkManager.SceneManager.OnClientLoadedStartScenes -= ClientLoadedScenes;
+        GameServices.Instance.ConnectionService.NetworkManager.SceneManager.OnClientLoadedStartScenes -= ClientLoadedScenes;
     }
 
     void ClientLoadedScenes(NetworkConnection conn, bool asServer)

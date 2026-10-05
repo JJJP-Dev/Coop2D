@@ -13,6 +13,6 @@ public class LeaveSessionButton : MonoBehaviour
 
     private void OnClickLeaveBtn()
     {
-        ConnectionService.Instance.LeaveSession();
+        GameServices.Instance.ConnectionService.LeaveSession();
     }
 }
