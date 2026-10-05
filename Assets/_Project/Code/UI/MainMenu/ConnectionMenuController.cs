@@ -15,7 +15,7 @@ public class ConnectionMenuController : MonoBehaviour
     [SerializeField]
     private Button _clientBtn;
 
-    private void Start()
+    private void Awake()
     {
         _connectionService = GameServices.Instance.ConnectionService;
     }
