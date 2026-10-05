@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class ConnectionService : MonoBehaviour
 {
+    public static ConnectionService Instance { get; private set; }
+
     [SerializeField]
     private NetworkManager _networkManager;
 
@@ -13,7 +15,7 @@ public class ConnectionService : MonoBehaviour
     private float _timeoutSeconds = 10;
     private Coroutine _timeoutCoroutine;
 
-    public FailReason LastFailReason {  get; private set; }
+    public FailReason LastFailReason { get; private set; }
 
     public event Action ServerStarted;
     public event Action<SessionState> ClientConnectionStateChanged;
@@ -22,6 +24,17 @@ public class ConnectionService : MonoBehaviour
     private SessionState _currentState;
 
     private bool _hostPending = false;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+    }
 
     public void StartHost()
     {
@@ -43,6 +56,11 @@ public class ConnectionService : MonoBehaviour
     {
         _networkManager.ClientManager.OnClientConnectionState -= OnClientConnectionState;
         _networkManager.ServerManager.OnServerConnectionState -= OnServerConnectionState;
+
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     private void OnServerConnectionState(ServerConnectionStateArgs obj)

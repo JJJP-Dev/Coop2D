@@ -1,6 +1,7 @@
 using System.Net;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ConnectionMenuController : MonoBehaviour
 {
@@ -8,13 +9,37 @@ public class ConnectionMenuController : MonoBehaviour
     private TMP_InputField _ipField;
     private ConnectionService _connectionService;
 
-    private void Start()
-    {
-        _connectionService = FindAnyObjectByType<ConnectionService>();
+    [SerializeField]
+    private Button _hostBtn;
+    [SerializeField]
+    private Button _clientBtn;
 
-        if (_connectionService == null )
+    private void OnEnable()
+    {
+        if (_connectionService == null)
         {
-            Debug.LogError("No ConnectionService found in scene");
+            _connectionService = FindAnyObjectByType<ConnectionService>();
+        }
+
+        _connectionService.ClientConnectionStateChanged += OnClientConnectionState;
+    }
+
+    private void OnDisable()
+    {
+        _connectionService.ClientConnectionStateChanged -= OnClientConnectionState;
+    }
+
+    void OnClientConnectionState(SessionState newState)
+    {
+        if (newState == SessionState.Connecting)
+        {
+            _hostBtn.interactable = false;
+            _clientBtn.interactable = false;
+        }
+        else if (newState == SessionState.Failed || newState == SessionState.Disconnected)
+        {
+            _hostBtn.interactable = true;
+            _clientBtn.interactable = true;
         }
     }
 
@@ -25,23 +50,23 @@ public class ConnectionMenuController : MonoBehaviour
 
     public void OnClientBtn()
     {
-        string input = _ipField.text;
+        string input = _ipField.text.Trim();
 
         string[] parts = input.Split('.');
 
         if (parts.Length != 4)
         {
-            Debug.LogError("Invalid IP");
+            ToastService.Show("IP no válida", ToastType.Warning);
             return;
         }
 
         if (!IPAddress.TryParse(input, out IPAddress address))
         {
-            Debug.LogError("Invalid IP");
+            ToastService.Show("IP no válida", ToastType.Warning);
             return;
         }
 
-        _connectionService.SetIPAddress(address.ToString().Trim());
+        _connectionService.SetIPAddress(address.ToString());
         _connectionService.StartClient();
     }
 }

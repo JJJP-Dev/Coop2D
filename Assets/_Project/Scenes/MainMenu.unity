@@ -1996,6 +1996,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConnectionMenuController
   _ipField: {fileID: 1507371166}
+  _hostBtn: {fileID: 718468792}
+  _clientBtn: {fileID: 1459921290}
 --- !u!1 &1459921288
 GameObject:
   m_ObjectHideFlags: 0
