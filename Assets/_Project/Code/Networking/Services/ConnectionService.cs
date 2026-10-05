@@ -130,39 +130,39 @@ public class ConnectionService : MonoBehaviour
         if (_currentState == SessionState.Connecting)
         {
             LastFailReason = FailReason.Timeout;
-            GameServices.Instance.ConnectionService.NetworkManager.ClientManager.StopConnection();
+            NetworkManager.ClientManager.StopConnection();
         }
     }
 
     public void StartServer()
     {
-        GameServices.Instance.ConnectionService.NetworkManager.ServerManager.StartConnection();
+        NetworkManager.ServerManager.StartConnection();
     }
 
     public void StartClient()
     {
         LastFailReason = FailReason.None;
         _leaveRequested = false;
-        GameServices.Instance.ConnectionService.NetworkManager.ClientManager.StartConnection();
+        NetworkManager.ClientManager.StartConnection();
     }
 
     public void SetIPAddress(string address)
     {
-        GameServices.Instance.ConnectionService.NetworkManager.TransportManager.Transport.SetClientAddress(address);
+        NetworkManager.TransportManager.Transport.SetClientAddress(address);
     }
 
     public void LeaveSession()
     {
         _leaveRequested = true;
 
-        if (GameServices.Instance.ConnectionService.NetworkManager.IsServerStarted)
+        if (NetworkManager.IsServerStarted)
         {
-            GameServices.Instance.ConnectionService.NetworkManager.ServerManager.StopConnection(true);
+            NetworkManager.ServerManager.StopConnection(true);
         }
 
-        if (GameServices.Instance.ConnectionService.NetworkManager.IsClientStarted)
+        if (NetworkManager.IsClientStarted)
         {
-            GameServices.Instance.ConnectionService.NetworkManager.ClientManager.StopConnection();
+            NetworkManager.ClientManager.StopConnection();
         }
     }
 }

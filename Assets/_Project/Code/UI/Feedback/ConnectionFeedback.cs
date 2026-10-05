@@ -2,14 +2,21 @@ using UnityEngine;
 
 public class ConnectionFeedback : MonoBehaviour
 {
+    private GameServices _gameServices;
+
     private void Start()
     {
-        GameServices.Instance.ConnectionService.ClientConnectionStateChanged += OnConnectionStateChanged;
+        _gameServices = GameServices.Instance;
+
+        _gameServices.ConnectionService.ClientConnectionStateChanged += OnConnectionStateChanged;
     }
 
     private void OnDestroy()
     {
-        GameServices.Instance.ConnectionService.ClientConnectionStateChanged -= OnConnectionStateChanged;
+        if (_gameServices != null)
+        {
+            _gameServices.ConnectionService.ClientConnectionStateChanged -= OnConnectionStateChanged;
+        }
     }
 
     private void OnConnectionStateChanged(SessionState state)
@@ -19,7 +26,7 @@ public class ConnectionFeedback : MonoBehaviour
         switch (state)
         {
             case SessionState.Connected:
-                GameServices.Instance.ToastService.Show("Conectado", ToastType.Success);
+                _gameServices.ToastService.Show("Conectado", ToastType.Success);
                 break;
 
             case SessionState.Failed:
@@ -27,23 +34,23 @@ public class ConnectionFeedback : MonoBehaviour
                 break;
 
             case SessionState.Lost:
-                GameServices.Instance.ToastService.Show("El host ha cerrado la partida", ToastType.Error);
+                _gameServices.ToastService.Show("El host ha cerrado la partida", ToastType.Error);
                 break;
 
             case SessionState.Disconnected:
-                GameServices.Instance.ToastService.Show("Has salido de la partida", ToastType.Info);
+                _gameServices.ToastService.Show("Has salido de la partida", ToastType.Info);
                 break;
         }
     }
 
     private void HandleConnectionFailed()
     {
-        switch (GameServices.Instance.ConnectionService.LastFailReason)
+        switch (_gameServices.ConnectionService.LastFailReason)
         {
             case FailReason.Timeout:
             case FailReason.Unreachable:
 
-                GameServices.Instance.ToastService.Show(
+                _gameServices.ToastService.Show(
                     "No se encontró el host",
                     ToastType.Error
                 );
@@ -52,7 +59,7 @@ public class ConnectionFeedback : MonoBehaviour
 
             case FailReason.ServerFailed:
 
-                GameServices.Instance.ToastService.Show(
+                _gameServices.ToastService.Show(
                     "No se pudo hospedar: el puerto está ocupado",
                     ToastType.Error
                 );

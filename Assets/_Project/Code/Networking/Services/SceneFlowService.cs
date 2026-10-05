@@ -5,6 +5,9 @@ using UnityEngine;
 public class SceneFlowService : MonoBehaviour
 {
     [SerializeField]
+    private NetworkManager _networkManager;
+
+    [SerializeField]
     private string _startingSceneName;
 
     [SerializeField]
@@ -20,9 +23,12 @@ public class SceneFlowService : MonoBehaviour
 
     private void OnDisable()
     {
-        GameServices.Instance.ConnectionService.ServerStarted -= LoadStartingScene;
+        if (GameServices.Instance != null)
+        {
+            GameServices.Instance.ConnectionService.ServerStarted -= LoadStartingScene;
 
-        GameServices.Instance.ConnectionService.ClientConnectionStateChanged -= OnClientConnectionState;
+            GameServices.Instance.ConnectionService.ClientConnectionStateChanged -= OnClientConnectionState;
+        }
     }
 
     void LoadStartingScene()
@@ -36,7 +42,7 @@ public class SceneFlowService : MonoBehaviour
         SceneLoadData loadData = new SceneLoadData(_startingSceneName);
         // If you don't replace All, Bootstrap was not loaded by FishNet so it wont be unloaded
         loadData.ReplaceScenes = ReplaceOption.All;
-        GameServices.Instance.ConnectionService.NetworkManager.SceneManager.LoadGlobalScenes(loadData);
+        _networkManager.SceneManager.LoadGlobalScenes(loadData);
     }
 
     void OnClientConnectionState(SessionState newState)

@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class ConnectionMenuController : MonoBehaviour
 {
+    private ConnectionService _connectionService;
+
     [SerializeField]
     private TMP_InputField _ipField;
 
@@ -13,14 +15,19 @@ public class ConnectionMenuController : MonoBehaviour
     [SerializeField]
     private Button _clientBtn;
 
+    private void Start()
+    {
+        _connectionService = GameServices.Instance.ConnectionService;
+    }
+
     private void OnEnable()
     {
-        GameServices.Instance.ConnectionService.ClientConnectionStateChanged += OnClientConnectionState;
+        _connectionService.ClientConnectionStateChanged += OnClientConnectionState;
     }
 
     private void OnDisable()
     {
-        GameServices.Instance.ConnectionService.ClientConnectionStateChanged -= OnClientConnectionState;
+        _connectionService.ClientConnectionStateChanged -= OnClientConnectionState;
     }
 
     void OnClientConnectionState(SessionState newState)
@@ -39,7 +46,7 @@ public class ConnectionMenuController : MonoBehaviour
 
     public void OnHostBtn()
     {
-        GameServices.Instance.ConnectionService.StartHost();
+        _connectionService.StartHost();
     }
 
     public void OnClientBtn()
@@ -60,7 +67,7 @@ public class ConnectionMenuController : MonoBehaviour
             return;
         }
 
-        GameServices.Instance.ConnectionService.SetIPAddress(address.ToString());
-        GameServices.Instance.ConnectionService.StartClient();
+        _connectionService.SetIPAddress(address.ToString());
+        _connectionService.StartClient();
     }
 }

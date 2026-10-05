@@ -25,6 +25,15 @@ public class GameServices : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        if (ConnectionService == null)
+            Debug.LogError("[GameServices] ConnectionService is null.");
+        if (SceneFlowService == null)
+            Debug.LogError("[GameServices] SceneFlowService is null.");
+        if (ToastService == null)
+            Debug.LogError("[GameServices] ToastService is null.");
+        if (PlayerSpawnService == null)
+            Debug.LogError("[GameServices] PlayerSpawnService is null.");
     }
 
     private void OnDestroy()
