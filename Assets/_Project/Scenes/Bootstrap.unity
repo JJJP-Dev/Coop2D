@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 122069399}
   - component: {fileID: 122069396}
   - component: {fileID: 122069395}
-  - component: {fileID: 122069394}
+  - component: {fileID: 122069400}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -140,21 +140,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &122069394
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 122069393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9b6b565cd9533c4ebc18003f0fc18a2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: FishNet.Runtime::FishNet.Component.Utility.PingDisplay
-  _color: {r: 1, g: 1, b: 1, a: 1}
-  _placement: 1
-  _hideTickRate: 1
 --- !u!114 &122069395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -238,6 +223,18 @@ MonoBehaviour:
   _networkManager: {fileID: 122069396}
   _startingSceneName: Arena_Test
   _menuSceneName: MainMenu
+--- !u!114 &122069400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 122069393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae93f1bc487daba46a4b3e0609ca4ce5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PingDisplay
 --- !u!1 &223192092
 GameObject:
   m_ObjectHideFlags: 0
