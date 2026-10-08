@@ -194,7 +194,7 @@ MonoBehaviour:
   _objectPool: {fileID: 0}
   _persistence: 0
   _logging: {fileID: 0}
-  _spawnablePrefabs: {fileID: 11400000, guid: a7ed8656de4d83544a92ed3aa3ea9ab8, type: 2}
+  _spawnablePrefabs: {fileID: 11400000, guid: 9baafe039350661439d38dfa951af7eb, type: 2}
 --- !u!4 &122069397
 Transform:
   m_ObjectHideFlags: 0
@@ -252,6 +252,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSpawnService
   _networkManager: {fileID: 122069396}
+  _playerPrefab: {fileID: 3332554340608108226, guid: 1ec802243f94d8e4d81fcae9a20512df, type: 3}
 --- !u!1 &223192092
 GameObject:
   m_ObjectHideFlags: 0

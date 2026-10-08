@@ -96,7 +96,9 @@ Una tarea está hecha cuando:
 
 ## Regla de la IA
 
-El código y el arte los hacemos nosotros.
+La regla depende del rol, y el arte lo hacemos siempre nosotros.
+
+**Quien está aprendiendo** (Fushigod, GrandMaster53):
 
 | Permitido | No permitido |
 | --- | --- |
@@ -105,7 +107,14 @@ El código y el arte los hacemos nosotros.
 | Revisar código ya escrito y señalar problemas | Que te dé la solución completa de una tarea |
 | Proponer ejercicios para practicar un concepto | Generar arte, sprites o efectos |
 
-**Prueba rápida:** si no puedes explicar línea a línea algo que has escrito, no entra en `main`.
+**Programador principal** (Palito): puede usar código generado con IA, con estas condiciones:
+
+- Solo entra en `main` si sabe explicar cada línea.
+- Pasa por pull request y revisión igual que el resto, en PRs pequeños.
+- Cumple las convenciones del proyecto: nombres, datos en ScriptableObjects, autoridad del host.
+- Nunca arte generado.
+
+**Prueba rápida, para todos:** si no puedes explicar línea a línea algo que entra en `main`, no entra.
 
 ## Ideas nuevas
 
