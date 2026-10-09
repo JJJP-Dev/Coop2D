@@ -1,4 +1,5 @@
 using FishNet.Managing;
+using FishNet.Managing.Scened;
 using FishNet.Transporting;
 using System;
 using System.Collections;
@@ -37,12 +38,14 @@ public class ConnectionService : MonoBehaviour
     {
         NetworkManager.ClientManager.OnClientConnectionState += OnClientConnectionState;
         NetworkManager.ServerManager.OnServerConnectionState += OnServerConnectionState;
+        _networkManager.SceneManager.OnLoadEnd += OnSceneLoadEnd;
     }
 
     private void OnDestroy()
     {
         NetworkManager.ClientManager.OnClientConnectionState -= OnClientConnectionState;
         NetworkManager.ServerManager.OnServerConnectionState -= OnServerConnectionState;
+        _networkManager.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
     }
 
     private void OnServerConnectionState(ServerConnectionStateArgs obj)
@@ -50,12 +53,6 @@ public class ConnectionService : MonoBehaviour
         if (obj.ConnectionState == LocalConnectionState.Started)
         {
             ServerStarted?.Invoke();
-
-            if (_hostPending)
-            {
-                _hostPending = false;
-                StartClient();
-            }
         }
         else if (obj.ConnectionState == LocalConnectionState.Stopped)
         {
@@ -97,6 +94,15 @@ public class ConnectionService : MonoBehaviour
             default:
                 break;
         }
+    }
+
+    private void OnSceneLoadEnd(SceneLoadEndEventArgs args)
+    {
+        if (!_hostPending || !args.QueueData.AsServer)
+            return;
+
+        _hostPending = false;
+        StartClient();
     }
 
     void SetState(SessionState newState)
