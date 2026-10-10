@@ -36,15 +36,15 @@ public class ConnectionService : MonoBehaviour
 
     private void Start()
     {
-        NetworkManager.ClientManager.OnClientConnectionState += OnClientConnectionState;
-        NetworkManager.ServerManager.OnServerConnectionState += OnServerConnectionState;
+        _networkManager.ClientManager.OnClientConnectionState += OnClientConnectionState;
+        _networkManager.ServerManager.OnServerConnectionState += OnServerConnectionState;
         _networkManager.SceneManager.OnLoadEnd += OnSceneLoadEnd;
     }
 
     private void OnDestroy()
     {
-        NetworkManager.ClientManager.OnClientConnectionState -= OnClientConnectionState;
-        NetworkManager.ServerManager.OnServerConnectionState -= OnServerConnectionState;
+        _networkManager.ClientManager.OnClientConnectionState -= OnClientConnectionState;
+        _networkManager.ServerManager.OnServerConnectionState -= OnServerConnectionState;
         _networkManager.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
     }
 
@@ -136,39 +136,39 @@ public class ConnectionService : MonoBehaviour
         if (_currentState == SessionState.Connecting)
         {
             LastFailReason = FailReason.Timeout;
-            NetworkManager.ClientManager.StopConnection();
+            _networkManager.ClientManager.StopConnection();
         }
     }
 
     public void StartServer()
     {
-        NetworkManager.ServerManager.StartConnection();
+        _networkManager.ServerManager.StartConnection();
     }
 
     public void StartClient()
     {
         LastFailReason = FailReason.None;
         _leaveRequested = false;
-        NetworkManager.ClientManager.StartConnection();
+        _networkManager.ClientManager.StartConnection();
     }
 
     public void SetIPAddress(string address)
     {
-        NetworkManager.TransportManager.Transport.SetClientAddress(address);
+        _networkManager.TransportManager.Transport.SetClientAddress(address);
     }
 
     public void LeaveSession()
     {
         _leaveRequested = true;
 
-        if (NetworkManager.IsServerStarted)
+        if (_networkManager.IsServerStarted)
         {
-            NetworkManager.ServerManager.StopConnection(true);
+            _networkManager.ServerManager.StopConnection(true);
         }
 
-        if (NetworkManager.IsClientStarted)
+        if (_networkManager.IsClientStarted)
         {
-            NetworkManager.ClientManager.StopConnection();
+            _networkManager.ClientManager.StopConnection();
         }
     }
 }
