@@ -23,11 +23,20 @@ public class ConnectionMenuController : MonoBehaviour
     private void OnEnable()
     {
         _connectionService.ClientConnectionStateChanged += OnClientConnectionState;
+        _ipField.onSubmit.AddListener(OnIpSubmitted);
     }
 
     private void OnDisable()
     {
         _connectionService.ClientConnectionStateChanged -= OnClientConnectionState;
+        _ipField.onSubmit.RemoveListener(OnIpSubmitted);
+    }
+
+    // Enter in the IP field acts like the Join button, but only when the button could be pressed.
+    private void OnIpSubmitted(string text)
+    {
+        if (_clientBtn.interactable)
+            OnClientBtn();
     }
 
     void OnClientConnectionState(SessionState newState)

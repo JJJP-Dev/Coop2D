@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 122069399}
   - component: {fileID: 122069400}
   - component: {fileID: 122069401}
+  - component: {fileID: 122069402}
   - component: {fileID: 122069396}
   - component: {fileID: 122069395}
   - component: {fileID: 122069394}
@@ -266,6 +267,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e55124ba9668e84bb61855e888b57d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LocalPlayerService
+--- !u!114 &122069402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 122069393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccf33f1bb87910a469b7c8a839dc1726, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InputService
 --- !u!1 &223192092
 GameObject:
   m_ObjectHideFlags: 0
@@ -774,6 +787,7 @@ MonoBehaviour:
   _toastService: {fileID: 1711016144}
   _playerSpawnService: {fileID: 122069400}
   _localPlayerService: {fileID: 122069401}
+  _inputService: {fileID: 122069402}
 --- !u!1 &1711016142
 GameObject:
   m_ObjectHideFlags: 0

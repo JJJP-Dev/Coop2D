@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerInputReader : NetworkBehaviour
 {
-    private GameInputActions _actions;
+    private InputService _inputService;
 
     public Vector2 MoveInput { get; private set; }
 
@@ -11,30 +11,24 @@ public class PlayerInputReader : NetworkBehaviour
     {
         base.OnStartClient();
 
-        if (!IsOwner)
-            return;
-
-        _actions = new GameInputActions();
-        _actions.Player.Enable();
+        // Only the copy this machine owns reads the input.
+        if (IsOwner && GameServices.Instance != null)
+            _inputService = GameServices.Instance.InputService;
     }
 
     public override void OnStopClient()
     {
         base.OnStopClient();
 
-        if (_actions == null)
-            return;
-
-        _actions.Player.Disable();
-        _actions.Dispose();
-        _actions = null;
+        _inputService = null;
+        MoveInput = Vector2.zero;
     }
 
     private void Update()
     {
-        if (_actions == null)
+        if (_inputService == null)
             return;
 
-        MoveInput = _actions.Player.Move.ReadValue<Vector2>();
+        MoveInput = _inputService.Move.ReadValue<Vector2>();
     }
 }
