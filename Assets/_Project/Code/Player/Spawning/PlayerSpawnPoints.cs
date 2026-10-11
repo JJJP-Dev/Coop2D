@@ -26,15 +26,23 @@ public class PlayerSpawnPoints : MonoBehaviour
         _spawnService = null;
     }
 
-    public Vector3 GetSpawnPosition()
+    public Vector3 GetSpawnPosition(int slot)
     {
-        if (_spawnPoints == null || _spawnPoints.Length == 0 || _spawnPoints[0] == null)
+        if (_spawnPoints == null || _spawnPoints.Length == 0)
         {
             Debug.LogError("[PlayerSpawnPoints] No spawn points assigned. Using this object's position.", this);
             return transform.position;
         }
 
-        // One point per player is #14.
-        return _spawnPoints[0].position;
+        // With fewer points than players, they wrap around and share.
+        int index = slot % _spawnPoints.Length;
+
+        if (_spawnPoints[index] == null)
+        {
+            Debug.LogError($"[PlayerSpawnPoints] Spawn point {index} is empty. Using this object's position.", this);
+            return transform.position;
+        }
+
+        return _spawnPoints[index].position;
     }
 }

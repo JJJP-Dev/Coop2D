@@ -8,7 +8,6 @@ using UnityEngine;
 public class ConnectionService : MonoBehaviour
 {
     [SerializeField] private NetworkManager _networkManager;
-    public NetworkManager NetworkManager => _networkManager;
 
     [SerializeField]
     private float _timeoutSeconds = 10;

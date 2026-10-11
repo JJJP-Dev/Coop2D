@@ -2,6 +2,7 @@ using FishNet.Connection;
 using FishNet.Managing;
 using FishNet.Managing.Scened;
 using FishNet.Object;
+using FishNet.Transporting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -10,24 +11,33 @@ public class PlayerSpawnService : MonoBehaviour
     [SerializeField] private NetworkManager _networkManager;
     [SerializeField] private NetworkObject _playerPrefab;
 
+    private readonly PlayerSlots _slots = new();
     private PlayerSpawnPoints _spawnPoints;
 
     private void Start()
     {
         if (_playerPrefab == null)
             Debug.LogError("[PlayerSpawnService] Player prefab is not assigned.");
+        else if (!_playerPrefab.TryGetComponent(out PlayerIdentity _))
+            Debug.LogError("[PlayerSpawnService] Player prefab has no PlayerIdentity.");
 
         // A player needs two things: the connection finished its first scene sync,
         // and it is inside a scene. Each event covers one, and they can come in
         // either order, so both try to spawn and the last one succeeds.
         _networkManager.SceneManager.OnClientLoadedStartScenes += OnClientLoadedStartScenes;
         _networkManager.SceneManager.OnClientPresenceChangeEnd += OnClientPresenceChangeEnd;
+
+        _networkManager.ServerManager.OnRemoteConnectionState += OnRemoteConnectionState;
+        _networkManager.ServerManager.OnServerConnectionState += OnServerConnectionState;
     }
 
     private void OnDestroy()
     {
         _networkManager.SceneManager.OnClientLoadedStartScenes -= OnClientLoadedStartScenes;
         _networkManager.SceneManager.OnClientPresenceChangeEnd -= OnClientPresenceChangeEnd;
+
+        _networkManager.ServerManager.OnRemoteConnectionState -= OnRemoteConnectionState;
+        _networkManager.ServerManager.OnServerConnectionState -= OnServerConnectionState;
     }
 
     private void OnClientLoadedStartScenes(NetworkConnection conn, bool asServer)
@@ -46,6 +56,19 @@ public class PlayerSpawnService : MonoBehaviour
             TrySpawnPlayer(args.Connection, args.Scene);
     }
 
+    private void OnRemoteConnectionState(NetworkConnection conn, RemoteConnectionStateArgs args)
+    {
+        if (args.ConnectionState == RemoteConnectionState.Stopped)
+            _slots.Release(conn);
+    }
+
+    // When the server stops, FishNet drops every client without a Stopped event for each one.
+    private void OnServerConnectionState(ServerConnectionStateArgs args)
+    {
+        if (args.ConnectionState == LocalConnectionState.Stopped)
+            _slots.Clear();
+    }
+
     private void TrySpawnPlayer(NetworkConnection conn, Scene scene)
     {
         if (!conn.LoadedStartScenes(true))
@@ -58,16 +81,27 @@ public class PlayerSpawnService : MonoBehaviour
         if (_playerPrefab == null)
             return;
 
-        Vector3 position = GetSpawnPosition(scene);
+        if (!_slots.TryAssign(conn, out int slot))
+        {
+            Debug.LogWarning($"[PlayerSpawnService] No free player slot for client {conn.ClientId}. Disconnecting it.");
+            conn.Disconnect(true);
+            return;
+        }
+
+        Vector3 position = GetSpawnPosition(scene, slot);
         NetworkObject player = _networkManager.GetPooledInstantiated(_playerPrefab, position, Quaternion.identity, true);
 
         if (player == null)
+        {
+            _slots.Release(conn);
             return;
+        }
 
+        player.GetComponent<PlayerIdentity>().SetSlot(slot);
         _networkManager.ServerManager.Spawn(player, conn, scene);
     }
 
-    private Vector3 GetSpawnPosition(Scene scene)
+    private Vector3 GetSpawnPosition(Scene scene, int slot)
     {
         if (_spawnPoints == null || _spawnPoints.gameObject.scene != scene)
         {
@@ -75,7 +109,7 @@ public class PlayerSpawnService : MonoBehaviour
             return Vector3.zero;
         }
 
-        return _spawnPoints.GetSpawnPosition();
+        return _spawnPoints.GetSpawnPosition(slot);
     }
 
     public void RegisterSpawnPoints(PlayerSpawnPoints spawnPoints)
