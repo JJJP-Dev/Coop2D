@@ -9,11 +9,13 @@ public class GameServices : MonoBehaviour
     [SerializeField] private SceneFlowService _sceneFlowService;
     [SerializeField] private ToastService _toastService;
     [SerializeField] private PlayerSpawnService _playerSpawnService;
+    [SerializeField] private LocalPlayerService _localPlayerService;
 
     public ConnectionService ConnectionService => _connectionService;
     public SceneFlowService SceneFlowService => _sceneFlowService;
     public ToastService ToastService => _toastService;
     public PlayerSpawnService PlayerSpawnService => _playerSpawnService;
+    public LocalPlayerService LocalPlayerService => _localPlayerService;
 
     private void Awake()
     {
@@ -34,6 +36,8 @@ public class GameServices : MonoBehaviour
             Debug.LogError("[GameServices] ToastService is null.");
         if (PlayerSpawnService == null)
             Debug.LogError("[GameServices] PlayerSpawnService is null.");
+        if (LocalPlayerService == null)
+            Debug.LogError("[GameServices] LocalPlayerService is null.");
     }
 
     private void OnDestroy()

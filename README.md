@@ -68,6 +68,7 @@ Assets/
 
 - Los archivos siguen el formato `type_name_variant`, en minúsculas: `chr_mage_idle.aseprite`, `enm_slime_walk.aseprite`, `ico_fire.aseprite`, `tile_floor_stone.aseprite`.
 - Tiles de 16×16. Personajes de 16×16 o 16×24. Jefes de 32×32 o 48×48.
+- Los desplazamientos de hijos con sprite van en múltiplos de 0.0625 (1 píxel a 16 PPU); otros valores hacen vibrar el sprite con la Pixel Perfect Camera.
 - Solo colores de la paleta común, guardada en `Art/Palette`.
 - Se dibuja a tamaño real y sin antialiasing. Mismo tamaño de lienzo en todas las animaciones de un personaje, con el pivot en los pies.
 - Las animaciones usan tags de Aseprite (`idle`, `walk`, `attack`...).
