@@ -7,6 +7,7 @@ public class InputService : MonoBehaviour
 
     public InputAction Move => _actions.Player.Move;
     public InputAction Cancel => _actions.UI.Cancel;
+    public InputAction ToggleNetworkStats => _actions.Debug.ToggleNetworkStats;
 
     private void Awake()
     {

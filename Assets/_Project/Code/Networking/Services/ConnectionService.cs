@@ -23,6 +23,8 @@ public class ConnectionService : MonoBehaviour
 
     private bool _hostPending = false;
 
+    public bool IsConnected => _currentState == SessionState.Connected;
+
     public void StartHost()
     {
         LastFailReason = FailReason.None;
@@ -30,6 +32,9 @@ public class ConnectionService : MonoBehaviour
 
         _hostPending = true;
 
+        // Every attempt starts in Connecting, so a second failure in a row
+        // is still a change of state and listeners hear about it (#150).
+        SetState(SessionState.Connecting);
         StartServer();
     }
 
@@ -106,15 +111,12 @@ public class ConnectionService : MonoBehaviour
 
     void SetState(SessionState newState)
     {
-        if (newState != SessionState.Connecting && _timeoutCoroutine != null)
-            StopCoroutine(_timeoutCoroutine);
+        if (newState != SessionState.Connecting)
+            StopTimeout();
 
         // Avoid repeating the same state
         if (newState == _currentState)
             return;
-        else if (newState == SessionState.Connecting)
-            // Time allowed to be connected
-            _timeoutCoroutine = StartCoroutine(CloseAfterDelay(_timeoutSeconds));
 
         _currentState = newState;
 
@@ -126,6 +128,22 @@ public class ConnectionService : MonoBehaviour
         }
         else
             Debug.Log("[ConnectionService] New State: " + newState.ToString());
+    }
+
+    // The timeout covers the client connecting, not the host loading its first scene.
+    private void StartTimeout()
+    {
+        StopTimeout();
+        _timeoutCoroutine = StartCoroutine(CloseAfterDelay(_timeoutSeconds));
+    }
+
+    private void StopTimeout()
+    {
+        if (_timeoutCoroutine == null)
+            return;
+
+        StopCoroutine(_timeoutCoroutine);
+        _timeoutCoroutine = null;
     }
 
     private IEnumerator CloseAfterDelay(float seconds)
@@ -148,7 +166,16 @@ public class ConnectionService : MonoBehaviour
     {
         LastFailReason = FailReason.None;
         _leaveRequested = false;
+        StartTimeout();
         _networkManager.ClientManager.StartConnection();
+    }
+
+    public NetworkStats GetStats()
+    {
+        return new NetworkStats(
+            _networkManager.IsServerStarted,
+            _networkManager.TimeManager.RoundTripTime,
+            _networkManager.ClientManager.Clients.Count);
     }
 
     public void SetIPAddress(string address)
