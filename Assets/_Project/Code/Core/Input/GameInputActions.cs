@@ -1110,6 +1110,26 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""DamageAll"",
+                    ""type"": ""Button"",
+                    ""id"": ""bcd12b55-a444-402f-9415-d5dc4c5f48e7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""HealAll"",
+                    ""type"": ""Button"",
+                    ""id"": ""5527198b-e8a7-45e2-a26f-2a8e753f4d06"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -1121,6 +1141,28 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""ToggleNetworkStats"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""41a1523f-000f-4d27-a874-d050dd617c79"",
+                    ""path"": ""<Keyboard>/f4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""DamageAll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8775d703-6ffc-4347-9f9c-d72be4cef7e6"",
+                    ""path"": ""<Keyboard>/f5"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""HealAll"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1216,6 +1258,8 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         // Debug
         m_Debug = asset.FindActionMap("Debug", throwIfNotFound: true);
         m_Debug_ToggleNetworkStats = m_Debug.FindAction("ToggleNetworkStats", throwIfNotFound: true);
+        m_Debug_DamageAll = m_Debug.FindAction("DamageAll", throwIfNotFound: true);
+        m_Debug_HealAll = m_Debug.FindAction("HealAll", throwIfNotFound: true);
     }
 
     ~@GameInputActions()
@@ -1678,6 +1722,8 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Debug;
     private List<IDebugActions> m_DebugActionsCallbackInterfaces = new List<IDebugActions>();
     private readonly InputAction m_Debug_ToggleNetworkStats;
+    private readonly InputAction m_Debug_DamageAll;
+    private readonly InputAction m_Debug_HealAll;
     /// <summary>
     /// Provides access to input actions defined in input action map "Debug".
     /// </summary>
@@ -1693,6 +1739,14 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Debug/ToggleNetworkStats".
         /// </summary>
         public InputAction @ToggleNetworkStats => m_Wrapper.m_Debug_ToggleNetworkStats;
+        /// <summary>
+        /// Provides access to the underlying input action "Debug/DamageAll".
+        /// </summary>
+        public InputAction @DamageAll => m_Wrapper.m_Debug_DamageAll;
+        /// <summary>
+        /// Provides access to the underlying input action "Debug/HealAll".
+        /// </summary>
+        public InputAction @HealAll => m_Wrapper.m_Debug_HealAll;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1722,6 +1776,12 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @ToggleNetworkStats.started += instance.OnToggleNetworkStats;
             @ToggleNetworkStats.performed += instance.OnToggleNetworkStats;
             @ToggleNetworkStats.canceled += instance.OnToggleNetworkStats;
+            @DamageAll.started += instance.OnDamageAll;
+            @DamageAll.performed += instance.OnDamageAll;
+            @DamageAll.canceled += instance.OnDamageAll;
+            @HealAll.started += instance.OnHealAll;
+            @HealAll.performed += instance.OnHealAll;
+            @HealAll.canceled += instance.OnHealAll;
         }
 
         /// <summary>
@@ -1736,6 +1796,12 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @ToggleNetworkStats.started -= instance.OnToggleNetworkStats;
             @ToggleNetworkStats.performed -= instance.OnToggleNetworkStats;
             @ToggleNetworkStats.canceled -= instance.OnToggleNetworkStats;
+            @DamageAll.started -= instance.OnDamageAll;
+            @DamageAll.performed -= instance.OnDamageAll;
+            @DamageAll.canceled -= instance.OnDamageAll;
+            @HealAll.started -= instance.OnHealAll;
+            @HealAll.performed -= instance.OnHealAll;
+            @HealAll.canceled -= instance.OnHealAll;
         }
 
         /// <summary>
@@ -1997,5 +2063,19 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnToggleNetworkStats(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "DamageAll" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDamageAll(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "HealAll" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnHealAll(InputAction.CallbackContext context);
     }
 }

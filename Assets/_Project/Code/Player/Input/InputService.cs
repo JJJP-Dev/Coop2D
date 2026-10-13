@@ -8,6 +8,8 @@ public class InputService : MonoBehaviour
     public InputAction Move => _actions.Player.Move;
     public InputAction Cancel => _actions.UI.Cancel;
     public InputAction ToggleNetworkStats => _actions.Debug.ToggleNetworkStats;
+    public InputAction DamageAll => _actions.Debug.DamageAll;
+    public InputAction HealAll => _actions.Debug.HealAll;
 
     private void Awake()
     {
