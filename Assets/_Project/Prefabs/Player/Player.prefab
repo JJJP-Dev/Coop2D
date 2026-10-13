@@ -200,6 +200,7 @@ GameObject:
   - component: {fileID: 8225269336632064063}
   - component: {fileID: 5902089312904148016}
   - component: {fileID: 3034973482832093673}
+  - component: {fileID: 8570078963972895824}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -471,6 +472,22 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 3332554340608108226}
   _networkObjectCache: {fileID: 0}
   _settings: {fileID: 11400000, guid: 9efe088580379fc48a4969da18ccc098, type: 2}
+--- !u!114 &8570078963972895824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4950291352465746428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c9664bd789c6d745b6e184d30f04931, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAutoAttack
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 3332554340608108226}
+  _networkObjectCache: {fileID: 0}
+  _settings: {fileID: 11400000, guid: f0d68a2859a994243b2ae653233cc37c, type: 2}
 --- !u!1 &5171306280570818574
 GameObject:
   m_ObjectHideFlags: 0

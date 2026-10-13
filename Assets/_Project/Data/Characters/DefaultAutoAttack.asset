@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30f7c16cd2b65ce479c77c3b6a79fa4a, type: 3}
+  m_Name: DefaultAutoAttack
+  m_EditorClassIdentifier: Assembly-CSharp::AutoAttackSettings
+  _attackInterval: 0.6
+  _range: 6
+  _damage: 10
+  _fireOffset: {x: 0, y: 0.5}
+  _targetLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  _projectilePrefab: {fileID: 6908686468440372148, guid: 60f8c39833c1c9942a19f29d9a2236c0, type: 3}
