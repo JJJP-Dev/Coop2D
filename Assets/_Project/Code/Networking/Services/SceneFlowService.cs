@@ -1,6 +1,8 @@
 using FishNet.Managing;
 using FishNet.Managing.Scened;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 
 public class SceneFlowService : MonoBehaviour
 {
@@ -31,6 +33,14 @@ public class SceneFlowService : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        // A build only loads scene 0 (Bootstrap) by itself. In the editor the menu
+        // may already be open next to Bootstrap, so load it only if it isn't.
+        if (!UnitySceneManager.GetSceneByName(_menuSceneName).isLoaded)
+            LoadMenuScene();
+    }
+
     void LoadStartingScene()
     {
         if (!Application.CanStreamedLevelBeLoaded(_startingSceneName))
@@ -49,16 +59,19 @@ public class SceneFlowService : MonoBehaviour
     {
         if (newState == SessionState.Lost || newState == SessionState.Failed || newState == SessionState.Disconnected)
         {
-            if (!Application.CanStreamedLevelBeLoaded(_menuSceneName))
-            {
-                Debug.LogError("[SceneFlowService] This Menu Scene name is not valid.");
-                return;
-            }
-
-            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != _menuSceneName)
-            {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(_menuSceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
-            }
+            if (UnitySceneManager.GetActiveScene().name != _menuSceneName)
+                LoadMenuScene();
         }
+    }
+
+    private void LoadMenuScene()
+    {
+        if (!Application.CanStreamedLevelBeLoaded(_menuSceneName))
+        {
+            Debug.LogError("[SceneFlowService] This Menu Scene name is not valid.");
+            return;
+        }
+
+        UnitySceneManager.LoadScene(_menuSceneName, LoadSceneMode.Single);
     }
 }
