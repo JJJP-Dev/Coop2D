@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1898934464352658694}
   - component: {fileID: 7744754657226018601}
   - component: {fileID: 1550132121009420039}
+  - component: {fileID: 3874244744063692725}
   - component: {fileID: 117518165453389354}
   - component: {fileID: 5724213879338924401}
   m_Layer: 6
@@ -190,6 +191,18 @@ MonoBehaviour:
   _componentIndexCache: 255
   _addedNetworkObject: {fileID: 8511590868925322904}
   _networkObjectCache: {fileID: 0}
+--- !u!114 &3874244744063692725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4656169696984199199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd530fb089a2e4b4a9107bc9c3e2c0b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MotionTracker
 --- !u!58 &117518165453389354
 CircleCollider2D:
   m_ObjectHideFlags: 0

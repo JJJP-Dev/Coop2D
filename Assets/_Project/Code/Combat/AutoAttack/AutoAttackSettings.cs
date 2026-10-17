@@ -9,6 +9,10 @@ public class AutoAttackSettings : ScriptableObject
     [Tooltip("Only enemies closer than this are targeted, in units.")]
     [SerializeField, Min(0f)] private float _range = 6f;
 
+    [Tooltip("How far ahead of a moving target it aims. 1 aims where the target will be when the shot " +
+             "arrives, 0 aims where it is now, and 0.5 halfway between the two.")]
+    [SerializeField, Range(0f, 1f)] private float _leadFactor = 1f;
+
     [SerializeField, Min(1)] private int _damage = 10;
 
     [Tooltip("Where shots start, measured from the character's feet.")]
@@ -27,6 +31,7 @@ public class AutoAttackSettings : ScriptableObject
 
     public float AttackInterval => _attackInterval;
     public float Range => _range;
+    public float LeadFactor => _leadFactor;
     public int Damage => _damage;
     public Vector2 FireOffset => _fireOffset;
     public float OriginTolerance => _originTolerance;

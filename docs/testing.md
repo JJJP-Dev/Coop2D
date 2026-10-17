@@ -89,6 +89,7 @@ En las pruebas de persecución, nadie debe disparar: antes de dar Play, pon a 0 
 | Sin amontonarse | Quedaos quietos y dejad que os alcancen. | Se paran junto a vuestros pies y se reparten a vuestro alrededor, sin juntarse en un punto ni temblar. |
 | Sin choques con jugadores | Camina a través de un perseguidor y del muñeco. | Los atraviesas. Los perseguidores sí chocan entre ellos y con las paredes. |
 | Muerte de un perseguidor | Disparad a un perseguidor. | Cae al tercer disparo y desaparece en todas las ventanas, sin avisos. Con el logger activo, su «Death» sale en todas. |
+| Disparo anticipado | Con *Range* en 6, un jugador se deja perseguir y otro, quieto a un lado, dispara a los perseguidores que pasan. Para comparar, repítelo con *Lead Factor* a 0 en `DefaultAutoAttack` y devuélvelo a 1. | Con 1, sus proyectiles salen por delante del perseguidor y casi todos aciertan, también con latencia. Con 0 fallan casi todos. |
 | Sale el perseguido | Con perseguidores detrás de un cliente, ese cliente sale de la partida. | En menos de medio segundo van a por otro jugador, sin errores. |
 
 ## 8. Prueba entre varios PCs

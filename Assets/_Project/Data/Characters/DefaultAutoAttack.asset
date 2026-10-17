@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AutoAttackSettings
   _attackInterval: 0.6
   _range: 6
+  _leadFactor: 1
   _damage: 10
   _fireOffset: {x: 0, y: 0.5}
   _originTolerance: 2

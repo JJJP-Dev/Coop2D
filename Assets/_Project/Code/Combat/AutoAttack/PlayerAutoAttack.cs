@@ -69,11 +69,27 @@ public class PlayerAutoAttack : NetworkBehaviour
         Vector2 origin = GetFireOrigin();
 
         // With nothing in range the attack stays ready and fires as soon as a target appears.
-        if (!TryFindNearestTarget(origin, out Vector2 targetPosition))
+        if (!TryFindNearestTarget(origin, out Collider2D target))
             return;
 
         _nextAttackTime = Time.time + _settings.AttackInterval;
-        Fire(origin, (targetPosition - origin).normalized);
+        Fire(origin, (GetAimPoint(origin, target) - origin).normalized);
+    }
+
+    // Ahead of a moving target, so the shot meets it instead of passing behind it.
+    // The shot still flies straight, which is what the host checks hits against.
+    private Vector2 GetAimPoint(Vector2 origin, Collider2D target)
+    {
+        // Aim at the middle of the body, not at its feet.
+        Vector2 position = target.bounds.center;
+
+        MotionTracker motion = target.GetComponentInParent<MotionTracker>();
+        if (motion == null || _settings.LeadFactor <= 0f)
+            return position;
+
+        ProjectileSettings projectile = _settings.ProjectilePrefab.Settings;
+        Vector2 intercept = AimPrediction.GetInterceptPoint(origin, position, motion.Velocity, projectile.Speed, projectile.Lifetime);
+        return Vector2.Lerp(position, intercept, _settings.LeadFactor);
     }
 
     private void Fire(Vector2 origin, Vector2 direction)
@@ -254,9 +270,9 @@ public class PlayerAutoAttack : NetworkBehaviour
         return Instantiate(_settings.ProjectilePrefab, origin, Quaternion.identity);
     }
 
-    private bool TryFindNearestTarget(Vector2 origin, out Vector2 targetPosition)
+    private bool TryFindNearestTarget(Vector2 origin, out Collider2D target)
     {
-        targetPosition = default;
+        target = null;
         float nearestSqrDistance = float.MaxValue;
 
         Physics2D.OverlapCircle(origin, _settings.Range, _targetFilter, _candidates);
@@ -267,17 +283,15 @@ public class PlayerAutoAttack : NetworkBehaviour
             if (health == null || health.IsDead)
                 continue;
 
-            // Aim at the middle of the body, not at its feet.
-            Vector2 position = candidate.bounds.center;
-            float sqrDistance = (position - origin).sqrMagnitude;
+            float sqrDistance = ((Vector2)candidate.bounds.center - origin).sqrMagnitude;
 
             if (sqrDistance < nearestSqrDistance)
             {
                 nearestSqrDistance = sqrDistance;
-                targetPosition = position;
+                target = candidate;
             }
         }
 
-        return nearestSqrDistance < float.MaxValue;
+        return target != null;
     }
 }
