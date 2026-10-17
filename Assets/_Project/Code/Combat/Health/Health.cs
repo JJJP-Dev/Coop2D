@@ -49,6 +49,7 @@ public class Health : NetworkBehaviour
 
     /// <summary>
     /// Server only. Returns false if the hit was ignored.
+    /// Accepted hits reach every client through CombatEventService.
     /// </summary>
     public bool TryTakeDamage(int amount, NetworkObject attacker)
     {
@@ -64,7 +65,12 @@ public class Health : NetworkBehaviour
         _current.Value = Mathf.Max(0, _current.Value - amount);
         _invulnerableUntil = Time.time + _settings.InvulnerabilityDuration;
 
-        if (IsDead)
+        bool died = IsDead;
+
+        // Sent before Died: a listener may despawn this object, and a despawned object can't send RPCs.
+        ObserversHit(amount, attacker, transform.position, died);
+
+        if (died)
             Died?.Invoke(this, attacker);
 
         return true;
@@ -83,6 +89,19 @@ public class Health : NetworkBehaviour
 
         _current.Value = Max;
         _invulnerableUntil = 0f;
+    }
+
+    // The host's client receives it too, like any other observer.
+    [ObserversRpc]
+    private void ObserversHit(int amount, NetworkObject attacker, Vector2 position, bool died)
+    {
+        CombatEventService events = GameServices.Instance.CombatEventService;
+        HitInfo hit = new(this, attacker, position, amount);
+
+        events.RaiseHit(hit);
+
+        if (died)
+            events.RaiseDeath(hit);
     }
 
     private void OnCurrentChanged(int previous, int next, bool asServer)

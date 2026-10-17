@@ -11,6 +11,7 @@ public class GameServices : MonoBehaviour
     [SerializeField] private PlayerSpawnService _playerSpawnService;
     [SerializeField] private LocalPlayerService _localPlayerService;
     [SerializeField] private InputService _inputService;
+    [SerializeField] private CombatEventService _combatEventService;
 
     public ConnectionService ConnectionService => _connectionService;
     public SceneFlowService SceneFlowService => _sceneFlowService;
@@ -18,6 +19,7 @@ public class GameServices : MonoBehaviour
     public PlayerSpawnService PlayerSpawnService => _playerSpawnService;
     public LocalPlayerService LocalPlayerService => _localPlayerService;
     public InputService InputService => _inputService;
+    public CombatEventService CombatEventService => _combatEventService;
 
     private void Awake()
     {
@@ -42,6 +44,8 @@ public class GameServices : MonoBehaviour
             Debug.LogError("[GameServices] LocalPlayerService is null.");
         if (InputService == null)
             Debug.LogError("[GameServices] InputService is null.");
+        if (CombatEventService == null)
+            Debug.LogError("[GameServices] CombatEventService is null.");
     }
 
     private void OnDestroy()
