@@ -297,7 +297,7 @@ MonoBehaviour:
   _maximumClientPacketSize: 20480
   _intermediateLayer: {fileID: 0}
   _latencySimulator:
-    _enabled: 1
+    _enabled: 0
     _simulateHost: 1
     _latency: 100
     _outOfOrder: 0
