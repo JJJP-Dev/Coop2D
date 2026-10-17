@@ -69,7 +69,7 @@ Al terminar, la consola debe estar limpia en todas las ventanas: sin errores y s
 
 ## 7. Combate
 
-Con el host y dos clientes, en local y otra vez con latencia. El muñeco de `Arena_Test` tiene 50 de vida, cada disparo le quita 10 y revive al segundo de morir. Los perseguidores tienen 30 y desaparecen al morir; hasta que lleguen las oleadas (#50) hay cuatro colocados en la arena. Para las pruebas del muñeco, acabad antes con ellos.
+Con el host y dos clientes, en local y otra vez con latencia. El muñeco de `Arena_Test` tiene 50 de vida, cada disparo le quita 10 y revive al segundo de morir. Los perseguidores tienen 30 y desaparecen al morir, y llegan en oleadas desde los bordes de la arena. Para las pruebas del muñeco, desmarca antes el componente `WaveSpawner` de `Arena_Test` y guarda; vuelve a marcarlo al terminar.
 
 Algunas pruebas cambian ajustes durante el Play. Los cambios en un ScriptableObject se quedan guardados al parar, así que devuélvelos a su valor al terminar.
 
@@ -91,6 +91,10 @@ En las pruebas de persecución, nadie debe disparar: antes de dar Play, pon a 0 
 | Muerte de un perseguidor | Disparad a un perseguidor. | Cae al tercer disparo y desaparece en todas las ventanas, sin avisos. Con el logger activo, su «Death» sale en todas. |
 | Disparo anticipado | Con *Range* en 6, un jugador se deja perseguir y otro, quieto a un lado, dispara a los perseguidores que pasan. Para comparar, repítelo con *Lead Factor* a 0 en `DefaultAutoAttack` y devuélvelo a 1. | Con 1, sus proyectiles salen por delante del perseguidor y casi todos aciertan, también con latencia. Con 0 fallan casi todos. |
 | Sale el perseguido | Con perseguidores detrás de un cliente, ese cliente sale de la partida. | En menos de medio segundo van a por otro jugador, sin errores. |
+| Oleadas | Hospeda, une a un cliente y jugad los 3 minutos con *Range* en 6. | Los enemigos salen por los puntos de los bordes, lejos de los jugadores, en tandas que crecen con el tiempo. Pasados los 3 minutos no sale ninguno más. Todo igual en todas las ventanas. |
+| Tope de enemigos | Con *Range* a 0, deja correr las oleadas sin matar a nadie. Luego vuelve a ponerlo en 6. | Nunca hay más de 40 enemigos vivos: cuenta los `Chaser(Clone)` de la escena de la arena en la *Hierarchy* del host. Al matar alguno, salen los que esperaban. |
+| Oleadas al entrar tarde | Une a un cliente a mitad de partida. | Ve a todos los enemigos vivos en su sitio, y las oleadas siguen igual para todos. |
+| Oleadas al volver a hospedar | El host sale y vuelve a hospedar. | Las oleadas empiezan de cero. |
 
 ## 8. Prueba entre varios PCs
 
