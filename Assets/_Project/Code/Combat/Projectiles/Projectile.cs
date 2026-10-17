@@ -1,21 +1,21 @@
-using FishNet.Object;
+using System;
 using UnityEngine;
 
-// The same prefab is used on every side. The server's copy deals the damage;
-// the clients' copies are only the picture.
+// The same prefab is used on every side. It only moves and finds what it hits;
+// whoever launches it decides what that hit means.
 public class Projectile : MonoBehaviour
 {
-    // A lag spike never makes a client's copy skip more than this.
+    // A lag spike never makes a copy skip more than this.
     private const float MaxCatchUpTime = 0.3f;
 
     [SerializeField] private ProjectileSettings _settings;
 
     private Vector2 _direction;
-    private bool _dealsDamage;
-    private int _damage;
-    private NetworkObject _attacker;
+    private Action<Collider2D> _onHit;
     private float _catchUpTime;
     private float _remainingLifetime;
+
+    public ProjectileSettings Settings => _settings;
 
     private void Awake()
     {
@@ -23,24 +23,14 @@ public class Projectile : MonoBehaviour
             Debug.LogError("[Projectile] Projectile settings are not assigned.", this);
     }
 
-    public void LaunchOnServer(Vector2 direction, int damage, NetworkObject attacker)
-    {
-        _dealsDamage = true;
-        _damage = damage;
-        _attacker = attacker;
-        Launch(direction, 0f);
-    }
-
-    public void LaunchAsVisual(Vector2 direction, float timePassed)
-    {
-        _dealsDamage = false;
-        Launch(direction, Mathf.Min(timePassed, MaxCatchUpTime));
-    }
-
-    private void Launch(Vector2 direction, float catchUpTime)
+    /// <summary>
+    /// onHit receives the first collider it hits. Leave it null for a copy that is only the picture.
+    /// </summary>
+    public void Launch(Vector2 direction, float timePassed, Action<Collider2D> onHit = null)
     {
         _direction = direction.normalized;
-        _catchUpTime = catchUpTime;
+        _catchUpTime = Mathf.Min(timePassed, MaxCatchUpTime);
+        _onHit = onHit;
         _remainingLifetime = _settings != null ? _settings.Lifetime : 0f;
     }
 
@@ -54,8 +44,8 @@ public class Projectile : MonoBehaviour
 
         float step = Time.deltaTime;
 
-        // A client's copy starts late, so it moves at double speed until it
-        // reaches the point where the server's copy is.
+        // A copy that starts late moves at double speed until it reaches
+        // the point where the shooter's projectile is.
         if (_catchUpTime > 0f)
         {
             float extra = Mathf.Min(_catchUpTime, Time.deltaTime);
@@ -83,13 +73,7 @@ public class Projectile : MonoBehaviour
 
     private void OnHit(Collider2D target)
     {
-        if (_dealsDamage)
-        {
-            Health health = target.GetComponentInParent<Health>();
-            if (health != null)
-                health.TryTakeDamage(_damage, _attacker);
-        }
-
+        _onHit?.Invoke(target);
         Destroy(gameObject);
     }
 }

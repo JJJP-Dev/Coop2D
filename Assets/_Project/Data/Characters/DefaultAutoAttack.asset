@@ -16,6 +16,8 @@ MonoBehaviour:
   _range: 6
   _damage: 10
   _fireOffset: {x: 0, y: 0.5}
+  _originTolerance: 2
+  _hitTolerance: 1.5
   _targetLayers:
     serializedVersion: 2
     m_Bits: 64
