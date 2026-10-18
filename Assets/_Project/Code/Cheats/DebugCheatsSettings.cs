@@ -10,6 +10,10 @@ public class DebugCheatsSettings : ScriptableObject
     [Tooltip("How far from the player who asks they appear, in units, in a random direction.")]
     [SerializeField, Min(0f)] private float _spawnDistance = 4f;
 
+    [Tooltip("Health that Damage All takes from everything that has it.")]
+    [SerializeField, Min(1)] private int _damageAllAmount = 10;
+
     public IReadOnlyList<Enemy> Enemies => _enemies;
     public float SpawnDistance => _spawnDistance;
+    public int DamageAllAmount => _damageAllAmount;
 }

@@ -77,13 +77,13 @@ En las pruebas de persecución, nadie debe disparar: antes de dar Play, pon a 0 
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
-| Vida sincronizada | En el host, pulsa F4 y luego F5. | Todas las vidas bajan 10 y vuelven al máximo, igual en todas las ventanas. |
+| Vida sincronizada | En el panel de trucos (F1), pulsa «Dañar a todos» y luego «Curar a todos». | Todas las vidas bajan 10 y vuelven al máximo, igual en todas las ventanas. |
 | Disparo al momento | Con latencia, un cliente se acerca al muñeco. | Su proyectil sale en cuanto el muñeco entra en rango, sin esperar al host. Las demás ventanas también lo ven salir de ese jugador. |
 | Sin daño doble | Disparad al muñeco desde el host y desde un cliente. | Baja de 10 en 10 en todas las ventanas, cae en 0 y revive al segundo. |
 | Cadencia | Con un cliente disparando, sube en el host el *Attack Interval* de `DefaultAutoAttack` a 2. Devuélvelo a 0,6. | El host avisa de disparos rechazados por ir demasiado rápido, y el muñeco solo baja con los que acepta. Son los únicos avisos esperados. |
 | Golpe fuera del recorrido | Con el host lejos y un cliente disparando, mueve el muñeco unas casillas en la vista *Scene* del host. | El host avisa de golpes rechazados por estar lejos del recorrido, y la vida no baja. Son los únicos avisos esperados. |
 | Eventos de golpe y muerte | En `Bootstrap`, activa el componente `CombatEventLogger` del objeto NetworkManager y guarda la escena. Disparad al muñeco hasta que caiga varias veces y alejaos de él. | En cada ventana sale una línea por golpe y, por cada caída, «Death» justo después de su quinto golpe. Los contadores coinciden en todas las ventanas, y «(mine)» solo aparece en la ventana del jugador que disparó. |
-| Eventos con F4 | Con el logger activo, pulsa F4 en el host. | Cada ventana registra un golpe por cada jugador y cada enemigo, de «no one». |
+| Eventos de «Dañar a todos» | Con el logger activo, pulsa «Dañar a todos» en el panel de trucos. | Cada ventana registra un golpe por cada jugador y cada enemigo, de «no one». |
 | Eventos al entrar tarde | Con el logger activo, haz caer el muñeco y une después a otro cliente. | El logger del nuevo empieza en 1: no recibe golpes anteriores. Desactiva el componente antes del commit. |
 | Persecución | Entrad los tres y separaos por la arena. | Cada perseguidor va hacia el jugador más cercano y cambia de objetivo cuando otro le queda más cerca. Se mueven igual en todas las ventanas; en los clientes, con un poco de retraso. |
 | Sin amontonarse | Quedaos quietos y dejad que os alcancen. | Se paran junto a vuestros pies y se reparten a vuestro alrededor, sin juntarse en un punto ni temblar. |
@@ -198,6 +198,8 @@ Con el host y un cliente. Funciona en el editor y en las builds con *Development
 | Generar un enemigo | Desde el cliente, pulsa «Generar Chaser» varias veces. | Cada vez sale un Chaser a 4 unidades del jugador que lo pidió, en una dirección al azar. Sale en todas las ventanas y persigue al jugador más cercano. |
 | Matar a todos | Con varios enemigos vivos, pulsa «Matar a todos». | Mueren todos a la vez, con su número, en todas las ventanas. Los muñecos y los jugadores no cambian. |
 | El tope sigue bien | Llena el tope de enemigos de las oleadas y pulsa «Matar a todos». | Siguen saliendo los que esperaban sitio. |
+| Invulnerable | En el cliente, pulsa «Invulnerable: no» y luego «Dañar a todos». | El botón pasa a «Invulnerable: sí» y la vida de ese jugador dice «invulnerable» en todas las ventanas. Su vida no baja y la de los demás sí. Al pulsarlo otra vez vuelve a «no». |
+| Dañar y curar a todos | Pulsa «Dañar a todos» y luego «Curar a todos». | Bajan 10 las vidas de jugadores, enemigos y muñecos, y vuelven al máximo, en todas las ventanas. |
 | Siguiente oleada | Con las oleadas activas, pulsa «Siguiente oleada» varias veces. | Quien lo pulsa ve «Saltas a la oleada de M:SS» y empiezan a salir esos enemigos. Lo que quedaba de las oleadas anteriores ya no sale. Tras la última, el aviso dice «No quedan más oleadas». |
 | Build de lanzamiento | Haz una build sin *Development Build* y pulsa F1. | No pasa nada: el panel no existe. |
 

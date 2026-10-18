@@ -34,6 +34,7 @@ public class HealthDebugLabel : MonoBehaviour
 
     private void Refresh(Health health)
     {
-        _text.text = $"{health.Current}/{health.Max}";
+        string text = $"{health.Current}/{health.Max}";
+        _text.text = health.IsInvulnerable ? $"{text} · invulnerable" : text;
     }
 }

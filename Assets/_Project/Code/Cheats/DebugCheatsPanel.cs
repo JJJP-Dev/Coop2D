@@ -19,7 +19,15 @@ public class DebugCheatsPanel : MonoBehaviour
     [SerializeField] private Button _killAllButton;
     [SerializeField] private Button _nextWaveButton;
 
+    [Tooltip("Its text says whether your player is invulnerable.")]
+    [SerializeField] private Button _invulnerableButton;
+
+    [SerializeField] private Button _damageAllButton;
+    [SerializeField] private Button _healAllButton;
+
     private InputService _inputService;
+    private TMP_Text _invulnerableLabel;
+    private bool? _shownInvulnerable;
 
     private void Awake()
     {
@@ -31,7 +39,8 @@ public class DebugCheatsPanel : MonoBehaviour
         }
 
         if (_cheats == null || _cheats.Settings == null || _window == null || _enemyButtonTemplate == null ||
-            _killAllButton == null || _nextWaveButton == null)
+            _killAllButton == null || _nextWaveButton == null || _invulnerableButton == null ||
+            _damageAllButton == null || _healAllButton == null)
         {
             Debug.LogError("[DebugCheatsPanel] Cheats, their settings, the window or a button are not assigned.", this);
             enabled = false;
@@ -43,6 +52,11 @@ public class DebugCheatsPanel : MonoBehaviour
 
         _killAllButton.onClick.AddListener(_cheats.KillAllEnemies);
         _nextWaveButton.onClick.AddListener(_cheats.SkipToNextWave);
+        _invulnerableButton.onClick.AddListener(_cheats.ToggleInvulnerable);
+        _damageAllButton.onClick.AddListener(_cheats.DamageAll);
+        _healAllButton.onClick.AddListener(_cheats.HealAll);
+
+        _invulnerableLabel = _invulnerableButton.GetComponentInChildren<TMP_Text>();
     }
 
     private void OnEnable()
@@ -61,6 +75,22 @@ public class DebugCheatsPanel : MonoBehaviour
             _inputService.ToggleCheats.performed -= OnToggle;
 
         _inputService = null;
+    }
+
+    // It shows what the host sent back, so the text changes once the host has done it.
+    private void Update()
+    {
+        if (!_window.activeSelf || _inputService == null)
+            return;
+
+        PlayerIdentity player = GameServices.Instance.LocalPlayerService.Current;
+        bool invulnerable = player != null && player.TryGetComponent(out Health health) && health.IsInvulnerable;
+
+        if (_shownInvulnerable == invulnerable)
+            return;
+
+        _shownInvulnerable = invulnerable;
+        _invulnerableLabel.text = invulnerable ? "Invulnerable: sí" : "Invulnerable: no";
     }
 
     private void OnToggle(InputAction.CallbackContext context)

@@ -39,6 +39,24 @@ public class DebugCheats : NetworkBehaviour
             ServerSkipToNextWave();
     }
 
+    public void ToggleInvulnerable()
+    {
+        if (IsClientInitialized)
+            ServerToggleInvulnerable();
+    }
+
+    public void DamageAll()
+    {
+        if (IsClientInitialized)
+            ServerDamageAll();
+    }
+
+    public void HealAll()
+    {
+        if (IsClientInitialized)
+            ServerHealAll();
+    }
+
     // Nobody owns this scene object, so it has to allow calls from anyone.
     // FishNet fills in caller with the connection that sent it.
     [ServerRpc(RequireOwnership = false)]
@@ -91,6 +109,45 @@ public class DebugCheats : NetworkBehaviour
             TargetReport(caller, $"Saltas a la oleada de {FormatTime(startTime)}", ToastType.Info);
         else
             TargetReport(caller, "No quedan más oleadas", ToastType.Warning);
+    }
+
+    // Only the player who asks: each one decides about their own.
+    [ServerRpc(RequireOwnership = false)]
+    private void ServerToggleInvulnerable(NetworkConnection caller = null)
+    {
+        if (!IsAllowed(caller))
+            return;
+
+        NetworkObject player = caller.FirstObject;
+        if (player != null && player.TryGetComponent(out Health health))
+            health.SetInvulnerable(!health.IsInvulnerable);
+    }
+
+    // Players, enemies and dummies alike. The invulnerable ones ignore it.
+    [ServerRpc(RequireOwnership = false)]
+    private void ServerDamageAll(NetworkConnection caller = null)
+    {
+        if (!IsAllowed(caller))
+            return;
+
+        foreach (Health health in FindObjectsByType<Health>(FindObjectsSortMode.None))
+        {
+            if (health.IsSpawned)
+                health.TryTakeDamage(_settings.DamageAllAmount, null);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ServerHealAll(NetworkConnection caller = null)
+    {
+        if (!IsAllowed(caller))
+            return;
+
+        foreach (Health health in FindObjectsByType<Health>(FindObjectsSortMode.None))
+        {
+            if (health.IsSpawned)
+                health.RestoreFull();
+        }
     }
 
     // Only to whoever asked: the others don't need to know.

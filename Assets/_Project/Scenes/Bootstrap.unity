@@ -135,7 +135,6 @@ GameObject:
   - component: {fileID: 122069402}
   - component: {fileID: 122069405}
   - component: {fileID: 122069406}
-  - component: {fileID: 122069403}
   - component: {fileID: 122069407}
   - component: {fileID: 122069396}
   - component: {fileID: 122069395}
@@ -268,20 +267,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccf33f1bb87910a469b7c8a839dc1726, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InputService
---- !u!114 &122069403
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 122069393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ccc536559a102b048aaec44c1fa7b3d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DebugHealthKeys
-  _networkManager: {fileID: 122069396}
-  _damage: 10
 --- !u!114 &122069404
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -8,12 +8,18 @@ public class Health : NetworkBehaviour
     [SerializeField] private HealthSettings _settings;
 
     private readonly SyncVar<int> _current = new();
+    private readonly SyncVar<bool> _invulnerable = new();
 
     private float _invulnerableUntil;
 
     public int Current => _current.Value;
     public int Max => _settings != null ? _settings.MaxHealth : 0;
     public bool IsDead => _current.Value <= 0;
+
+    /// <summary>
+    /// While true, only Kill can hurt it. For now only the cheats panel turns it on.
+    /// </summary>
+    public bool IsInvulnerable => _invulnerable.Value;
 
     /// <summary>
     /// Raised on each client, host included, when a new value arrives from the server.
@@ -28,6 +34,7 @@ public class Health : NetworkBehaviour
     private void Awake()
     {
         _current.OnChange += OnCurrentChanged;
+        _invulnerable.OnChange += OnInvulnerableChanged;
 
         if (_settings == null)
         {
@@ -43,8 +50,9 @@ public class Health : NetworkBehaviour
     {
         base.OnStartServer();
 
-        // Pooled objects come back with the timer of their previous life.
+        // Pooled objects come back with the invulnerability of their previous life.
         _invulnerableUntil = 0f;
+        _invulnerable.Value = false;
     }
 
     /// <summary>
@@ -60,7 +68,7 @@ public class Health : NetworkBehaviour
             return false;
         }
 
-        if (amount <= 0 || IsDead || Time.time < _invulnerableUntil)
+        if (amount <= 0 || IsDead || _invulnerable.Value || Time.time < _invulnerableUntil)
             return false;
 
         ApplyDamage(amount, attacker, kind, element);
@@ -96,6 +104,20 @@ public class Health : NetworkBehaviour
 
         _current.Value = Max;
         _invulnerableUntil = 0f;
+    }
+
+    /// <summary>
+    /// Server only.
+    /// </summary>
+    public void SetInvulnerable(bool invulnerable)
+    {
+        if (!IsServerInitialized)
+        {
+            Debug.LogWarning("[Health] Only the server can change invulnerability.", this);
+            return;
+        }
+
+        _invulnerable.Value = invulnerable;
     }
 
     private void ApplyDamage(int amount, NetworkObject attacker, DamageKind kind, ElementType element)
@@ -134,5 +156,11 @@ public class Health : NetworkBehaviour
             return;
 
         Changed?.Invoke(this);
+    }
+
+    private void OnInvulnerableChanged(bool previous, bool next, bool asServer)
+    {
+        if (!asServer)
+            Changed?.Invoke(this);
     }
 }
