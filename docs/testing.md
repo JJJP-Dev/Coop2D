@@ -116,7 +116,7 @@ Para las pruebas del muñeco, desmarca el componente `WaveSpawner` de `Arena_Tes
 
 ## 9. Habilidades
 
-Con el host y dos clientes. Hasta que lleguen los personajes (#162), todos tienen las mismas dos habilidades de prueba, del color de su elemento: **Estallido** con el clic izquierdo (círculo de 1,5) y **Marca** con el derecho (círculo de 2). Las dos tienen 7 de alcance y 7 s de recarga. La Q queda reservada para el tercer hueco.
+Con el host y dos clientes. Hasta que lleguen los personajes (#162), todos tienen las mismas dos habilidades de prueba, del color de su elemento: **Estallido** con el clic izquierdo (círculo de 1,5) y **Marca** con el derecho (círculo de 2). Las dos tienen 7 de alcance y 7 s de recarga. La Q queda reservada para el tercer hueco. Quien lanza ve su círculo al instante; el host comprueba el lanzamiento y aplica el daño y el aura fuerte.
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
@@ -127,6 +127,15 @@ Con el host y dos clientes. Hasta que lleguen los personajes (#162), todos tiene
 | Sobre la interfaz | Pon el ratón sobre el botón de salir y haz clic derecho. | No sale ningún círculo. |
 | Sigue a tu elemento | Pulsa F6 y lanza otra vez. | El círculo sale del color del elemento nuevo. |
 | Hueco vacío | Pulsa Q. | No pasa nada, y la consola sigue limpia. |
+| Lo ven todos | Lanza Estallido desde un cliente. | El círculo sale en todas las ventanas, del color de quien lanza. En las demás, un poco más tarde. |
+| Daño | Lanza Estallido sobre el muñeco. | Baja 16 en todas las ventanas. Con el logger activo, el golpe sale «(mine)» solo en la ventana de quien lanza. |
+| Aura fuerte | Lanza Marca sobre el muñeco sin aura. | Sale «… (fuerte) · Jn» en todas las ventanas y dura unos 4 s. |
+| Fuerte sobre débil | Deja que tu básico marque el muñeco y lanza Estallido sobre él. | El aura pasa de débil a fuerte, con tu elemento. |
+| Otro elemento | Con el muñeco marcado por J1 (fuego), J2 (agua) lanza Estallido sobre él. | El aura sigue siendo «Fuego · J1» y el muñeco recibe el daño. La reacción llega con #64. |
+| Varios objetivos | Con las oleadas en marcha, lanza Marca sobre un grupo de perseguidores. | Todos los que toca reciben daño y aura. |
+| Sin fuego amigo | Lanza Estallido sobre otro jugador. | No recibe daño ni aura. |
+| Recarga en el host | En el host, sube la *Cooldown* de `TestBurst` a 20. Un cliente lanza Estallido cada 7 s. Devuélvela a 7. | El host avisa de lanzamientos rechazados antes de su recarga, y esos no hacen daño. Son los únicos avisos esperados. |
+| Con latencia | Repite «Daño» y «Varios objetivos» con latencia, contra perseguidores en movimiento. | Los golpes cuentan y la consola del host sigue limpia. |
 
 ## 10. Prueba entre varios PCs
 

@@ -526,6 +526,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5f7fcdf2db3152c4e99348e3f155108d, type: 2}
   - {fileID: 11400000, guid: d4b84e33c2276c8469ba6b14d3b9d33f, type: 2}
   - {fileID: 0}
+  _castSettings: {fileID: 11400000, guid: 594ecbe671e2beb429becdeabc77e0ca, type: 2}
   _elements: {fileID: 11400000, guid: 5fa0be1f25473d3449807b8a2f378e6f, type: 2}
 --- !u!1 &5171306280570818574
 GameObject:
