@@ -60,6 +60,41 @@ public class WaveSpawner : NetworkBehaviour
             SpawnDueEnemies(waves[i], i);
     }
 
+    /// <summary>
+    /// Server only, for the cheats panel. Jumps to the start of the next wave and drops
+    /// what was left of the ones already started, so they don't all come out at once.
+    /// False if no wave starts later.
+    /// </summary>
+    public bool TrySkipToNextWave(out float startTime)
+    {
+        startTime = 0f;
+
+        if (!IsServerInitialized || _spawnedPerWave == null)
+            return false;
+
+        IReadOnlyList<WaveEntry> waves = _schedule.Waves;
+        float next = float.MaxValue;
+
+        foreach (WaveEntry wave in waves)
+        {
+            if (wave.EnemyPrefab != null && wave.StartTime > _elapsed && wave.StartTime < next)
+                next = wave.StartTime;
+        }
+
+        if (next > _schedule.Duration)
+            return false;
+
+        for (int i = 0; i < waves.Count; i++)
+        {
+            if (waves[i].StartTime < next)
+                _spawnedPerWave[i] = waves[i].Count;
+        }
+
+        _elapsed = next;
+        startTime = next;
+        return true;
+    }
+
     // Spawns every enemy of the wave whose time has come, while there is room.
     // Those held back by the cap come out as soon as others die.
     private void SpawnDueEnemies(WaveEntry wave, int index)

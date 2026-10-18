@@ -1148,6 +1148,16 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""ToggleCheats"",
+                    ""type"": ""Button"",
+                    ""id"": ""de2cda74-f4b2-4f15-bd57-c36e01814f02"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -1192,6 +1202,17 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""CycleElement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3ae4f64f-cba8-42ed-a5c8-8d6576580ae3"",
+                    ""path"": ""<Keyboard>/f1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""ToggleCheats"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1293,6 +1314,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         m_Debug_DamageAll = m_Debug.FindAction("DamageAll", throwIfNotFound: true);
         m_Debug_HealAll = m_Debug.FindAction("HealAll", throwIfNotFound: true);
         m_Debug_CycleElement = m_Debug.FindAction("CycleElement", throwIfNotFound: true);
+        m_Debug_ToggleCheats = m_Debug.FindAction("ToggleCheats", throwIfNotFound: true);
     }
 
     ~@GameInputActions()
@@ -1791,6 +1813,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Debug_DamageAll;
     private readonly InputAction m_Debug_HealAll;
     private readonly InputAction m_Debug_CycleElement;
+    private readonly InputAction m_Debug_ToggleCheats;
     /// <summary>
     /// Provides access to input actions defined in input action map "Debug".
     /// </summary>
@@ -1818,6 +1841,10 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Debug/CycleElement".
         /// </summary>
         public InputAction @CycleElement => m_Wrapper.m_Debug_CycleElement;
+        /// <summary>
+        /// Provides access to the underlying input action "Debug/ToggleCheats".
+        /// </summary>
+        public InputAction @ToggleCheats => m_Wrapper.m_Debug_ToggleCheats;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1856,6 +1883,9 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @CycleElement.started += instance.OnCycleElement;
             @CycleElement.performed += instance.OnCycleElement;
             @CycleElement.canceled += instance.OnCycleElement;
+            @ToggleCheats.started += instance.OnToggleCheats;
+            @ToggleCheats.performed += instance.OnToggleCheats;
+            @ToggleCheats.canceled += instance.OnToggleCheats;
         }
 
         /// <summary>
@@ -1879,6 +1909,9 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @CycleElement.started -= instance.OnCycleElement;
             @CycleElement.performed -= instance.OnCycleElement;
             @CycleElement.canceled -= instance.OnCycleElement;
+            @ToggleCheats.started -= instance.OnToggleCheats;
+            @ToggleCheats.performed -= instance.OnToggleCheats;
+            @ToggleCheats.canceled -= instance.OnToggleCheats;
         }
 
         /// <summary>
@@ -2182,5 +2215,12 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCycleElement(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleCheats" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleCheats(InputAction.CallbackContext context);
     }
 }

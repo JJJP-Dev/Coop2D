@@ -15,6 +15,7 @@ public class InputService : MonoBehaviour
     public InputAction DamageAll => _actions.Debug.DamageAll;
     public InputAction HealAll => _actions.Debug.HealAll;
     public InputAction CycleElement => _actions.Debug.CycleElement;
+    public InputAction ToggleCheats => _actions.Debug.ToggleCheats;
 
     private void Awake()
     {

@@ -63,18 +63,24 @@ public class Health : NetworkBehaviour
         if (amount <= 0 || IsDead || Time.time < _invulnerableUntil)
             return false;
 
-        _current.Value = Mathf.Max(0, _current.Value - amount);
-        _invulnerableUntil = Time.time + _settings.InvulnerabilityDuration;
-
-        bool died = IsDead;
-
-        // Sent before Died: a listener may despawn this object, and a despawned object can't send RPCs.
-        ObserversHit(amount, attacker, transform.position, died, kind, element);
-
-        if (died)
-            Died?.Invoke(this, attacker);
-
+        ApplyDamage(amount, attacker, kind, element);
         return true;
+    }
+
+    /// <summary>
+    /// Server only. Takes all its health at once, ignoring invulnerability,
+    /// with the same hit and death as any other.
+    /// </summary>
+    public void Kill(NetworkObject attacker = null)
+    {
+        if (!IsServerInitialized)
+        {
+            Debug.LogWarning("[Health] Only the server can kill.", this);
+            return;
+        }
+
+        if (!IsDead)
+            ApplyDamage(_current.Value, attacker, DamageKind.Other, ElementType.None);
     }
 
     /// <summary>
@@ -90,6 +96,20 @@ public class Health : NetworkBehaviour
 
         _current.Value = Max;
         _invulnerableUntil = 0f;
+    }
+
+    private void ApplyDamage(int amount, NetworkObject attacker, DamageKind kind, ElementType element)
+    {
+        _current.Value = Mathf.Max(0, _current.Value - amount);
+        _invulnerableUntil = Time.time + _settings.InvulnerabilityDuration;
+
+        bool died = IsDead;
+
+        // Sent before Died: a listener may despawn this object, and a despawned object can't send RPCs.
+        ObserversHit(amount, attacker, transform.position, died, kind, element);
+
+        if (died)
+            Died?.Invoke(this, attacker);
     }
 
     // The host's client receives it too, like any other observer.

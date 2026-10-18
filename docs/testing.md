@@ -188,7 +188,20 @@ Con el host y dos clientes. Todos los valores salen de los estilos de `Data/UI/F
 | Contorno y sombra | Durante el Play, cambia el *Thickness* del contorno en el material `PixelifySans-Bold SDF - Headline`. | Cambian al momento los titulares que hay en pantalla. Al salir del Play el cambio se queda, porque es un asset. |
 | En la build | Provoca una reacción en una build. | El titular tiene la misma sombra que en el editor. |
 
-## 12. Prueba entre varios PCs
+## 12. Panel de trucos
+
+Con el host y un cliente. Funciona en el editor y en las builds con *Development Build*. Los valores salen de `Data/Cheats/DebugCheats`.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Abrir y cerrar | Pulsa F1 en cualquier ventana, y otra vez. | El panel se abre solo en esa ventana y se cierra con el segundo F1. Hacer clic en sus botones no lanza habilidades. |
+| Generar un enemigo | Desde el cliente, pulsa «Generar Chaser» varias veces. | Cada vez sale un Chaser a 4 unidades del jugador que lo pidió, en una dirección al azar. Sale en todas las ventanas y persigue al jugador más cercano. |
+| Matar a todos | Con varios enemigos vivos, pulsa «Matar a todos». | Mueren todos a la vez, con su número, en todas las ventanas. Los muñecos y los jugadores no cambian. |
+| El tope sigue bien | Llena el tope de enemigos de las oleadas y pulsa «Matar a todos». | Siguen saliendo los que esperaban sitio. |
+| Siguiente oleada | Con las oleadas activas, pulsa «Siguiente oleada» varias veces. | Quien lo pulsa ve «Saltas a la oleada de M:SS» y empiezan a salir esos enemigos. Lo que quedaba de las oleadas anteriores ya no sale. Tras la última, el aviso dice «No quedan más oleadas». |
+| Build de lanzamiento | Haz una build sin *Development Build* y pulsa F1. | No pasa nada: el panel no existe. |
+
+## 13. Prueba entre varios PCs
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|

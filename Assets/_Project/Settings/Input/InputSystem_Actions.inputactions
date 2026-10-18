@@ -1062,6 +1062,16 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "ToggleCheats",
+                    "type": "Button",
+                    "id": "de2cda74-f4b2-4f15-bd57-c36e01814f02",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -1106,6 +1116,17 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "CycleElement",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3ae4f64f-cba8-42ed-a5c8-8d6576580ae3",
+                    "path": "<Keyboard>/f1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "ToggleCheats",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
