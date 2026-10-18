@@ -100,11 +100,19 @@ En las pruebas de persecución, nadie debe disparar: antes de dar Play, pon a 0 
 
 Con el host y dos clientes. Hasta que lleguen los personajes (#162), cada jugador juega el elemento de su hueco: J1 fuego, J2 agua, J3 electricidad y J4 fuego.
 
+Para las pruebas del muñeco, desmarca el componente `WaveSpawner` de `Arena_Test` y sube *Max Health* de `TrainingDummyHealth` a 500, para que no muera a cada momento. Al terminar, vuelve a marcar el spawner y deja la vida en 50.
+
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
 | Elemento por hueco | Hospeda y une a dos clientes. | Cada ventana recibe un solo toast con su elemento: «Tu elemento: Fuego» en el host, «Agua» y «Electricidad» en los clientes. |
 | Cambiar de elemento | En un cliente, pulsa F6 tres veces, esperando a cada toast. | Su elemento pasa a Electricidad, Fuego y Agua, con un toast por pulsación. Las demás ventanas no reciben ninguno. |
 | Volver a entrar | Ese cliente sale y vuelve a entrar. | Recibe otra vez el elemento de su hueco, no el que tenía. |
+| Aura del básico | J1 dispara al muñeco y luego se aleja. | Sobre el muñeco sale «Fuego (débil) · J1», igual en todas las ventanas y con J1 en su color. Unos 2 s después de su último disparo, desaparece. |
+| El básico no tapa auras | J1 dispara al muñeco y se aleja. Justo después, J2 se acerca y dispara. | El aura sigue siendo «Fuego · J1» aunque J2 le dé. Cuando caduca, la siguiente bala de J2 la cambia a «Agua (débil) · J2». |
+| Refresco y autoría | Con F6, pon a J2 en fuego. J1 y J2 disparan a la vez al muñeco. | El aura sigue siendo de fuego y no caduca. El «J» va cambiando al último que la refresca. |
+| Aura al morir | Devuelve la vida del muñeco a 50 y mátalo con un aura puesta. | Al revivir, no tiene aura. |
+| Auras en perseguidores | Con el spawner marcado, disparad a los perseguidores. | Cada uno muestra el aura de quien le dio primero y desaparece al morir, sin avisos. |
+| Aura al entrar tarde | Con el muñeco marcado, une a otro cliente. | El nuevo ve el aura y su dueño desde el principio. |
 
 ## 9. Prueba entre varios PCs
 

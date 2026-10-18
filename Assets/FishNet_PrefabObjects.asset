@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ad70174b079c2f4ebc7931d3dd1af6f, type: 3}
+  m_Name: FishNet_PrefabObjects
+  m_EditorClassIdentifier: FishNet.Runtime::FishNet.Managing.Object.DefaultPrefabObjects
+  _prefabs:
+  - {fileID: 8511590868925322904, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+  - {fileID: 3332554340608108226, guid: 1ec802243f94d8e4d81fcae9a20512df, type: 3}
+  - {fileID: 8511590868925322904, guid: 82f0f5512bae53a4cb59e8d52f74bbcb, type: 3}

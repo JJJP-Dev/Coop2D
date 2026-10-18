@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4bf34f09545f6b4a9f70032c19b3509, type: 3}
   m_Name: TrainingDummyHealth
   m_EditorClassIdentifier: Assembly-CSharp::HealthSettings
-  _maxHealth: 50
+  _maxHealth: 500
   _invulnerabilityDuration: 0

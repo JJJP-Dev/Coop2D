@@ -16,6 +16,7 @@ public class PlayerAutoAttack : NetworkBehaviour
 
     private readonly List<Collider2D> _candidates = new();
     private ContactFilter2D _targetFilter;
+    private PlayerElement _element;
 
     // Owner side.
     private float _nextAttackTime;
@@ -29,6 +30,9 @@ public class PlayerAutoAttack : NetworkBehaviour
 
     private void Awake()
     {
+        if (!TryGetComponent(out _element))
+            Debug.LogError("[PlayerAutoAttack] No PlayerElement on this player, so its shots leave no aura.", this);
+
         if (_settings == null || _settings.ProjectilePrefab == null)
         {
             Debug.LogError("[PlayerAutoAttack] Settings or their projectile prefab are not assigned.", this);
@@ -207,6 +211,11 @@ public class PlayerAutoAttack : NetworkBehaviour
         }
 
         target.TryTakeDamage(_settings.Damage, NetworkObject);
+
+        // The basic attack only marks: a weak aura of the shooter's element, never a reaction.
+        // A killing hit has despawned the enemy already, so it gets no aura.
+        if (!target.IsDead && _element != null && target.TryGetComponent(out AuraHolder aura))
+            aura.TryApply(_element.Current, AuraStrength.Weak, NetworkObject, AttackSlot.Basic);
     }
 
     private void RememberShot(ushort shotId, Vector2 origin, Vector2 direction)

@@ -503,7 +503,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &491478442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -511,7 +511,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 491478441}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 298a34d6beeb4da4e800b9e305830a65, type: 3}
   m_Name: 
@@ -545,7 +545,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FishNet.Runtime::FishNet.Object.NetworkObject
   <IsNested>k__BackingField: 0
-  WasActiveDuringEdit: 1
+  WasActiveDuringEdit: 0
   WasActiveDuringEdit_Set1: 1
   <ComponentIndex>k__BackingField: 0
   <PredictedSpawn>k__BackingField: {fileID: 0}
@@ -1024,6 +1024,77 @@ Transform:
   - {fileID: 315293473}
   m_Father: {fileID: 1501192945}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &802302306
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2053084004646434025, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -4.8046303
+      objectReference: {fileID: 0}
+    - target: {fileID: 2053084004646434025, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.0051793456
+      objectReference: {fileID: 0}
+    - target: {fileID: 2053084004646434025, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2053084004646434025, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2053084004646434025, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2053084004646434025, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2053084004646434025, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2053084004646434025, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2053084004646434025, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2053084004646434025, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4656169696984199199, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      propertyPath: m_Name
+      value: TrainingDummy
+      objectReference: {fileID: 0}
+    - target: {fileID: 8511590868925322904, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      propertyPath: SceneId
+      value: 1865743293
+      objectReference: {fileID: 0}
+    - target: {fileID: 8511590868925322904, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      propertyPath: WasActiveDuringEdit
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8670884571341427777, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 6045020500919480052, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+  m_SourcePrefab: {fileID: 100100000, guid: ed24e07eca55a5c4cbfa4c6940757657, type: 3}
 --- !u!1 &955022738
 GameObject:
   m_ObjectHideFlags: 0
@@ -1150,7 +1221,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 8.4375
+  orthographic size: 12
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2176,3 +2247,4 @@ SceneRoots:
   - {fileID: 420870254}
   - {fileID: 1501192945}
   - {fileID: 491478444}
+  - {fileID: 802302306}
