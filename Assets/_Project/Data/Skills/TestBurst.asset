@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 193ccb8f7f0fea348a50fe929a1b8cf8, type: 3}
+  m_Name: TestBurst
+  m_EditorClassIdentifier: Assembly-CSharp::SkillDefinition
+  _id: test_burst
+  _displayName: Estallido
+  _usesCasterElement: 1
+  _element: 0
+  _canDetonate: 1
+  _auraStrength: 1
+  _cooldown: 7
+  _castRange: 7
+  _damage: 16
+  _radius: 1.5
+  _visualPrefab: {fileID: 2092902514801731553, guid: 258a031f7e77b0744ba63a7d70df0a9d, type: 3}

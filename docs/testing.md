@@ -114,7 +114,21 @@ Para las pruebas del muñeco, desmarca el componente `WaveSpawner` de `Arena_Tes
 | Auras en perseguidores | Con el spawner marcado, disparad a los perseguidores. | Cada uno muestra el aura de quien le dio primero y desaparece al morir, sin avisos. |
 | Aura al entrar tarde | Con el muñeco marcado, une a otro cliente. | El nuevo ve el aura y su dueño desde el principio. |
 
-## 9. Prueba entre varios PCs
+## 9. Habilidades
+
+Con el host y dos clientes. Hasta que lleguen los personajes (#162), todos tienen las mismas dos habilidades de prueba, del color de su elemento: **Estallido** con el clic izquierdo (círculo de 1,5) y **Marca** con el derecho (círculo de 2). Las dos tienen 7 de alcance y 7 s de recarga. La Q queda reservada para el tercer hueco.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Lanzar | Apunta a la arena y haz clic izquierdo. | Sale un círculo del color de tu elemento donde apuntas, y se desvanece enseguida. |
+| La segunda habilidad | Haz clic derecho. | Sale un círculo más grande. |
+| Alcance | Apunta mucho más lejos de 7 y lanza. | El círculo cae a 7 de ti, en la dirección del cursor. |
+| Recarga | Haz clic izquierdo varias veces seguidas. | Solo sale un círculo cada 7 s. El clic derecho tiene su propia recarga. |
+| Sobre la interfaz | Pon el ratón sobre el botón de salir y haz clic derecho. | No sale ningún círculo. |
+| Sigue a tu elemento | Pulsa F6 y lanza otra vez. | El círculo sale del color del elemento nuevo. |
+| Hueco vacío | Pulsa Q. | No pasa nada, y la consola sigue limpia. |
+
+## 10. Prueba entre varios PCs
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|

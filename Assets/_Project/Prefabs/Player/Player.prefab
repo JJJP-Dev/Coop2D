@@ -202,6 +202,7 @@ GameObject:
   - component: {fileID: 3034973482832093673}
   - component: {fileID: 8570078963972895824}
   - component: {fileID: 5825478223105688158}
+  - component: {fileID: 4484037113358846217}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -506,6 +507,26 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 0}
   _slotElements: {fileID: 11400000, guid: aaa0c46198d5283419f67255d0b19ea1, type: 2}
   _library: {fileID: 11400000, guid: 5fa0be1f25473d3449807b8a2f378e6f, type: 2}
+--- !u!114 &4484037113358846217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4950291352465746428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82c5638b4b932e14799000024ef075b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSkills
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 3332554340608108226}
+  _networkObjectCache: {fileID: 0}
+  _skills:
+  - {fileID: 11400000, guid: 5f7fcdf2db3152c4e99348e3f155108d, type: 2}
+  - {fileID: 11400000, guid: d4b84e33c2276c8469ba6b14d3b9d33f, type: 2}
+  - {fileID: 0}
+  _elements: {fileID: 11400000, guid: 5fa0be1f25473d3449807b8a2f378e6f, type: 2}
 --- !u!1 &5171306280570818574
 GameObject:
   m_ObjectHideFlags: 0

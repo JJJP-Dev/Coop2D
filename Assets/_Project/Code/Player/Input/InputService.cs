@@ -6,6 +6,10 @@ public class InputService : MonoBehaviour
     private GameInputActions _actions;
 
     public InputAction Move => _actions.Player.Move;
+    public InputAction Aim => _actions.Player.Aim;
+    public InputAction Skill1 => _actions.Player.Skill1;
+    public InputAction Skill2 => _actions.Player.Skill2;
+    public InputAction Skill3 => _actions.Player.Skill3;
     public InputAction Cancel => _actions.UI.Cancel;
     public InputAction ToggleNetworkStats => _actions.Debug.ToggleNetworkStats;
     public InputAction DamageAll => _actions.Debug.DamageAll;
