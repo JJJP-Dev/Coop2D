@@ -36,11 +36,6 @@ public class AuraHolder : NetworkBehaviour
     /// </summary>
     public event Action<AuraHolder> Changed;
 
-    /// <summary>
-    /// Server only. The aura is already gone when it is raised.
-    /// </summary>
-    public event Action<ReactionInfo> Reacted;
-
     private void Awake()
     {
         _health = GetComponent<Health>();
@@ -140,10 +135,10 @@ public class AuraHolder : NetworkBehaviour
         Clear();
         _reactionLockedUntil = now + _reactions.LockoutDuration;
 
-        // Sent before Reacted: an effect may kill and despawn this enemy, and a despawned object can't send RPCs.
+        // Sent before the effects: they may kill and despawn this enemy, and a despawned object can't send RPCs.
         ObserversReaction(auraElement, detonatorElement, transform.position, auraOwner, detonator);
 
-        Reacted?.Invoke(new ReactionInfo(this, reaction, transform.position, auraOwner, detonator));
+        GameServices.Instance.ReactionService.Resolve(new ReactionInfo(this, reaction, transform.position, auraOwner, detonator));
         return true;
     }
 

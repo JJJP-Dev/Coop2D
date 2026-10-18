@@ -17,3 +17,14 @@ MonoBehaviour:
   _displayName: Sobrecarga
   _auraElement: 1
   _detonatorElement: 3
+  _damage: 35
+  _damageRadius: 1.5
+  _cloudDuration: 0
+  _cloudRadius: 0
+  _cloudSlowPercent: 0
+  _chainJumps: 0
+  _chainDamage: 0
+  _chainRange: 0
+  _knockbackDistance: 0
+  _knockbackDuration: 0.15
+  _stunDuration: 0.5

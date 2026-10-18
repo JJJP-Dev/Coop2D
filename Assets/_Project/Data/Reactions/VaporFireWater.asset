@@ -17,3 +17,14 @@ MonoBehaviour:
   _displayName: Vapor
   _auraElement: 1
   _detonatorElement: 2
+  _damage: 15
+  _damageRadius: 2
+  _cloudDuration: 3
+  _cloudRadius: 2
+  _cloudSlowPercent: 30
+  _chainJumps: 0
+  _chainDamage: 0
+  _chainRange: 0
+  _knockbackDistance: 0
+  _knockbackDuration: 0.15
+  _stunDuration: 0

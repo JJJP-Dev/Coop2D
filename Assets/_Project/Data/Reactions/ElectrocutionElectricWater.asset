@@ -17,3 +17,14 @@ MonoBehaviour:
   _displayName: "Electrocuci\u00F3n"
   _auraElement: 3
   _detonatorElement: 2
+  _damage: 25
+  _damageRadius: 2
+  _cloudDuration: 0
+  _cloudRadius: 0
+  _cloudSlowPercent: 0
+  _chainJumps: 0
+  _chainDamage: 0
+  _chainRange: 0
+  _knockbackDistance: 0
+  _knockbackDuration: 0.15
+  _stunDuration: 0

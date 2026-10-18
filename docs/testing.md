@@ -155,6 +155,19 @@ Con el host y dos clientes, el `WaveSpawner` desmarcado y la vida del muñeco a 
 | Reacción sin dúo | Con el logger, repite «En solitario». | La «Reaction» sale sin «Duo». |
 | Varios enemigos | Con el spawner marcado, J1 marca un grupo de perseguidores con Marca y J2 lanza Estallido sobre ellos. | Una «Reaction» por cada perseguidor marcado que toca el Estallido, igual en todas las ventanas. |
 
+Los efectos de cada variante, con el spawner marcado y contra perseguidores, porque el muñeco no se mueve y no puede ir más lento, quedarse quieto ni ser empujado. Con el logger activo, el daño de la reacción sale como golpes de quien detona.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Vapor (fuego → agua) | J1 marca con Marca un grupo de perseguidores y J2 lanza Estallido sobre ellos. | Cada uno, y los que estén a menos de 2, reciben 15. Durante 3 s, los que siguen en esa zona van más lentos, y al salir recuperan la velocidad. |
+| Vapor (agua → fuego) | Al revés: J2 marca y J1 detona. | 30 al aparecer y una ralentización más suave, de 1,5 s. |
+| Electrocución (agua → electricidad) | J2 marca con Marca un grupo. J3 lanza Estallido sobre el borde del grupo, de forma que toque solo a uno. | Ese recibe 30 y hasta 3 perseguidores mojados cercanos reciben 20 cada uno, saltando de uno a otro. Esos siguen con su aura de agua. |
+| Electrocución (electricidad → agua) | J3 marca y J2 detona. | 25 a todos los enemigos a menos de 2 del objetivo, sin cadena. |
+| Sobrecarga (electricidad → fuego) | J3 marca y J1 detona. | 35 a menos de 1,5, y todos salen empujados una casilla hacia fuera. El del centro se aleja de J1. |
+| Sobrecarga (fuego → electricidad) | J1 marca y J3 detona. | 35 a menos de 1,5, y se quedan quietos medio segundo, sin empuje. |
+| Sin fuego amigo | Provoca una Sobrecarga junto a otro jugador. | Al jugador no le pasa nada. |
+| Empuje corto | Dentro de una nube de Vapor, provoca una Sobrecarga (electricidad → fuego). | Los empujados siguen dentro de la nube: el empuje (1) es menor que su radio (2). |
+
 ## 11. Prueba entre varios PCs
 
 | Prueba | Pasos | Resultado esperado |

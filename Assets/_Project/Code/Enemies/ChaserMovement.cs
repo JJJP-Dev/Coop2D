@@ -11,6 +11,8 @@ public class ChaserMovement : NetworkBehaviour
 
     private Enemy _enemy;
     private Rigidbody2D _body;
+    private EnemyStatus _status;
+    private bool _wasPushed;
     private Transform _target;
     private float _nextRetargetTime;
 
@@ -18,6 +20,9 @@ public class ChaserMovement : NetworkBehaviour
     {
         _enemy = GetComponent<Enemy>();
         _body = GetComponent<Rigidbody2D>();
+
+        // Optional: without it, nothing can slow, stun or push this enemy.
+        TryGetComponent(out _status);
     }
 
     public override void OnStartServer()
@@ -37,6 +42,27 @@ public class ChaserMovement : NetworkBehaviour
         if (definition == null)
             return;
 
+        // A push moves the body by itself.
+        if (_status != null && _status.TryGetPushVelocity(out Vector2 pushVelocity))
+        {
+            _body.linearVelocity = pushVelocity;
+            _wasPushed = true;
+            return;
+        }
+
+        // It ends dead still, so it stays as short as its distance.
+        if (_wasPushed)
+        {
+            _body.linearVelocity = Vector2.zero;
+            _wasPushed = false;
+        }
+
+        if (_status != null && _status.IsStunned)
+        {
+            _body.linearVelocity = Vector2.zero;
+            return;
+        }
+
         if (Time.time >= _nextRetargetTime)
         {
             _target = FindNearestLivingPlayer();
@@ -52,12 +78,17 @@ public class ChaserMovement : NetworkBehaviour
             float stopDistance = definition.StopDistance;
 
             if (toTarget.sqrMagnitude > stopDistance * stopDistance)
-                targetVelocity = toTarget.normalized * definition.MoveSpeed;
+                targetVelocity = toTarget.normalized * (definition.MoveSpeed * GetSpeedMultiplier());
         }
 
         // Accelerating instead of setting the velocity leaves room for the pushes
         // between enemies, so a crowd spreads around its target.
         _body.linearVelocity = Vector2.MoveTowards(_body.linearVelocity, targetVelocity, definition.Acceleration * Time.fixedDeltaTime);
+    }
+
+    private float GetSpeedMultiplier()
+    {
+        return _status != null ? _status.SpeedMultiplier : 1f;
     }
 
     private Transform FindNearestLivingPlayer()

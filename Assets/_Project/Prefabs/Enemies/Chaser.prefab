@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8511590868925322904}
   - component: {fileID: 1906458788437938989}
   - component: {fileID: 1898934464352658694}
+  - component: {fileID: 2957045357720341596}
   - component: {fileID: 7744754657226018601}
   - component: {fileID: 1550132121009420039}
   - component: {fileID: 3874244744063692725}
@@ -162,6 +163,21 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 8511590868925322904}
   _networkObjectCache: {fileID: 0}
   _definition: {fileID: 11400000, guid: 4afdf346664214340957bfa3b888c49c, type: 2}
+--- !u!114 &2957045357720341596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4656169696984199199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a1f3f738fac1b34e84693267e357514, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyStatus
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 8511590868925322904}
+  _networkObjectCache: {fileID: 0}
 --- !u!114 &7744754657226018601
 MonoBehaviour:
   m_ObjectHideFlags: 0
