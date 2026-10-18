@@ -215,7 +215,7 @@ public class PlayerAutoAttack : NetworkBehaviour
         // The basic attack only marks: a weak aura of the shooter's element, never a reaction.
         // A killing hit has despawned the enemy already, so it gets no aura.
         if (!target.IsDead && _element != null && target.TryGetComponent(out AuraHolder aura))
-            aura.TryApply(_element.Current, AuraStrength.Weak, NetworkObject, AttackSlot.Basic);
+            aura.TryApply(_element.Current, AuraStrength.Weak, NetworkObject, AttackSlot.Basic, canDetonate: false);
     }
 
     private void RememberShot(ushort shotId, Vector2 origin, Vector2 direction)

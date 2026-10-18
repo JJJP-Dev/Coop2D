@@ -137,7 +137,21 @@ Con el host y dos clientes. Hasta que lleguen los personajes (#162), todos tiene
 | Recarga en el host | En el host, sube la *Cooldown* de `TestBurst` a 20. Un cliente lanza Estallido cada 7 s. Devuélvela a 7. | El host avisa de lanzamientos rechazados antes de su recarga, y esos no hacen daño. Son los únicos avisos esperados. |
 | Con latencia | Repite «Daño» y «Varios objetivos» con latencia, contra perseguidores en movimiento. | Los golpes cuentan y la consola del host sigue limpia. |
 
-## 10. Prueba entre varios PCs
+## 10. Reacciones
+
+Con el host y dos clientes, el `WaveSpawner` desmarcado y la vida del muñeco a 500, como en la sección 8. J1 es fuego, J2 agua y J3 electricidad. Solo Estallido detona; Marca y el básico solo dejan aura. Lanzad las habilidades desde unos 7 de distancia, fuera del alcance del básico (6), para que vuestro básico no deje su aura justo después.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Reacción | J1 marca el muñeco con el básico y se aleja. Antes de 2 s, J2 lanza Estallido sobre él. | El aura de fuego desaparece en todas las ventanas y no queda aura de agua. |
+| Sin detonar | Igual, pero J2 lanza Marca. | El aura sigue siendo «Fuego · J1». |
+| El básico no detona | J1 marca el muñeco y J2 le dispara con el básico. | El aura sigue siendo «Fuego · J1». |
+| Débil o fuerte | J1 marca el muñeco con Marca (aura fuerte) y J2 lanza Estallido. | El aura también desaparece: la reacción consume las dos. |
+| Mismo elemento | Con F6, pon a J2 en fuego. J1 marca y J2 lanza Estallido. | No hay reacción: el aura pasa a «Fuego (fuerte) · J2». |
+| Bloqueo | En el host, sube *Lockout Duration* de `DefaultReactions` a 5. Provoca una reacción, J1 vuelve a marcar enseguida y, antes de 5 s, J3 lanza Estallido. Devuelve el valor a 0,5. | La segunda vez no hay reacción: el fuego de J1 se queda. |
+| En solitario | J1 lanza Marca sobre el muñeco, pulsa F6 para pasar a agua y lanza Estallido. | El aura de fuego desaparece: también reaccionas con tu propia aura. |
+
+## 11. Prueba entre varios PCs
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|

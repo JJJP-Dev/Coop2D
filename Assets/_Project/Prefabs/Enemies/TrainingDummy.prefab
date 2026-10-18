@@ -144,6 +144,7 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 8511590868925322904}
   _networkObjectCache: {fileID: 0}
   _settings: {fileID: 11400000, guid: 6fcf46c86a98b56499851ffdc58820bc, type: 2}
+  _reactions: {fileID: 11400000, guid: 2415430502494cc5aa6b02f441a0a7d9, type: 2}
 --- !u!61 &8718966909931752708
 BoxCollider2D:
   m_ObjectHideFlags: 0

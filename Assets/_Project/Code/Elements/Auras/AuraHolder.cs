@@ -9,6 +9,7 @@ using UnityEngine;
 public class AuraHolder : NetworkBehaviour
 {
     [SerializeField] private AuraSettings _settings;
+    [SerializeField] private ReactionTable _reactions;
 
     private readonly SyncVar<ElementType> _element = new();
     private readonly SyncVar<AuraStrength> _strength = new();
@@ -18,6 +19,7 @@ public class AuraHolder : NetworkBehaviour
 
     // Server side. Durations follow game time, like the rest of the simulation.
     private float _expiresAt;
+    private float _reactionLockedUntil;
     private readonly Dictionary<(int sourceId, AttackSlot attack), float> _nextApplyTimes = new();
 
     public bool HasAura => _element.Value != ElementType.None;
@@ -34,6 +36,11 @@ public class AuraHolder : NetworkBehaviour
     /// </summary>
     public event Action<AuraHolder> Changed;
 
+    /// <summary>
+    /// Server only. The aura is already gone when it is raised.
+    /// </summary>
+    public event Action<ReactionInfo> Reacted;
+
     private void Awake()
     {
         _health = GetComponent<Health>();
@@ -42,8 +49,8 @@ public class AuraHolder : NetworkBehaviour
         _strength.OnChange += OnStrengthChanged;
         _owner.OnChange += OnOwnerChanged;
 
-        if (_settings == null)
-            Debug.LogError("[AuraHolder] Aura settings are not assigned.", this);
+        if (_settings == null || _reactions == null)
+            Debug.LogError("[AuraHolder] Aura settings or reaction table are not assigned.", this);
     }
 
     public override void OnStartServer()
@@ -52,6 +59,7 @@ public class AuraHolder : NetworkBehaviour
 
         // Pooled and scene objects come back with the state of their previous life.
         _nextApplyTimes.Clear();
+        _reactionLockedUntil = 0f;
         Clear();
 
         _health.Died += OnDied;
@@ -64,48 +72,74 @@ public class AuraHolder : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server only. Returns true if the aura was applied or refreshed.
+    /// Server only. canDetonate is false for the basic attack and for skills that only mark.
     /// </summary>
-    public bool TryApply(ElementType element, AuraStrength strength, NetworkObject source, AttackSlot attack)
+    public AuraApplyResult TryApply(ElementType element, AuraStrength strength, NetworkObject source,
+                                    AttackSlot attack, bool canDetonate)
     {
         if (!IsServerInitialized)
         {
             Debug.LogWarning("[AuraHolder] Only the server can apply auras.", this);
-            return false;
+            return AuraApplyResult.Ignored;
         }
 
         if (element == ElementType.None || _settings == null || _health.IsDead)
-            return false;
+            return AuraApplyResult.Ignored;
 
         float now = Time.time;
         (int, AttackSlot) key = (source != null ? source.ObjectId : -1, attack);
 
         if (_nextApplyTimes.TryGetValue(key, out float nextApplyTime) && now < nextApplyTime)
-            return false;
+            return AuraApplyResult.Ignored;
 
-        // Another element: the basic attack and skills that can't detonate leave it alone.
-        // Detonating it is the reaction system's job (#64).
         if (HasAura && _element.Value != element)
-            return false;
+            return TryReact(element, source, canDetonate, now) ? AuraApplyResult.Reacted : AuraApplyResult.Ignored;
 
         float duration = _settings.GetDuration(strength);
+        AuraApplyResult result;
 
         if (!HasAura)
         {
             _element.Value = element;
             _strength.Value = strength;
             _expiresAt = now + duration;
+            result = AuraApplyResult.Applied;
         }
-        // Same element: a refresh never shortens it. Whichever lasts longer stays, with its strength.
-        else if (now + duration > _expiresAt)
+        else
         {
-            _strength.Value = strength;
-            _expiresAt = now + duration;
+            // Same element: a refresh never shortens it. Whichever lasts longer stays, with its strength.
+            if (now + duration > _expiresAt)
+            {
+                _strength.Value = strength;
+                _expiresAt = now + duration;
+            }
+
+            result = AuraApplyResult.Refreshed;
         }
 
         // Refreshing always makes it yours, so the player who keeps it alive gets the credit.
         _owner.Value = source;
         _nextApplyTimes[key] = now + _settings.ApplyCooldown;
+        return result;
+    }
+
+    // Another element is already here. Only a skill that can detonate consumes it, outside the
+    // lockout and with a row for the pair. Otherwise it is left alone, as the basic attack does.
+    private bool TryReact(ElementType detonatorElement, NetworkObject detonator, bool canDetonate, float now)
+    {
+        if (!canDetonate || now < _reactionLockedUntil || _reactions == null)
+            return false;
+
+        if (!_reactions.TryGet(_element.Value, detonatorElement, out ReactionDefinition reaction))
+            return false;
+
+        NetworkObject auraOwner = _owner.Value;
+
+        // The detonator leaves no aura of its own.
+        Clear();
+        _reactionLockedUntil = now + _reactions.LockoutDuration;
+
+        Reacted?.Invoke(new ReactionInfo(this, reaction, transform.position, auraOwner, detonator));
         return true;
     }
 

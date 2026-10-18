@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba816f483f424c078515afa5af863e54, type: 3}
+  m_Name: OverloadFireElectric
+  m_EditorClassIdentifier: Assembly-CSharp::ReactionDefinition
+  _id: overload
+  _variantId: overload_fire_electric
+  _displayName: Sobrecarga
+  _auraElement: 1
+  _detonatorElement: 3

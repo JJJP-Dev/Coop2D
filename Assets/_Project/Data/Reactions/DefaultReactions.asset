@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c568fea0f924df588e92359f16347a9, type: 3}
+  m_Name: DefaultReactions
+  m_EditorClassIdentifier: Assembly-CSharp::ReactionTable
+  _reactions:
+  - {fileID: 11400000, guid: 4858e9e9e9ee42e68364d920c2246525, type: 2}
+  - {fileID: 11400000, guid: 3cbc972f3a244571b598d77ac54ea510, type: 2}
+  - {fileID: 11400000, guid: 74bd6099c9d44abaa94270b193ffa559, type: 2}
+  - {fileID: 11400000, guid: 0db5de5d49304c339485cfd78501b3f3, type: 2}
+  - {fileID: 11400000, guid: e8f4c208b9c34b64a3a75db7b2e8f08a, type: 2}
+  - {fileID: 11400000, guid: b1863af41e3c48d29ea8092b3e1d0572, type: 2}
+  _lockoutDuration: 0.5

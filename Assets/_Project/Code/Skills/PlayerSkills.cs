@@ -252,9 +252,9 @@ public class PlayerSkills : NetworkBehaviour
                 continue;
             }
 
-            // The aura goes before the damage, so a killing blow can still detonate once reactions exist (#64).
+            // The aura goes before the damage, so a killing blow still detonates.
             if (target.TryGetComponent(out AuraHolder aura))
-                aura.TryApply(element, skill.AuraStrength, NetworkObject, slot);
+                aura.TryApply(element, skill.AuraStrength, NetworkObject, slot, skill.CanDetonate);
 
             target.TryTakeDamage(skill.Damage, NetworkObject);
             applied++;
