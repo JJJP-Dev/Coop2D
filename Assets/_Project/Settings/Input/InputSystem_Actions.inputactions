@@ -1044,6 +1044,16 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "CycleElement",
+                    "type": "Button",
+                    "id": "ea965e24-c91a-4231-8307-52d07d4709ad",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -1077,6 +1087,17 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "HealAll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "94ada2b5-e11d-44b7-9843-ac83b7929659",
+                    "path": "<Keyboard>/f6",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "CycleElement",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

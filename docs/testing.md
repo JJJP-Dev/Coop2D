@@ -96,7 +96,17 @@ En las pruebas de persecución, nadie debe disparar: antes de dar Play, pon a 0 
 | Oleadas al entrar tarde | Une a un cliente a mitad de partida. | Ve a todos los enemigos vivos en su sitio, y las oleadas siguen igual para todos. |
 | Oleadas al volver a hospedar | El host sale y vuelve a hospedar. | Las oleadas empiezan de cero. |
 
-## 8. Prueba entre varios PCs
+## 8. Elementos y auras
+
+Con el host y dos clientes. Hasta que lleguen los personajes (#162), cada jugador juega el elemento de su hueco: J1 fuego, J2 agua, J3 electricidad y J4 fuego.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Elemento por hueco | Hospeda y une a dos clientes. | Cada ventana recibe un solo toast con su elemento: «Tu elemento: Fuego» en el host, «Agua» y «Electricidad» en los clientes. |
+| Cambiar de elemento | En un cliente, pulsa F6 tres veces, esperando a cada toast. | Su elemento pasa a Electricidad, Fuego y Agua, con un toast por pulsación. Las demás ventanas no reciben ninguno. |
+| Volver a entrar | Ese cliente sale y vuelve a entrar. | Recibe otra vez el elemento de su hueco, no el que tenía. |
+
+## 9. Prueba entre varios PCs
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|

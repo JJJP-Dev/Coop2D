@@ -10,6 +10,7 @@ public class InputService : MonoBehaviour
     public InputAction ToggleNetworkStats => _actions.Debug.ToggleNetworkStats;
     public InputAction DamageAll => _actions.Debug.DamageAll;
     public InputAction HealAll => _actions.Debug.HealAll;
+    public InputAction CycleElement => _actions.Debug.CycleElement;
 
     private void Awake()
     {

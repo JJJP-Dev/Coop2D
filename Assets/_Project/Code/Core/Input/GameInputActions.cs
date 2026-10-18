@@ -1130,6 +1130,16 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""CycleElement"",
+                    ""type"": ""Button"",
+                    ""id"": ""ea965e24-c91a-4231-8307-52d07d4709ad"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -1163,6 +1173,17 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""HealAll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""94ada2b5-e11d-44b7-9843-ac83b7929659"",
+                    ""path"": ""<Keyboard>/f6"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""CycleElement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1260,6 +1281,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         m_Debug_ToggleNetworkStats = m_Debug.FindAction("ToggleNetworkStats", throwIfNotFound: true);
         m_Debug_DamageAll = m_Debug.FindAction("DamageAll", throwIfNotFound: true);
         m_Debug_HealAll = m_Debug.FindAction("HealAll", throwIfNotFound: true);
+        m_Debug_CycleElement = m_Debug.FindAction("CycleElement", throwIfNotFound: true);
     }
 
     ~@GameInputActions()
@@ -1724,6 +1746,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Debug_ToggleNetworkStats;
     private readonly InputAction m_Debug_DamageAll;
     private readonly InputAction m_Debug_HealAll;
+    private readonly InputAction m_Debug_CycleElement;
     /// <summary>
     /// Provides access to input actions defined in input action map "Debug".
     /// </summary>
@@ -1747,6 +1770,10 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Debug/HealAll".
         /// </summary>
         public InputAction @HealAll => m_Wrapper.m_Debug_HealAll;
+        /// <summary>
+        /// Provides access to the underlying input action "Debug/CycleElement".
+        /// </summary>
+        public InputAction @CycleElement => m_Wrapper.m_Debug_CycleElement;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1782,6 +1809,9 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @HealAll.started += instance.OnHealAll;
             @HealAll.performed += instance.OnHealAll;
             @HealAll.canceled += instance.OnHealAll;
+            @CycleElement.started += instance.OnCycleElement;
+            @CycleElement.performed += instance.OnCycleElement;
+            @CycleElement.canceled += instance.OnCycleElement;
         }
 
         /// <summary>
@@ -1802,6 +1832,9 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @HealAll.started -= instance.OnHealAll;
             @HealAll.performed -= instance.OnHealAll;
             @HealAll.canceled -= instance.OnHealAll;
+            @CycleElement.started -= instance.OnCycleElement;
+            @CycleElement.performed -= instance.OnCycleElement;
+            @CycleElement.canceled -= instance.OnCycleElement;
         }
 
         /// <summary>
@@ -2077,5 +2110,12 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnHealAll(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CycleElement" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCycleElement(InputAction.CallbackContext context);
     }
 }
