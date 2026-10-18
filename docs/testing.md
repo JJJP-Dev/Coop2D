@@ -150,6 +150,10 @@ Con el host y dos clientes, el `WaveSpawner` desmarcado y la vida del muñeco a 
 | Mismo elemento | Con F6, pon a J2 en fuego. J1 marca y J2 lanza Estallido. | No hay reacción: el aura pasa a «Fuego (fuerte) · J2». |
 | Bloqueo | En el host, sube *Lockout Duration* de `DefaultReactions` a 5. Provoca una reacción, J1 vuelve a marcar enseguida y, antes de 5 s, J3 lanza Estallido. Devuelve el valor a 0,5. | La segunda vez no hay reacción: el fuego de J1 se queda. |
 | En solitario | J1 lanza Marca sobre el muñeco, pulsa F6 para pasar a agua y lanza Estallido. | El aura de fuego desaparece: también reaccionas con tu propia aura. |
+| Evento de reacción | Activa el `CombatEventLogger` y repite «Reacción». | Cada ventana registra una sola «Reaction», con `vapor_fire_water`, el aura de J1, la detonación de J2 y «Duo». Solo las ventanas de J1 y J2 añaden «(mine)». La «Reaction» sale antes del «Hit» del Estallido. |
+| Las seis variantes | Con F6, provoca cada pareja en los dos órdenes: fuego→agua, agua→fuego, agua→electricidad, electricidad→agua, electricidad→fuego y fuego→electricidad. | Cada una registra su variante: `vapor_fire_water`, `vapor_water_fire`, `electrocution_water_electric`, `electrocution_electric_water`, `overload_electric_fire` y `overload_fire_electric`. |
+| Reacción sin dúo | Con el logger, repite «En solitario». | La «Reaction» sale sin «Duo». |
+| Varios enemigos | Con el spawner marcado, J1 marca un grupo de perseguidores con Marca y J2 lanza Estallido sobre ellos. | Una «Reaction» por cada perseguidor marcado que toca el Estallido, igual en todas las ventanas. |
 
 ## 11. Prueba entre varios PCs
 

@@ -134,13 +134,32 @@ public class AuraHolder : NetworkBehaviour
             return false;
 
         NetworkObject auraOwner = _owner.Value;
+        ElementType auraElement = _element.Value;
 
         // The detonator leaves no aura of its own.
         Clear();
         _reactionLockedUntil = now + _reactions.LockoutDuration;
 
+        // Sent before Reacted: an effect may kill and despawn this enemy, and a despawned object can't send RPCs.
+        ObserversReaction(auraElement, detonatorElement, transform.position, auraOwner, detonator);
+
         Reacted?.Invoke(new ReactionInfo(this, reaction, transform.position, auraOwner, detonator));
         return true;
+    }
+
+    // Only the two elements travel; each client finds the row in its own copy of the table.
+    // The host's client receives it too, like any other observer.
+    [ObserversRpc]
+    private void ObserversReaction(ElementType auraElement, ElementType detonatorElement, Vector2 position,
+                                   NetworkObject auraOwner, NetworkObject detonator)
+    {
+        if (_reactions == null || !_reactions.TryGet(auraElement, detonatorElement, out ReactionDefinition reaction))
+        {
+            Debug.LogWarning($"[AuraHolder] This client has no reaction for {auraElement} detonated by {detonatorElement}.", this);
+            return;
+        }
+
+        GameServices.Instance.CombatEventService.RaiseReaction(new ReactionInfo(this, reaction, position, auraOwner, detonator));
     }
 
     private void Update()
