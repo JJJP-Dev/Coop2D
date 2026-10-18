@@ -5,16 +5,13 @@ using UnityEngine;
 // One pooled text: it pops in, rises a little and fades out. FloatingTextSpawner reuses it.
 public class FloatingText : MonoBehaviour
 {
+    [Tooltip("Its material is the one for styles without a material of their own.")]
     [SerializeField] private TMP_Text _text;
 
     [Tooltip("Optional second line, without the text's gradient: a reaction's participants.")]
     [SerializeField] private TMP_Text _subtext;
 
-    [Tooltip("Dark outline so it reads on any background, as a fraction of the font size.")]
-    [SerializeField, Range(0f, 0.5f)] private float _outlineWidth = 0.25f;
-
-    [SerializeField] private Color _outlineColor = new(0.05f, 0.05f, 0.1f, 1f);
-
+    private Material _defaultMaterial;
     private FloatingTextStyle _style;
     private Action<FloatingText> _finished;
     private Vector3 _origin;
@@ -34,10 +31,12 @@ public class FloatingText : MonoBehaviour
     private void Awake()
     {
         if (_text == null)
+        {
             Debug.LogError("[FloatingText] Text is not assigned.", this);
+            return;
+        }
 
-        SetOutline(_text);
-        SetOutline(_subtext);
+        _defaultMaterial = _text.fontSharedMaterial;
     }
 
     public void Init(Action<FloatingText> finished)
@@ -53,6 +52,11 @@ public class FloatingText : MonoBehaviour
     {
         _style = style;
         Priority = priority;
+
+        // A pooled text may have played another style before.
+        Material material = style.Material != null ? style.Material : _defaultMaterial;
+        if (_text.fontSharedMaterial != material)
+            _text.fontSharedMaterial = material;
 
         _text.fontSize = style.FontSize;
         _text.color = gradient.HasValue ? Color.white : color;
@@ -124,15 +128,5 @@ public class FloatingText : MonoBehaviour
         _text.alpha = alpha;
         if (_subtext != null)
             _subtext.alpha = alpha;
-    }
-
-    // Each pooled text gets its own copy of the font material, once.
-    private void SetOutline(TMP_Text text)
-    {
-        if (text == null)
-            return;
-
-        text.outlineWidth = _outlineWidth;
-        text.outlineColor = _outlineColor;
     }
 }

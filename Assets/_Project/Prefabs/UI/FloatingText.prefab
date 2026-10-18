@@ -436,5 +436,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FloatingText
   _text: {fileID: 922564650290497606}
   _subtext: {fileID: 73136001854564558}
-  _outlineWidth: 0.25
-  _outlineColor: {r: 0.05, g: 0.05, b: 0.1, a: 1}

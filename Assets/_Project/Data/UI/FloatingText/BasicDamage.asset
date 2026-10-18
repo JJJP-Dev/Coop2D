@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e0d320760be4033bdaa373db336809a, type: 3}
   m_Name: BasicDamage
   m_EditorClassIdentifier: Assembly-CSharp::FloatingTextStyle
+  _material: {fileID: 0}
   _fontSize: 4.5
   _subtextFontSize: 4
   _color: {r: 1, g: 1, b: 1, a: 1}
@@ -24,7 +25,7 @@ MonoBehaviour:
   _popDuration: 0.08
   _fadeDuration: 0.15
   _priority: 1
-  _mergeWindow: 0.3
+  _mergeWindow: 0.5
   _mergeDistance: 0
   _stackSpacing: 0
   _stackWidth: 5

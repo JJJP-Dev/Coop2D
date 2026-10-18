@@ -5,6 +5,9 @@ using UnityEngine;
 public class FloatingTextStyle : ScriptableObject
 {
     [Header("Look")]
+    [Tooltip("A material preset of the prefab's font, with its outline and shadow. Empty keeps the prefab's.")]
+    [SerializeField] private Material _material;
+
     [Tooltip("In world units, like the health labels.")]
     [SerializeField, Min(0.1f)] private float _fontSize = 4.5f;
 
@@ -59,6 +62,7 @@ public class FloatingTextStyle : ScriptableObject
     [Tooltip("For headlines: most times one moves up before it gives up and covers another.")]
     [SerializeField, Min(0)] private int _maxStackShifts = 3;
 
+    public Material Material => _material;
     public float FontSize => _fontSize;
     public float SubtextFontSize => _subtextFontSize;
     public Color Color => _color;
