@@ -28,3 +28,4 @@ MonoBehaviour:
   _knockbackDistance: 1
   _knockbackDuration: 0.15
   _stunDuration: 0
+  _color: {r: 1.0, g: 0.745, b: 0.329, a: 1}

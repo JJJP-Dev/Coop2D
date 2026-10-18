@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 // Hits, deaths and reactions confirmed by the host, for presentation only: nothing here changes the game.
-// Each client raises every event once, the host's client included. Only Health and AuraHolder raise them.
+// Each client raises every event once, the host's client included. Only Health, AuraHolder and ReactionService raise them.
 public class CombatEventService : MonoBehaviour
 {
     public event Action<HitInfo> HitConfirmed;
@@ -12,6 +12,9 @@ public class CombatEventService : MonoBehaviour
 
     // A skill applies its aura before its damage, so its reactions arrive before its hits.
     public event Action<ReactionInfo> ReactionTriggered;
+
+    // Right after the ReactionTriggered of an Electrocution that jumped.
+    public event Action<ReactionChain> ChainTriggered;
 
     public void RaiseHit(HitInfo hit)
     {
@@ -26,5 +29,10 @@ public class CombatEventService : MonoBehaviour
     public void RaiseReaction(ReactionInfo reaction)
     {
         ReactionTriggered?.Invoke(reaction);
+    }
+
+    public void RaiseChain(ReactionChain chain)
+    {
+        ChainTriggered?.Invoke(chain);
     }
 }

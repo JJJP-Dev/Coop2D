@@ -43,12 +43,16 @@ public class ReactionService : MonoBehaviour
         }
 
         _networkManager.ServerManager.OnServerConnectionState += OnServerConnectionState;
+        _networkManager.ClientManager.RegisterBroadcast<ReactionChainBroadcast>(OnChainBroadcast);
     }
 
     private void OnDestroy()
     {
-        if (_networkManager != null)
-            _networkManager.ServerManager.OnServerConnectionState -= OnServerConnectionState;
+        if (_networkManager == null)
+            return;
+
+        _networkManager.ServerManager.OnServerConnectionState -= OnServerConnectionState;
+        _networkManager.ClientManager.UnregisterBroadcast<ReactionChainBroadcast>(OnChainBroadcast);
     }
 
     /// <summary>
@@ -81,6 +85,9 @@ public class ReactionService : MonoBehaviour
 
         if (definition.CloudDuration > 0f)
             AddCloud(reaction.Position, definition);
+
+        if (_chain.Count > 0)
+            SendChain(reaction.Position, definition.Color);
 
         foreach (Health enemy in _enemies)
             enemy.TryTakeDamage(definition.Damage, detonator);
@@ -161,6 +168,25 @@ public class ReactionService : MonoBehaviour
         }
 
         return nearest;
+    }
+
+    // Every client draws it, the host's included. It goes after the reaction's RPC on the same
+    // reliable channel, so it never arrives before the reaction it belongs to.
+    private void SendChain(Vector2 start, Color color)
+    {
+        Vector2[] points = new Vector2[_chain.Count + 1];
+        points[0] = start;
+
+        for (int i = 0; i < _chain.Count; i++)
+            points[i + 1] = _chain[i].transform.position;
+
+        _networkManager.ServerManager.Broadcast(new ReactionChainBroadcast { Points = points, Color = color });
+    }
+
+    private void OnChainBroadcast(ReactionChainBroadcast broadcast, Channel channel)
+    {
+        if (broadcast.Points != null && broadcast.Points.Length > 1)
+            GameServices.Instance.CombatEventService.RaiseChain(new ReactionChain(broadcast.Points, broadcast.Color));
     }
 
     // Straight out from the target. The target itself, at the center, moves away from the detonator.

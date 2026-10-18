@@ -57,6 +57,10 @@ public class ReactionDefinition : ScriptableObject
     [Tooltip("Seconds every enemy within Damage Radius stays still. 0 doesn't stun.")]
     [SerializeField, Min(0f)] private float _stunDuration;
 
+    [Header("Look")]
+    [Tooltip("Color of its burst, cloud and chain. Placeholder until the shared palette is frozen (#44).")]
+    [SerializeField] private Color _color = Color.white;
+
     public string Id => _id;
     public string VariantId => _variantId;
     public string DisplayName => _displayName;
@@ -73,4 +77,5 @@ public class ReactionDefinition : ScriptableObject
     public float KnockbackDistance => _knockbackDistance;
     public float KnockbackDuration => _knockbackDuration;
     public float StunDuration => _stunDuration;
+    public Color Color => _color;
 }

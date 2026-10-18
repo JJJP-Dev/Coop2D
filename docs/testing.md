@@ -167,6 +167,9 @@ Los efectos de cada variante, con el spawner marcado y contra perseguidores, por
 | Sobrecarga (fuego → electricidad) | J1 marca y J3 detona. | 35 a menos de 1,5, y se quedan quietos medio segundo, sin empuje. |
 | Sin fuego amigo | Provoca una Sobrecarga junto a otro jugador. | Al jugador no le pasa nada. |
 | Empuje corto | Dentro de una nube de Vapor, provoca una Sobrecarga (electricidad → fuego). | Los empujados siguen dentro de la nube: el empuje (1) es menor que su radio (2). |
+| Se ve la explosión | Provoca cada reacción. | Sale un círculo del color de la reacción, igual en todas las ventanas: cian el Vapor, amarillo la Electrocución y naranja la Sobrecarga. Su tamaño es el de su daño en área. |
+| Se ve la nube | Provoca los dos Vapor. | Queda una nube cian translúcida del tamaño de la zona lenta, que dura lo mismo que ella: 3 s o 1,5 s. |
+| Se ve la cadena | Repite «Electrocución (agua → electricidad)». | Una línea amarilla en zigzag salta de enemigo en enemigo, uno por fotograma, en todas las ventanas. |
 
 ## 11. Prueba entre varios PCs
 

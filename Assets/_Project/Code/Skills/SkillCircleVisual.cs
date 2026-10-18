@@ -1,6 +1,7 @@
 using UnityEngine;
 
-// Placeholder picture of a circle skill: it appears at full size and fades out.
+// Placeholder picture of a circle: a skill, a reaction's burst or a Vapor cloud.
+// It appears at full size, can stay a while, and fades out.
 [RequireComponent(typeof(SpriteRenderer))]
 public class SkillCircleVisual : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class SkillCircleVisual : MonoBehaviour
 
     private SpriteRenderer _renderer;
     private Color _color;
+    private float _holdDuration;
     private float _elapsed;
 
     private void Awake()
@@ -19,7 +21,11 @@ public class SkillCircleVisual : MonoBehaviour
         _renderer = GetComponent<SpriteRenderer>();
     }
 
-    public void Show(float radius, Color color)
+    /// <summary>
+    /// The color's alpha scales the start opacity. holdDuration keeps it at full opacity
+    /// for that many seconds before it fades, as a cloud does.
+    /// </summary>
+    public void Show(float radius, Color color, float holdDuration = 0f)
     {
         // Scaled from the sprite's own size, whatever its pixels per unit.
         float diameter = _renderer.sprite != null ? _renderer.sprite.bounds.size.x : 0f;
@@ -28,28 +34,29 @@ public class SkillCircleVisual : MonoBehaviour
 
         transform.localScale = Vector3.one * (radius * 2f / diameter);
         _color = color;
+        _holdDuration = Mathf.Max(0f, holdDuration);
         _elapsed = 0f;
-        SetAlpha(_startAlpha);
+        SetAlpha(1f);
     }
 
     private void Update()
     {
         _elapsed += Time.deltaTime;
 
-        float progress = _elapsed / _fadeDuration;
+        float progress = (_elapsed - _holdDuration) / _fadeDuration;
         if (progress >= 1f)
         {
             Destroy(gameObject);
             return;
         }
 
-        SetAlpha(_startAlpha * (1f - progress));
+        SetAlpha(1f - Mathf.Clamp01(progress));
     }
 
-    private void SetAlpha(float alpha)
+    private void SetAlpha(float fade)
     {
         Color color = _color;
-        color.a = alpha;
+        color.a = _startAlpha * _color.a * fade;
         _renderer.color = color;
     }
 }
