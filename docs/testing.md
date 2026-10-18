@@ -171,7 +171,22 @@ Los efectos de cada variante, con el spawner marcado y contra perseguidores, por
 | Se ve la nube | Provoca los dos Vapor. | Queda una nube cian translúcida del tamaño de la zona lenta, que dura lo mismo que ella: 3 s o 1,5 s. |
 | Se ve la cadena | Repite «Electrocución (agua → electricidad)». | Una línea amarilla en zigzag salta de enemigo en enemigo, uno por fotograma, en todas las ventanas. |
 
-## 11. Prueba entre varios PCs
+## 11. Textos flotantes
+
+Con el host y dos clientes. Todos los valores salen de los estilos de `Data/UI/FloatingText` y de cada reacción.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Números del básico | Dispara al muñeco. | Números blancos que aparecen con un pequeño pop, suben y se desvanecen en algo más de medio segundo. Los disparos seguidos al mismo enemigo se suman en un solo número. |
+| Números de habilidad | Lanza Estallido sobre el muñeco. | Un número más grande, del color de tu elemento. |
+| Daño de la reacción | Provoca una Sobrecarga sobre un grupo. | Un número claro por cada enemigo alcanzado, aparte del de la habilidad. |
+| Titular de dúo | J1 marca y J2 detona. | Sobre el enemigo sale el nombre en grande, por ejemplo «VAPOR!», con un pop fuerte y un degradado del color de la reacción. Sube y se desvanece en algo más de 1 s. Debajo, «J1 + J2  ¡DÚO!», con cada jugador en su color. Igual en todas las ventanas. |
+| Titular en solitario | Repite «En solitario» de la sección 10. | Debajo sale «J1  EN SOLITARIO», en gris. |
+| Varias a la vez | J1 marca un grupo con Marca y J2 detona varios de una vez. | Las reacciones iguales y cercanas se juntan en un titular que cuenta, por ejemplo «VAPOR! ×3». Si dos titulares se pisarían, el segundo sube un poco. |
+| Sin amontonarse | Con las oleadas, jugad un minuto entre todos. | Nunca hay más de 24 textos a la vez. Cuando faltan huecos, desaparecen antes los números del básico de los demás que los tuyos y que los titulares. |
+| Todo en datos | Durante el Play, cambia en `ReactionHeadline` el tamaño o la duración. Devuélvelo después. | Los titulares nuevos cambian sin tocar código. |
+
+## 12. Prueba entre varios PCs
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|

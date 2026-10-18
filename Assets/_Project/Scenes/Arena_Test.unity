@@ -1932,6 +1932,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1622970963}
   - component: {fileID: 1622970962}
+  - component: {fileID: 1622970964}
   m_Layer: 0
   m_Name: CombatFeedback
   m_TagString: Untagged
@@ -1970,6 +1971,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1622970964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1622970961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff746538ed37e3c48a5e306ad306ae46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FloatingTextSpawner
+  _prefab: {fileID: 3978513137260805928, guid: 3b2f2bc8dc557114a8dce346e3ddcd44, type: 3}
+  _maxTexts: 24
+  _basicDamage: {fileID: 11400000, guid: 0ed3a9865dd04b77bcd560418e2dd90c, type: 2}
+  _skillDamage: {fileID: 11400000, guid: 6df80c1ba255459d9c24953cda027a78, type: 2}
+  _reactionDamage: {fileID: 11400000, guid: 3c47541484084771bb2b674875010348, type: 2}
+  _reactionHeadline: {fileID: 11400000, guid: 3e1995d3fa8442fd88c92ad95c092f21, type: 2}
+  _elements: {fileID: 11400000, guid: 5fa0be1f25473d3449807b8a2f378e6f, type: 2}
+  _playerColors: {fileID: 11400000, guid: 2365da50b238f3a498fe6b27ae1da478, type: 2}
+  _duoColor: {r: 1, g: 1, b: 1, a: 1}
+  _soloColor: {r: 0.757, g: 0.694, b: 0.608, a: 1}
 --- !u!1 &1624701484
 GameObject:
   m_ObjectHideFlags: 0

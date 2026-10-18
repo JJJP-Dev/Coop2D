@@ -29,3 +29,5 @@ MonoBehaviour:
   _knockbackDuration: 0.15
   _stunDuration: 0.5
   _color: {r: 1.0, g: 0.745, b: 0.329, a: 1}
+  _headlineTopColor: {r: 1.0, g: 0.745, b: 0.329, a: 1}
+  _headlineBottomColor: {r: 0.863, g: 0.267, b: 0.184, a: 1}

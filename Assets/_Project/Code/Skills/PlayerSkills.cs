@@ -256,7 +256,7 @@ public class PlayerSkills : NetworkBehaviour
             if (target.TryGetComponent(out AuraHolder aura))
                 aura.TryApply(element, skill.AuraStrength, NetworkObject, slot, skill.CanDetonate);
 
-            target.TryTakeDamage(skill.Damage, NetworkObject);
+            target.TryTakeDamage(skill.Damage, NetworkObject, DamageKind.Skill, element);
             applied++;
         }
     }

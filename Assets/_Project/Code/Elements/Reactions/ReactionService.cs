@@ -90,10 +90,10 @@ public class ReactionService : MonoBehaviour
             SendChain(reaction.Position, definition.Color);
 
         foreach (Health enemy in _enemies)
-            enemy.TryTakeDamage(definition.Damage, detonator);
+            enemy.TryTakeDamage(definition.Damage, detonator, DamageKind.Reaction);
 
         foreach (Health link in _chain)
-            link.TryTakeDamage(definition.ChainDamage, detonator);
+            link.TryTakeDamage(definition.ChainDamage, detonator, DamageKind.Reaction);
     }
 
     // With no radius, only the target. Otherwise every living enemy inside, the target included.

@@ -13,13 +13,19 @@ public readonly struct HitInfo
     public Vector2 Position { get; }
 
     public int Amount { get; }
+    public DamageKind Kind { get; }
 
-    public HitInfo(Health target, NetworkObject attacker, Vector2 position, int amount)
+    // The attack's element. None for reactions and test keys.
+    public ElementType Element { get; }
+
+    public HitInfo(Health target, NetworkObject attacker, Vector2 position, int amount, DamageKind kind, ElementType element)
     {
         Target = target;
         Attacker = attacker;
         Position = position;
         Amount = amount;
+        Kind = kind;
+        Element = element;
     }
 
     // True only on the client whose player caused the hit.

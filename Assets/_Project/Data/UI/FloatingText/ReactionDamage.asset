@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e0d320760be4033bdaa373db336809a, type: 3}
+  m_Name: ReactionDamage
+  m_EditorClassIdentifier: Assembly-CSharp::FloatingTextStyle
+  _fontSize: 5.5
+  _subtextFontSize: 4
+  _color: {r: 0.953, g: 0.933, b: 0.878, a: 1}
+  _offset: {x: 0, y: 1.3}
+  _horizontalJitter: 0.25
+  _lifetime: 0.75
+  _rise: 0.55
+  _riseDuration: 0.3
+  _popScale: 1.3
+  _popDuration: 0.08
+  _fadeDuration: 0.15
+  _priority: 2
+  _mergeWindow: 0
+  _mergeDistance: 0
+  _stackSpacing: 0
+  _stackWidth: 5
+  _maxStackShifts: 0

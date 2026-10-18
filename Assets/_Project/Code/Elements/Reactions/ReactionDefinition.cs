@@ -61,6 +61,11 @@ public class ReactionDefinition : ScriptableObject
     [Tooltip("Color of its burst, cloud and chain. Placeholder until the shared palette is frozen (#44).")]
     [SerializeField] private Color _color = Color.white;
 
+    [Tooltip("The headline's gradient, from the top of the letters to the bottom.")]
+    [SerializeField] private Color _headlineTopColor = Color.white;
+
+    [SerializeField] private Color _headlineBottomColor = Color.white;
+
     public string Id => _id;
     public string VariantId => _variantId;
     public string DisplayName => _displayName;
@@ -78,4 +83,6 @@ public class ReactionDefinition : ScriptableObject
     public float KnockbackDuration => _knockbackDuration;
     public float StunDuration => _stunDuration;
     public Color Color => _color;
+    public Color HeadlineTopColor => _headlineTopColor;
+    public Color HeadlineBottomColor => _headlineBottomColor;
 }
