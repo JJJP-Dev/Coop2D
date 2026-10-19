@@ -9,11 +9,19 @@ public class ConnectionService : MonoBehaviour
 {
     [SerializeField] private NetworkManager _networkManager;
 
+    [Tooltip("The one on the NetworkManager's object. It tells this client when the host rejects its version (#24).")]
+    [SerializeField] private VersionAuthenticator _versionAuthenticator;
+
     [SerializeField]
     private float _timeoutSeconds = 10;
     private Coroutine _timeoutCoroutine;
 
     public FailReason LastFailReason { get; private set; }
+
+    /// <summary>
+    /// The host's version, after it rejected ours. Empty otherwise.
+    /// </summary>
+    public string HostVersion { get; private set; } = string.Empty;
 
     public event Action ServerStarted;
     public event Action<SessionState> ClientConnectionStateChanged;
@@ -41,15 +49,25 @@ public class ConnectionService : MonoBehaviour
     private void Start()
     {
         _networkManager.ClientManager.OnClientConnectionState += OnClientConnectionState;
+        _networkManager.ClientManager.OnAuthenticated += OnClientAuthenticated;
         _networkManager.ServerManager.OnServerConnectionState += OnServerConnectionState;
         _networkManager.SceneManager.OnLoadEnd += OnSceneLoadEnd;
+
+        if (_versionAuthenticator != null)
+            _versionAuthenticator.Rejected += OnVersionRejected;
+        else
+            Debug.LogError("[ConnectionService] Version authenticator is not assigned.", this);
     }
 
     private void OnDestroy()
     {
         _networkManager.ClientManager.OnClientConnectionState -= OnClientConnectionState;
+        _networkManager.ClientManager.OnAuthenticated -= OnClientAuthenticated;
         _networkManager.ServerManager.OnServerConnectionState -= OnServerConnectionState;
         _networkManager.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
+
+        if (_versionAuthenticator != null)
+            _versionAuthenticator.Rejected -= OnVersionRejected;
     }
 
     private void OnServerConnectionState(ServerConnectionStateArgs obj)
@@ -92,12 +110,25 @@ public class ConnectionService : MonoBehaviour
             case LocalConnectionState.Starting:
                 SetState(SessionState.Connecting);
                 break;
+            // Connected to the host's transport, but not let in yet: that comes with OnAuthenticated.
+            // Until then it stays Connecting, so a rejected version is a failed attempt, not a lost session.
             case LocalConnectionState.Started:
-                SetState(SessionState.Connected);
                 break;
             default:
                 break;
         }
+    }
+
+    private void OnClientAuthenticated()
+    {
+        SetState(SessionState.Connected);
+    }
+
+    // The kick arrives right after, and Stopped turns it into a failed attempt with this reason.
+    private void OnVersionRejected(string hostVersion)
+    {
+        HostVersion = hostVersion;
+        LastFailReason = FailReason.VersionMismatch;
     }
 
     private void OnSceneLoadEnd(SceneLoadEndEventArgs args)
@@ -165,6 +196,7 @@ public class ConnectionService : MonoBehaviour
     public void StartClient()
     {
         LastFailReason = FailReason.None;
+        HostVersion = string.Empty;
         _leaveRequested = false;
         StartTimeout();
         _networkManager.ClientManager.StartConnection();

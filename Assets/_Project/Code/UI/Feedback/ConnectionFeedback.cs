@@ -65,6 +65,15 @@ public class ConnectionFeedback : MonoBehaviour
                 );
 
                 break;
+
+            case FailReason.VersionMismatch:
+
+                _gameServices.ToastService.Show(
+                    $"Versión distinta: el host tiene la {_gameServices.ConnectionService.HostVersion} y tú la {Application.version}",
+                    ToastType.Error
+                );
+
+                break;
         }
     }
 }

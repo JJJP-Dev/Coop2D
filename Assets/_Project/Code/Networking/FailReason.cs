@@ -3,5 +3,8 @@ public enum FailReason
     None,
     Timeout,
     ServerFailed,
-    Unreachable
+    Unreachable,
+
+    // The host let us in at the transport, then rejected our version (#24).
+    VersionMismatch
 }

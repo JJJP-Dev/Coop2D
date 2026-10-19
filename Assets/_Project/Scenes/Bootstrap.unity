@@ -137,6 +137,7 @@ GameObject:
   - component: {fileID: 122069406}
   - component: {fileID: 122069408}
   - component: {fileID: 122069407}
+  - component: {fileID: 122069409}
   - component: {fileID: 122069396}
   - component: {fileID: 122069395}
   - component: {fileID: 122069404}
@@ -214,6 +215,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConnectionService
   _networkManager: {fileID: 122069396}
+  _versionAuthenticator: {fileID: 122069409}
   _timeoutSeconds: 10
 --- !u!114 &122069399
 MonoBehaviour:
@@ -345,6 +347,18 @@ MonoBehaviour:
   _hitchThresholdMs: 100
   _summaryInterval: 10
   _inEditor: 0
+--- !u!114 &122069409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 122069393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f52b6d436df387e4c8f46ce7727e4b0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VersionAuthenticator
 --- !u!1 &223192092
 GameObject:
   m_ObjectHideFlags: 0
@@ -1064,7 +1078,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 22400762, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -0.000015258789
       objectReference: {fileID: 0}
     - target: {fileID: 22426080, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
       propertyPath: m_AnchorMax.x
