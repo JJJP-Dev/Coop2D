@@ -69,7 +69,7 @@ Al terminar, la consola debe estar limpia en todas las ventanas: sin errores y s
 
 ## 7. Combate
 
-Con el host y dos clientes, en local y otra vez con latencia. El muñeco de `Arena_Test` tiene 50 de vida, cada disparo le quita 10 y revive al segundo de morir. Los perseguidores tienen 30 y desaparecen al morir, y llegan en oleadas desde los bordes de la arena. Para las pruebas del muñeco, desmarca antes el componente `WaveSpawner` de `Arena_Test` y guarda; vuelve a marcarlo al terminar.
+Con el host y dos clientes, en local y otra vez con latencia. El muñeco de `Arena_Test` tiene 50 de vida, cada disparo le quita 10 y revive al segundo de morir. Los perseguidores tienen 60 y desaparecen al morir, y llegan en oleadas desde los bordes de la arena. Para las pruebas del muñeco, desmarca antes el componente `WaveSpawner` de `Arena_Test` y guarda; vuelve a marcarlo al terminar.
 
 Algunas pruebas cambian ajustes durante el Play. Los cambios en un ScriptableObject se quedan guardados al parar, así que devuélvelos a su valor al terminar.
 
