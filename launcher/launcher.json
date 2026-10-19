@@ -5,7 +5,7 @@
       "level": "info",
       "title": "¡Bienvenido al playtest de Coop2D!",
       "message": "Si algo falla, usa «Reportar un problema» en el menú ⋯.",
-      "url": "https://discord.gg/7JqFvWGwb",
+      "url": "https://discord.gg/qwxxSMsT9Z",
       "linkText": "Unirme al Discord",
       "dismissible": true
     }
@@ -16,7 +16,7 @@
   ],
 
   "links": [
-    { "label": "Discord", "url": "https://discord.gg/7JqFvWGwb", "icon": "discord" }
+    { "label": "Discord", "url": "https://discord.gg/qwxxSMsT9Z", "icon": "discord" }
   ],
 
   "playtests": [
@@ -27,7 +27,7 @@
       "startsUtc": "2026-10-21T21:00:00+01:00",
       "durationMinutes": 30,
       "requiredVersion": "2D_0.0.4_Prototype2.zip",
-      "discordUrl": "https://discord.gg/7JqFvWGwb"
+      "discordUrl": "https://discord.gg/qwxxSMsT9Z"
     }
   ],
 
