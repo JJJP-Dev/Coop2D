@@ -5,7 +5,7 @@
   "askAfterSession": true,
   "minSessionMinutes": 10,
   "minHoursBetweenPrompts": 12,
-  "discordWebhookUrl": "https://discord.com/api/webhooks/1561612540679561276/SxyhbBfJftULXOGKOhdocP63eXk1Jgyp3viYrpy5cpVVFNjdLWG3cj5XVqxKfUXGFMg2",
+  "discordWebhookUrl": "pw1:KqGEBDifwck-TwOUdEU3FfiF92tbRR3XULjz1flmRHzSBF5NF1Ea5BLjNc_eq2u0RXVtpswaSKMl9UPcl68vUvz6nUuXGXU-hS3hlhywmDEVcuo_KCc15Tk5dfqaJWI4aY8moJuXtEvcEhoHLJ-AU1v_RamLOVZg20XNIrL0wjzJB-YUCYZs",
   "questions": [
     {
       "id": "overall",
