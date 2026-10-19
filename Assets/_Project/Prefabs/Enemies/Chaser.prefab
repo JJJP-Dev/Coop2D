@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 2284705337099947984}
   - component: {fileID: 117518165453389354}
   - component: {fileID: 5724213879338924401}
+  - component: {fileID: 3437647642039921991}
   m_Layer: 6
   m_Name: Chaser
   m_TagString: Untagged
@@ -301,6 +302,22 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &3437647642039921991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4656169696984199199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 401eb66af04aa5e478239c34b233e439, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitFlash
+  _profile: {fileID: 11400000, guid: b6925a228ca87bc4aac7ee79b95e1681, type: 2}
+  _flashMaterial: {fileID: 2100000, guid: 80f9f97a186c95140a39422742057493, type: 2}
+  _renderers:
+  - {fileID: 3840158639380538926}
 --- !u!1 &4780370127092850077
 GameObject:
   m_ObjectHideFlags: 0

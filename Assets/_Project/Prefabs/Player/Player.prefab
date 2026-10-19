@@ -203,6 +203,7 @@ GameObject:
   - component: {fileID: 8570078963972895824}
   - component: {fileID: 5825478223105688158}
   - component: {fileID: 4484037113358846217}
+  - component: {fileID: 5074802504927878542}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -528,6 +529,22 @@ MonoBehaviour:
   - {fileID: 0}
   _castSettings: {fileID: 11400000, guid: 594ecbe671e2beb429becdeabc77e0ca, type: 2}
   _elements: {fileID: 11400000, guid: 5fa0be1f25473d3449807b8a2f378e6f, type: 2}
+--- !u!114 &5074802504927878542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4950291352465746428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 401eb66af04aa5e478239c34b233e439, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitFlash
+  _profile: {fileID: 11400000, guid: b6925a228ca87bc4aac7ee79b95e1681, type: 2}
+  _flashMaterial: {fileID: 2100000, guid: 80f9f97a186c95140a39422742057493, type: 2}
+  _renderers:
+  - {fileID: 1516942260192534978}
 --- !u!1 &5171306280570818574
 GameObject:
   m_ObjectHideFlags: 0

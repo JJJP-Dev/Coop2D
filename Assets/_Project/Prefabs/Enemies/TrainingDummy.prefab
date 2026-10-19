@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5180513599228201881}
   - component: {fileID: -4825408410532370113}
   - component: {fileID: 8718966909931752708}
+  - component: {fileID: 1712683796885007465}
   m_Layer: 6
   m_Name: TrainingDummy
   m_TagString: Untagged
@@ -191,6 +192,22 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.82, y: 0.7}
   m_EdgeRadius: 0
+--- !u!114 &1712683796885007465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4656169696984199199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 401eb66af04aa5e478239c34b233e439, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitFlash
+  _profile: {fileID: 11400000, guid: b6925a228ca87bc4aac7ee79b95e1681, type: 2}
+  _flashMaterial: {fileID: 2100000, guid: 80f9f97a186c95140a39422742057493, type: 2}
+  _renderers:
+  - {fileID: 3840158639380538926}
 --- !u!1 &4780370127092850077
 GameObject:
   m_ObjectHideFlags: 0
