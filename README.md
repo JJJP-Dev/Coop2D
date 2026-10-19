@@ -12,7 +12,7 @@ Este proyecto es, ante todo, un campo de entrenamiento: el objetivo es aprender 
 
 | Herramienta | Versión |
 | --- | --- |
-| Unity | **6000.3.TODO** (Unity 6.3 LTS). Todos usamos exactamente la misma versión |
+| Unity | **6000.3.5f2** (Unity 6.3 LTS). Todos usamos exactamente la misma versión |
 | Render pipeline | URP, plantilla Universal 2D |
 | Red | FishNet 4.7.3R |
 | Arte | Aseprite |
@@ -46,7 +46,8 @@ Assets/
     Prefabs/
     Scenes/
     Settings/   input actions, rendering, presets de importación
-  FishNet/      archivos del paquete, no editar
+  ThirdParty/
+    FishNet/    archivos del paquete, no editar
   Sandbox/
     <TuNombre>/ tus escenas de prueba; nunca entran en las builds
 ```
@@ -81,10 +82,10 @@ Assets/
 
 ## Flujo de Git
 
-- Una rama por tarea: `feature/health-bar`, `fix/enemy-spawn`, `art/slime-walk`.
-- Cada pull request incluye una frase de **qué hace** y **cómo probarlo**.
-- Todo pull request necesita la aprobación de otra persona, también los de quien lidera.
-- Las tareas se siguen como issues en GitHub Projects: *To do → In progress → In review → Done*.
+- **Por ahora, sin revisión de pull requests**, para no frenar el desarrollo: los cambios van a `main` con push directo, en commits pequeños.
+- Antes de subir algo que toque la red, los jugadores o los menús, pasa la [lista de pruebas](docs/testing.md).
+- El mensaje de cada commit dice qué hace y cita el issue (`#73`). Si el cambio es grande o arriesgado, usa una rama (`feature/health-bar`, `fix/enemy-spawn`, `art/slime-walk`) y fusiónala cuando funcione.
+- Las tareas se siguen como issues en GitHub Projects: *To do → In progress → Done*.
 
 ## Cuándo una tarea está hecha
 
@@ -92,7 +93,7 @@ Una tarea está hecha cuando:
 
 - Funciona en host y en cliente.
 - No da errores en la consola.
-- Está revisada y fusionada.
+- Está en `main`.
 - Quien la hizo sabe explicarla.
 
 ## Regla de la IA
@@ -111,7 +112,7 @@ La regla depende del rol, y el arte lo hacemos siempre nosotros.
 **Programador principal** (Palito): puede usar código generado con IA, con estas condiciones:
 
 - Solo entra en `main` si sabe explicar cada línea.
-- Pasa por pull request y revisión igual que el resto, en PRs pequeños.
+- Entra en cambios pequeños, que se puedan entender y deshacer por separado.
 - Cumple las convenciones del proyecto: nombres, datos en ScriptableObjects, autoridad del host.
 - Nunca arte generado.
 
