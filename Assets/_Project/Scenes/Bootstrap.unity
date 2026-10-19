@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 122069402}
   - component: {fileID: 122069405}
   - component: {fileID: 122069406}
+  - component: {fileID: 122069408}
   - component: {fileID: 122069407}
   - component: {fileID: 122069396}
   - component: {fileID: 122069395}
@@ -307,7 +308,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 122069393}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b530e87f6f88ee3448440fceb7934d88, type: 3}
   m_Name: 
@@ -328,6 +329,22 @@ MonoBehaviour:
   _enemyLayers:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &122069408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 122069393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00136edfcb804133a80d5551fe1de93b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PerformanceLogger
+  _networkManager: {fileID: 122069396}
+  _hitchThresholdMs: 100
+  _summaryInterval: 10
+  _inEditor: 0
 --- !u!1 &223192092
 GameObject:
   m_ObjectHideFlags: 0
@@ -1041,9 +1058,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: IngameDebugConsole
       objectReference: {fileID: 0}
+    - target: {fileID: 11452418, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
+      propertyPath: maxLogCount
+      value: 1000
+      objectReference: {fileID: 0}
     - target: {fileID: 22400762, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.000019073486
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22426080, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
       propertyPath: m_AnchorMax.x

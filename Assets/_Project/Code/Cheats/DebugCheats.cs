@@ -77,6 +77,7 @@ public class DebugCheats : NetworkBehaviour
 
         // Into the arena's scene, so it goes away with it, like the waves' enemies.
         Spawn(enemy.gameObject, null, gameObject.scene);
+        LogCheat(caller, $"spawned {enemies[index].name}");
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -85,12 +86,19 @@ public class DebugCheats : NetworkBehaviour
         if (!IsAllowed(caller))
             return;
 
+        int killed = 0;
+
         // Through their health, so whatever listens for deaths hears them, like the waves' count.
         foreach (Enemy enemy in FindObjectsByType<Enemy>(FindObjectsSortMode.None))
         {
-            if (enemy.IsSpawned && enemy.TryGetComponent(out Health health))
+            if (enemy.IsSpawned && enemy.TryGetComponent(out Health health) && !health.IsDead)
+            {
                 health.Kill();
+                killed++;
+            }
         }
+
+        LogCheat(caller, $"killed every enemy ({killed})");
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -106,9 +114,14 @@ public class DebugCheats : NetworkBehaviour
         }
 
         if (_waveSpawner.TrySkipToNextWave(out float startTime))
+        {
             TargetReport(caller, $"Saltas a la oleada de {FormatTime(startTime)}", ToastType.Info);
+            LogCheat(caller, $"skipped to the wave at {FormatTime(startTime)}");
+        }
         else
+        {
             TargetReport(caller, "No quedan más oleadas", ToastType.Warning);
+        }
     }
 
     // Only the player who asks: each one decides about their own.
@@ -119,8 +132,11 @@ public class DebugCheats : NetworkBehaviour
             return;
 
         NetworkObject player = caller.FirstObject;
-        if (player != null && player.TryGetComponent(out Health health))
-            health.SetInvulnerable(!health.IsInvulnerable);
+        if (player == null || !player.TryGetComponent(out Health health))
+            return;
+
+        health.SetInvulnerable(!health.IsInvulnerable);
+        LogCheat(caller, health.IsInvulnerable ? "invulnerable on" : "invulnerable off");
     }
 
     // Players, enemies and dummies alike. The invulnerable ones ignore it.
@@ -135,6 +151,8 @@ public class DebugCheats : NetworkBehaviour
             if (health.IsSpawned)
                 health.TryTakeDamage(_settings.DamageAllAmount, null);
         }
+
+        LogCheat(caller, $"damaged everything by {_settings.DamageAllAmount}");
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -148,6 +166,8 @@ public class DebugCheats : NetworkBehaviour
             if (health.IsSpawned)
                 health.RestoreFull();
         }
+
+        LogCheat(caller, "healed everything");
     }
 
     // Only to whoever asked: the others don't need to know.
@@ -155,6 +175,12 @@ public class DebugCheats : NetworkBehaviour
     private void TargetReport(NetworkConnection target, string message, ToastType type)
     {
         GameServices.Instance.ToastService.Show(message, type);
+    }
+
+    // One line each, without a call stack, so a test's log shows when someone used one.
+    private void LogCheat(NetworkConnection caller, string what)
+    {
+        Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, this, "[DebugCheats] Client {0}: {1}.", caller.ClientId, what);
     }
 
     // A release build ignores cheats, even from a modified client.

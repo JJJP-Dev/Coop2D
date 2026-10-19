@@ -213,6 +213,14 @@ Con el host y un cliente. Funciona en el editor y en las builds con *Development
 
 El ping del panel se mide en ticks de 33 ms y se actualiza una vez por segundo. En local saldrá entre 0 y 33 ms, y en el host siempre unos 33. Compáralo entre vuestras pruebas, no con el ping de otros juegos.
 
+En las builds de desarrollo, `PerformanceLogger` (en el objeto NetworkManager de `Bootstrap`) escribe en el log de cada jugador:
+
+- `[Perf] Hitch`: cada fotograma de más de 100 ms. Lleva los enemigos que había, los pasos de física y los ticks de red de ese fotograma, si hubo recolección de basura, los golpes, muertes y reacciones que llegaron, y los bytes recibidos.
+- `[Perf] Summary`: cada 10 s. Lleva los FPS, el peor fotograma, los enemigos, proyectiles y objetos que hay, los eventos y el tráfico por segundo, y la memoria.
+- `[DebugCheats]`: cada truco del panel y quién lo usó (solo en el log del host).
+
+Si alguien nota tirones o congelaciones, apuntad la hora y pedid el log de todos: cada línea lleva la hora del PC, así que se pueden cruzar.
+
 Si la build se cierra de golpe, pide a quien la jugaba el archivo:
 
 ```

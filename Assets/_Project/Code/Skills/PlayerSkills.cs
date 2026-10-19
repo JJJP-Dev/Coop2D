@@ -256,8 +256,11 @@ public class PlayerSkills : NetworkBehaviour
             if (target.TryGetComponent(out AuraHolder aura))
                 aura.TryApply(element, skill.AuraStrength, NetworkObject, slot, skill.CanDetonate);
 
-            target.TryTakeDamage(skill.Damage, NetworkObject, DamageKind.Skill, element);
             applied++;
+
+            // The reaction it just detonated may have killed it, and a dead enemy is already despawned.
+            if (!target.IsDead)
+                target.TryTakeDamage(skill.Damage, NetworkObject, DamageKind.Skill, element);
         }
     }
 
