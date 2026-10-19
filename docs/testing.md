@@ -170,6 +170,7 @@ Los efectos de cada variante, con el spawner marcado y contra perseguidores, por
 | Se ve la explosión | Provoca cada reacción. | Sale un círculo del color de la reacción, igual en todas las ventanas: cian el Vapor, amarillo la Electrocución y naranja la Sobrecarga. Su tamaño es el de su daño en área. |
 | Se ve la nube | Provoca los dos Vapor. | Queda una nube cian translúcida del tamaño de la zona lenta, que dura lo mismo que ella: 3 s o 1,5 s. |
 | Se ve la cadena | Repite «Electrocución (agua → electricidad)». | Una línea amarilla en zigzag salta de enemigo en enemigo, uno por fotograma, en todas las ventanas. |
+| Temblor de cámara | Cerca de tu jugador, provoca una reacción en solitario y luego un dúo. Después, varias a la vez sobre un grupo. | La pantalla tiembla un instante, algo más con el dúo, en las ventanas que tienen la reacción a la vista. Con varias a la vez tiembla una sola vez. Los valores salen de `Data/Camera/ReactionShake`. |
 
 ## 11. Textos flotantes
 
@@ -196,11 +197,13 @@ Con el host y un cliente. Funciona en el editor y en las builds con *Development
 |---|---|---|
 | Abrir y cerrar | Pulsa F1 en cualquier ventana, y otra vez. | El panel se abre solo en esa ventana y se cierra con el segundo F1. Hacer clic en sus botones no lanza habilidades. |
 | Generar un enemigo | Desde el cliente, pulsa «Generar Chaser» varias veces. | Cada vez sale un Chaser a 4 unidades del jugador que lo pidió, en una dirección al azar. Sale en todas las ventanas y persigue al jugador más cercano. |
+| Generar en tandas | Pulsa «Generar 10 Chaser». | Salen 10 a la vez alrededor de quien lo pidió. |
 | Matar a todos | Con varios enemigos vivos, pulsa «Matar a todos». | Mueren todos a la vez, con su número, en todas las ventanas. Los muñecos y los jugadores no cambian. |
 | El tope sigue bien | Llena el tope de enemigos de las oleadas y pulsa «Matar a todos». | Siguen saliendo los que esperaban sitio. |
 | Invulnerable | En el cliente, pulsa «Invulnerable: no» y luego «Dañar a todos». | El botón pasa a «Invulnerable: sí» y la vida de ese jugador dice «invulnerable» en todas las ventanas. Su vida no baja y la de los demás sí. Al pulsarlo otra vez vuelve a «no». |
 | Dañar y curar a todos | Pulsa «Dañar a todos» y luego «Curar a todos». | Bajan 10 las vidas de jugadores, enemigos y muñecos, y vuelven al máximo, en todas las ventanas. |
 | Siguiente oleada | Con las oleadas activas, pulsa «Siguiente oleada» varias veces. | Quien lo pulsa ve «Saltas a la oleada de M:SS» y empiezan a salir esos enemigos. Lo que quedaba de las oleadas anteriores ya no sale. Tras la última, el aviso dice «No quedan más oleadas». |
+| Reiniciar oleadas | Con las oleadas a medias, o ya terminadas, pulsa «Reiniciar oleadas». | Mueren todos los enemigos, quien lo pulsa ve «Oleadas reiniciadas» y vuelve a salir la primera oleada, como al empezar la partida. |
 | Build de lanzamiento | Haz una build sin *Development Build* y pulsa F1. | No pasa nada: el panel no existe. |
 
 ## 13. Prueba entre varios PCs

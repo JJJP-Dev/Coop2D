@@ -95,6 +95,19 @@ public class WaveSpawner : NetworkBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Server only, for the cheats panel. Starts the schedule again from the beginning.
+    /// The enemies still alive stay and count against the cap, so kill them first.
+    /// </summary>
+    public void RestartWaves()
+    {
+        if (!IsServerInitialized || _spawnedPerWave == null)
+            return;
+
+        _elapsed = 0f;
+        System.Array.Clear(_spawnedPerWave, 0, _spawnedPerWave.Length);
+    }
+
     // Spawns every enemy of the wave whose time has come, while there is room.
     // Those held back by the cap come out as soon as others die.
     private void SpawnDueEnemies(WaveEntry wave, int index)

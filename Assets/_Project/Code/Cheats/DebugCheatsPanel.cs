@@ -13,11 +13,12 @@ public class DebugCheatsPanel : MonoBehaviour
     [Tooltip("What F1 shows and hides. A child of this object, so this one keeps listening.")]
     [SerializeField] private GameObject _window;
 
-    [Tooltip("Hidden, and copied once per enemy in the cheats settings, right after itself.")]
+    [Tooltip("Hidden, and copied right after itself once per enemy and amount in the cheats settings.")]
     [SerializeField] private Button _enemyButtonTemplate;
 
     [SerializeField] private Button _killAllButton;
     [SerializeField] private Button _nextWaveButton;
+    [SerializeField] private Button _restartWavesButton;
 
     [Tooltip("Its text says whether your player is invulnerable.")]
     [SerializeField] private Button _invulnerableButton;
@@ -39,7 +40,7 @@ public class DebugCheatsPanel : MonoBehaviour
         }
 
         if (_cheats == null || _cheats.Settings == null || _window == null || _enemyButtonTemplate == null ||
-            _killAllButton == null || _nextWaveButton == null || _invulnerableButton == null ||
+            _killAllButton == null || _nextWaveButton == null || _restartWavesButton == null || _invulnerableButton == null ||
             _damageAllButton == null || _healAllButton == null)
         {
             Debug.LogError("[DebugCheatsPanel] Cheats, their settings, the window or a button are not assigned.", this);
@@ -52,6 +53,7 @@ public class DebugCheatsPanel : MonoBehaviour
 
         _killAllButton.onClick.AddListener(_cheats.KillAllEnemies);
         _nextWaveButton.onClick.AddListener(_cheats.SkipToNextWave);
+        _restartWavesButton.onClick.AddListener(_cheats.RestartWaves);
         _invulnerableButton.onClick.AddListener(_cheats.ToggleInvulnerable);
         _damageAllButton.onClick.AddListener(_cheats.DamageAll);
         _healAllButton.onClick.AddListener(_cheats.HealAll);
@@ -104,6 +106,7 @@ public class DebugCheatsPanel : MonoBehaviour
 
         Transform template = _enemyButtonTemplate.transform;
         IReadOnlyList<Enemy> enemies = _cheats.Settings.Enemies;
+        IReadOnlyList<int> amounts = _cheats.Settings.SpawnAmounts;
         int created = 0;
 
         for (int i = 0; i < enemies.Count; i++)
@@ -111,15 +114,21 @@ public class DebugCheatsPanel : MonoBehaviour
             if (enemies[i] == null)
                 continue;
 
-            Button button = Instantiate(_enemyButtonTemplate, template.parent);
-            button.transform.SetSiblingIndex(template.GetSiblingIndex() + 1 + created);
-            button.gameObject.SetActive(true);
-            button.GetComponentInChildren<TMP_Text>().text = $"Generar {enemies[i].name}";
+            for (int j = 0; j < amounts.Count; j++)
+            {
+                Button button = Instantiate(_enemyButtonTemplate, template.parent);
+                button.transform.SetSiblingIndex(template.GetSiblingIndex() + 1 + created);
+                button.gameObject.SetActive(true);
 
-            // Each button needs its own copy: the lambda would otherwise see i after the loop.
-            int index = i;
-            button.onClick.AddListener(() => _cheats.SpawnEnemy(index));
-            created++;
+                string amount = amounts[j] > 1 ? $"{amounts[j]} " : "";
+                button.GetComponentInChildren<TMP_Text>().text = $"Generar {amount}{enemies[i].name}";
+
+                // Each button needs its own copies: the lambda would otherwise see i and j after the loops.
+                int enemyIndex = i;
+                int amountIndex = j;
+                button.onClick.AddListener(() => _cheats.SpawnEnemy(enemyIndex, amountIndex));
+                created++;
+            }
         }
     }
 }

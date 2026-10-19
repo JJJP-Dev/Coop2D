@@ -15,4 +15,7 @@ MonoBehaviour:
   _enemies:
   - {fileID: 1898934464352658694, guid: 82f0f5512bae53a4cb59e8d52f74bbcb, type: 3}
   _spawnDistance: 4
+  _spawnAmounts:
+  - 1
+  - 10
   _damageAllAmount: 10

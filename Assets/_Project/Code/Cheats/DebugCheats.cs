@@ -9,7 +9,7 @@ public class DebugCheats : NetworkBehaviour
 {
     [SerializeField] private DebugCheatsSettings _settings;
 
-    [Tooltip("Optional: without it, Next Wave only says there are no waves.")]
+    [Tooltip("Optional: without it, Next Wave and Restart Waves only say there are no waves.")]
     [SerializeField] private WaveSpawner _waveSpawner;
 
     public DebugCheatsSettings Settings => _settings;
@@ -21,10 +21,10 @@ public class DebugCheats : NetworkBehaviour
     }
 
     // Called by the panel on its own client. Each one asks the host.
-    public void SpawnEnemy(int index)
+    public void SpawnEnemy(int enemyIndex, int amountIndex)
     {
         if (IsClientInitialized)
-            ServerSpawnEnemy(index);
+            ServerSpawnEnemy(enemyIndex, amountIndex);
     }
 
     public void KillAllEnemies()
@@ -37,6 +37,12 @@ public class DebugCheats : NetworkBehaviour
     {
         if (IsClientInitialized)
             ServerSkipToNextWave();
+    }
+
+    public void RestartWaves()
+    {
+        if (IsClientInitialized)
+            ServerRestartWaves();
     }
 
     public void ToggleInvulnerable()
@@ -60,24 +66,35 @@ public class DebugCheats : NetworkBehaviour
     // Nobody owns this scene object, so it has to allow calls from anyone.
     // FishNet fills in caller with the connection that sent it.
     [ServerRpc(RequireOwnership = false)]
-    private void ServerSpawnEnemy(int index, NetworkConnection caller = null)
+    private void ServerSpawnEnemy(int enemyIndex, int amountIndex, NetworkConnection caller = null)
     {
         if (!IsAllowed(caller))
             return;
 
-        // Only the index travels: the host takes the prefab from its own copy of the settings.
+        // Only indexes travel: the host takes the prefab and the amount from its own copy of the settings,
+        // so nobody can ask for a thousand at once.
         IReadOnlyList<Enemy> enemies = _settings.Enemies;
-        if (index < 0 || index >= enemies.Count || enemies[index] == null)
+        IReadOnlyList<int> amounts = _settings.SpawnAmounts;
+        if (enemyIndex < 0 || enemyIndex >= enemies.Count || enemies[enemyIndex] == null ||
+            amountIndex < 0 || amountIndex >= amounts.Count)
         {
-            Debug.LogWarning($"[DebugCheats] Client {caller.ClientId} asked for enemy {index}, which isn't in the settings.", this);
+            Debug.LogWarning($"[DebugCheats] Client {caller.ClientId} asked for enemy {enemyIndex} and amount {amountIndex}, " +
+                             "which aren't in the settings.", this);
             return;
         }
 
-        Enemy enemy = Instantiate(enemies[index], PickSpawnPosition(caller), Quaternion.identity);
+        Enemy prefab = enemies[enemyIndex];
+        int amount = Mathf.Max(1, amounts[amountIndex]);
 
-        // Into the arena's scene, so it goes away with it, like the waves' enemies.
-        Spawn(enemy.gameObject, null, gameObject.scene);
-        LogCheat(caller, $"spawned {enemies[index].name}");
+        for (int i = 0; i < amount; i++)
+        {
+            Enemy enemy = Instantiate(prefab, PickSpawnPosition(caller), Quaternion.identity);
+
+            // Into the arena's scene, so it goes away with it, like the waves' enemies.
+            Spawn(enemy.gameObject, null, gameObject.scene);
+        }
+
+        LogCheat(caller, $"spawned {amount} {prefab.name}");
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -86,19 +103,7 @@ public class DebugCheats : NetworkBehaviour
         if (!IsAllowed(caller))
             return;
 
-        int killed = 0;
-
-        // Through their health, so whatever listens for deaths hears them, like the waves' count.
-        foreach (Enemy enemy in FindObjectsByType<Enemy>(FindObjectsSortMode.None))
-        {
-            if (enemy.IsSpawned && enemy.TryGetComponent(out Health health) && !health.IsDead)
-            {
-                health.Kill();
-                killed++;
-            }
-        }
-
-        LogCheat(caller, $"killed every enemy ({killed})");
+        LogCheat(caller, $"killed every enemy ({KillEveryEnemy()})");
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -122,6 +127,26 @@ public class DebugCheats : NetworkBehaviour
         {
             TargetReport(caller, "No quedan más oleadas", ToastType.Warning);
         }
+    }
+
+    // Every enemy dies first, so the waves' count of living enemies is back to zero when they start again.
+    [ServerRpc(RequireOwnership = false)]
+    private void ServerRestartWaves(NetworkConnection caller = null)
+    {
+        if (!IsAllowed(caller))
+            return;
+
+        if (_waveSpawner == null)
+        {
+            TargetReport(caller, "No hay oleadas en esta escena", ToastType.Warning);
+            return;
+        }
+
+        int killed = KillEveryEnemy();
+        _waveSpawner.RestartWaves();
+
+        TargetReport(caller, "Oleadas reiniciadas", ToastType.Info);
+        LogCheat(caller, $"restarted the waves ({killed} enemies killed)");
     }
 
     // Only the player who asks: each one decides about their own.
@@ -175,6 +200,23 @@ public class DebugCheats : NetworkBehaviour
     private void TargetReport(NetworkConnection target, string message, ToastType type)
     {
         GameServices.Instance.ToastService.Show(message, type);
+    }
+
+    // Through their health, so whatever listens for deaths hears them, like the waves' count.
+    private static int KillEveryEnemy()
+    {
+        int killed = 0;
+
+        foreach (Enemy enemy in FindObjectsByType<Enemy>(FindObjectsSortMode.None))
+        {
+            if (enemy.IsSpawned && enemy.TryGetComponent(out Health health) && !health.IsDead)
+            {
+                health.Kill();
+                killed++;
+            }
+        }
+
+        return killed;
     }
 
     // One line each, without a call stack, so a test's log shows when someone used one.
