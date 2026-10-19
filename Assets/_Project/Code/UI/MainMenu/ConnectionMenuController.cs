@@ -5,6 +5,10 @@ using UnityEngine.UI;
 
 public class ConnectionMenuController : MonoBehaviour
 {
+    // Where the last address someone tried to join is kept between sessions (#38).
+    // In the Windows registry, under the company and product names of the Player settings.
+    private const string LastAddressKey = "LastJoinAddress";
+
     private ConnectionService _connectionService;
 
     [SerializeField]
@@ -18,6 +22,10 @@ public class ConnectionMenuController : MonoBehaviour
     private void Awake()
     {
         _connectionService = GameServices.Instance.ConnectionService;
+
+        // Only into an empty field: whatever is already written there wins.
+        if (string.IsNullOrEmpty(_ipField.text))
+            _ipField.text = PlayerPrefs.GetString(LastAddressKey, string.Empty);
     }
 
     private void OnEnable()
@@ -75,6 +83,11 @@ public class ConnectionMenuController : MonoBehaviour
             GameServices.Instance.ToastService.Show("IP no válida", ToastType.Warning);
             return;
         }
+
+        // Saved on every valid attempt, not only on success: if the host is down,
+        // the address is still there for the next try.
+        PlayerPrefs.SetString(LastAddressKey, address.ToString());
+        PlayerPrefs.Save();
 
         _connectionService.SetIPAddress(address.ToString());
         _connectionService.StartClient();
