@@ -3,8 +3,8 @@
   "title": "Misiones del Pre 2",
   "intro": "Prueba esto en la sesión del miércoles. Lo que consigas se marca solo.",
   "minGameVersion": "0.0.4-prototype.2",
-  "startsUtc": "2026-10-19T19:00:00+01:00",
-  "endsUtc":   "2026-11-07T23:59:00+01:00",
+  "startsUtc": "2026-10-21T19:00:00+01:00",
+  "endsUtc":   "2026-10-31T23:59:00+01:00",
   "missions": [
     {
       "id": "duo-vapor",
