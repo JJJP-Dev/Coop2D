@@ -1,13 +1,13 @@
 {
   "announcements": [
     {
-      "id": "bienvenida-1",
+      "id": "bienvenida-2",
       "level": "info",
-      "title": "¡Bienvenido al playtest de Coop2D!",
+      "title": "¡Bienvenido al playtest de Coop2D! - Prueba 2",
       "message": "Si algo falla, usa «Reportar un problema» en el menú ⋯.",
       "url": "https://discord.gg/qwxxSMsT9Z",
       "linkText": "Unirme al Discord",
-      "dismissible": true
+      "dismissible": false
     }
   ],
 
