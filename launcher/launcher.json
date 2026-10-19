@@ -1,0 +1,40 @@
+{
+  "announcements": [
+    {
+      "id": "bienvenida-1",
+      "level": "info",
+      "title": "¡Bienvenido al playtest de Coop2D!",
+      "message": "Si algo falla, usa «Reportar un problema» en el menú ⋯.",
+      "url": "https://discord.gg/7JqFvWGwb",
+      "linkText": "Unirme al Discord",
+      "dismissible": true
+    }
+  ],
+
+  "blockedBuilds": [
+    { "match": "v0.0.2", "reason": "Tiene problemas de rendimiento con muchos NPC's." }
+  ],
+
+  "links": [
+    { "label": "Discord", "url": "https://discord.gg/7JqFvWGwb", "icon": "discord" }
+  ],
+
+  "playtests": [
+    {
+      "id": "pre2-sesion-1",
+      "title": "Prueba de diversión del Pre 2",
+      "description": "Probamos las reacciones entre elementos. Entrad al canal de voz 5 minutos antes.",
+      "startsUtc": "2026-10-21T21:00:00+01:00",
+      "durationMinutes": 30,
+      "requiredVersion": "2D_0.0.4_Prototype2.zip",
+      "discordUrl": "https://discord.gg/7JqFvWGwb"
+    }
+  ],
+
+  "hosting": {
+    "port": 7770,
+    "notes": "Abre el puerto UDP 7770 en tu router o usad Radmin VPN."
+  },
+
+  "bugReportWebhookUrl": "https://discord.com/api/webhooks/1561612540679561276/SxyhbBfJftULXOGKOhdocP63eXk1Jgyp3viYrpy5cpVVFNjdLWG3cj5XVqxKfUXGFMg2"
+}
