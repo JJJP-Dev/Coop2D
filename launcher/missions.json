@@ -1,0 +1,23 @@
+{
+  "id": "pre2-sesion-1",
+  "title": "Misiones del Pre 2",
+  "intro": "Prueba esto en la sesión del miércoles. Lo que consigas se marca solo.",
+  "minGameVersion": "0.0.4-prototype.2",
+  "startsUtc": "2026-10-21T19:00:00+01:00",
+  "endsUtc":   "2026-11-07T23:59:00+01:00",
+  "missions": [
+    {
+      "id": "duo-vapor",
+      "title": "Provoca un Vapor en dúo",
+      "hint": "Uno marca con fuego (básico o clic derecho) y el otro detona con agua (clic izquierdo).",
+      "goal": { "event": "reaction", "where": { "variant": "vapor_*", "duo": true, "me": ["aura", "detonator"] } },
+      "check": "¿Se vio el titular «VAPOR!» y la nube?"
+    },
+    {
+      "id": "numeros",
+      "title": "Fíjate en los números de daño",
+      "hint": "¿Se leen bien en medio de una oleada?",
+      "manual": true
+    }
+  ]
+}
