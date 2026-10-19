@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1edfcde6fdc4f91b2ec49764ef80bd8, type: 3}
   m_Name: ReactionShake
   m_EditorClassIdentifier: Assembly-CSharp::ReactionShakeSettings
-  _soloStrength: 0.1
-  _duoStrength: 0.2
+  _soloStrength: 0.2
+  _duoStrength: 0.35
   _maxDistance: 12
   _minInterval: 0.15
