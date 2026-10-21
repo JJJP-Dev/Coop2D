@@ -15,6 +15,9 @@ public class SceneFlowService : MonoBehaviour
     [SerializeField]
     private string _menuSceneName;
 
+    // Set for a single host, like the reaction test scene (#147). Empty: the starting scene.
+    private string _nextHostSceneName;
+
     private void OnEnable()
     {
         // Only the server will load Scenes
@@ -41,15 +44,26 @@ public class SceneFlowService : MonoBehaviour
             LoadMenuScene();
     }
 
+    /// <summary>
+    /// The next host opens this scene instead of the starting one. Only that host: the one after goes back to normal.
+    /// </summary>
+    public void SetSceneForNextHost(string sceneName)
+    {
+        _nextHostSceneName = sceneName;
+    }
+
     void LoadStartingScene()
     {
-        if (!Application.CanStreamedLevelBeLoaded(_startingSceneName))
+        string sceneName = string.IsNullOrEmpty(_nextHostSceneName) ? _startingSceneName : _nextHostSceneName;
+        _nextHostSceneName = null;
+
+        if (!Application.CanStreamedLevelBeLoaded(sceneName))
         {
-            Debug.LogError("[SceneFlowService] This Starting Scene name is not valid.");
+            Debug.LogError($"[SceneFlowService] Scene '{sceneName}' can't be loaded. Is it in the Build Profile's scene list?");
             return;
         }
 
-        SceneLoadData loadData = new SceneLoadData(_startingSceneName);
+        SceneLoadData loadData = new SceneLoadData(sceneName);
         // If you don't replace All, Bootstrap was not loaded by FishNet so it wont be unloaded
         loadData.ReplaceScenes = ReplaceOption.All;
         _networkManager.SceneManager.LoadGlobalScenes(loadData);
@@ -59,6 +73,9 @@ public class SceneFlowService : MonoBehaviour
     {
         if (newState == SessionState.Lost || newState == SessionState.Failed || newState == SessionState.Disconnected)
         {
+            // A host that never started doesn't carry its scene over to the next try.
+            _nextHostSceneName = null;
+
             if (UnitySceneManager.GetActiveScene().name != _menuSceneName)
                 LoadMenuScene();
         }

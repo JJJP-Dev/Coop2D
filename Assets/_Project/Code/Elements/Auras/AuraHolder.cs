@@ -157,6 +157,23 @@ public class AuraHolder : NetworkBehaviour
         GameServices.Instance.CombatEventService.RaiseReaction(new ReactionInfo(this, reaction, position, auraOwner, detonator));
     }
 
+    /// <summary>
+    /// Server only, for the reaction test scene (#147): no aura, no lockout and no cooldowns,
+    /// as if the enemy had just appeared.
+    /// </summary>
+    public void ResetForTesting()
+    {
+        if (!IsServerInitialized)
+        {
+            Debug.LogWarning("[AuraHolder] Only the server can reset auras.", this);
+            return;
+        }
+
+        _nextApplyTimes.Clear();
+        _reactionLockedUntil = 0f;
+        Clear();
+    }
+
     private void Update()
     {
         if (IsServerInitialized && HasAura && Time.time >= _expiresAt)

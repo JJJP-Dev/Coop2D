@@ -70,6 +70,10 @@ public class PlayerAutoAttack : NetworkBehaviour
         if (Time.time < _nextAttackTime)
             return;
 
+        // The reaction test scene can switch it off, so it doesn't mark the dummies (#147).
+        if (!ReactionLab.BasicAttackAllowed)
+            return;
+
         Vector2 origin = GetFireOrigin();
 
         // With nothing in range the attack stays ready and fires as soon as a target appears.

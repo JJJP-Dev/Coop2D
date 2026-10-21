@@ -19,9 +19,19 @@ public class ConnectionMenuController : MonoBehaviour
     [SerializeField]
     private Button _clientBtn;
 
+    [Tooltip("Optional. Hosts straight into the reaction test scene (#147). Hidden outside development builds.")]
+    [SerializeField]
+    private Button _reactionLabBtn;
+
+    [SerializeField]
+    private string _reactionLabSceneName = "ReactionLab";
+
     private void Awake()
     {
         _connectionService = GameServices.Instance.ConnectionService;
+
+        if (_reactionLabBtn != null && !Debug.isDebugBuild)
+            _reactionLabBtn.gameObject.SetActive(false);
 
         // Only into an empty field: whatever is already written there wins.
         if (string.IsNullOrEmpty(_ipField.text))
@@ -51,18 +61,32 @@ public class ConnectionMenuController : MonoBehaviour
     {
         if (newState == SessionState.Connecting)
         {
-            _hostBtn.interactable = false;
-            _clientBtn.interactable = false;
+            SetButtonsInteractable(false);
         }
         else if (newState == SessionState.Failed || newState == SessionState.Disconnected)
         {
-            _hostBtn.interactable = true;
-            _clientBtn.interactable = true;
+            SetButtonsInteractable(true);
         }
+    }
+
+    private void SetButtonsInteractable(bool interactable)
+    {
+        _hostBtn.interactable = interactable;
+        _clientBtn.interactable = interactable;
+
+        if (_reactionLabBtn != null)
+            _reactionLabBtn.interactable = interactable;
     }
 
     public void OnHostBtn()
     {
+        _connectionService.StartHost();
+    }
+
+    // Other players join it like any other match: the host decides the scene.
+    public void OnReactionLabBtn()
+    {
+        GameServices.Instance.SceneFlowService.SetSceneForNextHost(_reactionLabSceneName);
         _connectionService.StartHost();
     }
 
