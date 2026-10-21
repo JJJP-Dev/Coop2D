@@ -100,6 +100,8 @@ public class ReactionLab : NetworkBehaviour
         if (!TryGetDummy(dummyIndex, caller, out AuraHolder dummy))
             return;
 
+        ReportLabUse(caller);
+
         // Weak like the basic attack, strong like a skill that only marks. Neither can detonate,
         // and each keeps its own aura cooldown, as in the game.
         AttackSlot attack = strength == AuraStrength.Weak ? AttackSlot.Basic : AttackSlot.Skill2;
@@ -114,6 +116,8 @@ public class ReactionLab : NetworkBehaviour
         if (!TryGetDummy(dummyIndex, caller, out AuraHolder dummy))
             return;
 
+        ReportLabUse(caller);
+
         // A skill that detonates: strong, and the reaction's damage counts as this player's.
         AuraApplyResult result = dummy.TryApply(element, AuraStrength.Strong, caller.FirstObject, AttackSlot.Skill1, true);
 
@@ -125,6 +129,8 @@ public class ReactionLab : NetworkBehaviour
     {
         if (!IsAllowed(caller))
             return;
+
+        ReportLabUse(caller);
 
         foreach (AuraHolder dummy in _dummies)
         {
@@ -142,8 +148,24 @@ public class ReactionLab : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void ServerToggleBasicAttack(NetworkConnection caller = null)
     {
-        if (IsAllowed(caller))
-            _basicAttackEnabled.Value = !_basicAttackEnabled.Value;
+        if (!IsAllowed(caller))
+            return;
+
+        _basicAttackEnabled.Value = !_basicAttackEnabled.Value;
+        ReportLabUse(caller);
+    }
+
+    // For the launcher, the lab's buttons are a cheat: a reaction made with them is not one a player
+    // played for. Every client writes it, so the match counts as one with cheats on every PC.
+    private void ReportLabUse(NetworkConnection caller)
+    {
+        ObserversLabUsed(caller.ClientId);
+    }
+
+    [ObserversRpc]
+    private void ObserversLabUsed(int callerClientId)
+    {
+        LauncherEvents.CheatUsed("reaction_lab", callerClientId == LocalConnection.ClientId);
     }
 
     private void OnBasicAttackChanged(bool previous, bool next, bool asServer)

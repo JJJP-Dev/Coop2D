@@ -1,22 +1,66 @@
 {
-  "id": "pre2-sesion-1",
-  "title": "Misiones del Pre 2",
-  "intro": "Prueba esto en la sesión del miércoles. Lo que consigas se marca solo.",
-  "minGameVersion": "0.0.4-prototype.2",
+  "id": "pre2-0.0.4",
+  "title": "Misiones de la 0.0.4",
+  "intro": "Jugad en grupo. Lo que consigáis se marca solo; lo hecho con trucos o en el laboratorio no cuenta.",
+  "minGameVersion": "0.0.4",
   "startsUtc": "2026-10-21T19:00:00+01:00",
-  "endsUtc":   "2026-10-31T23:59:00+01:00",
+  "endsUtc": "2026-10-31T23:59:00+01:00",
   "missions": [
     {
-      "id": "duo-vapor",
-      "title": "Provoca un Vapor en dúo",
-      "hint": "Uno marca con fuego (básico o clic derecho) y el otro detona con agua (clic izquierdo).",
-      "goal": { "event": "reaction", "where": { "variant": "vapor_*", "duo": true, "me": ["aura", "detonator"] } },
-      "check": "¿Se vio el titular «VAPOR!» y la nube?"
+      "id": "entrar-de-fuera",
+      "title": "Únete a alguien de fuera de tu casa",
+      "hint": "Con la IP pública del host o por la VPN. El juego comprueba que tengáis la misma versión.",
+      "goal": { "event": "join_result", "where": { "result": "ok", "target": ["public", "vpn"] } }
     },
     {
-      "id": "numeros",
-      "title": "Fíjate en los números de daño",
-      "hint": "¿Se leen bien en medio de una oleada?",
+      "id": "entrar-tarde",
+      "title": "Únete a una partida ya empezada",
+      "hint": "Que el host lleve al menos 10 segundos jugando antes de que entres.",
+      "goal": { "event": "match_joined", "where": { "role": "client", "late": true } }
+    },
+    {
+      "id": "cinco-duos",
+      "title": "Provocad 5 reacciones en dúo",
+      "hint": "Las auras duran más que en la 0.0.3: uno marca y el otro detona con una habilidad.",
+      "allowSolo": false,
+      "goal": { "event": "reaction", "where": { "duo": true, "me": ["aura", "detonator"] }, "count": 5, "scope": "set" }
+    },
+    {
+      "id": "tres-reacciones",
+      "title": "Participa en las tres reacciones",
+      "hint": "Vapor, Electrocución y Sobrecarga, poniendo el aura o detonándola.",
+      "goal": {
+        "all": [
+          { "event": "reaction", "where": { "variant": "vapor_*", "me": { "!=": "none" } }, "scope": "set" },
+          { "event": "reaction", "where": { "variant": "electrocution_*", "me": { "!=": "none" } }, "scope": "set" },
+          { "event": "reaction", "where": { "variant": "overload_*", "me": { "!=": "none" } }, "scope": "set" }
+        ]
+      }
+    },
+    {
+      "id": "grupo-de-tres",
+      "title": "Detona una reacción sobre 3 enemigos a la vez",
+      "hint": "Marca un grupo de perseguidores y lanza la habilidad en medio.",
+      "goal": { "event": "reaction", "where": { "me": ["detonator", "both"], "targets": { ">=": 3 } } },
+      "check": "¿Se vio un solo titular grande y la pantalla tembló lo justo?"
+    },
+    {
+      "id": "oleadas-completas",
+      "title": "Llegad al final de las oleadas",
+      "hint": "Tres minutos de partida sin salir.",
+      "allowSolo": false,
+      "goal": { "event": "waves_finished", "scope": "match" }
+    },
+    {
+      "id": "recarga-hud",
+      "title": "¿La recarga del HUD coincide con la de verdad?",
+      "hint": "Lanza una habilidad nada más vaciarse el reloj de su hueco: debería salir siempre.",
+      "manual": true
+    },
+    {
+      "id": "variantes",
+      "title": "¿Distingues las dos variantes de cada reacción?",
+      "hint": "Fuego y luego agua no hace lo mismo que agua y luego fuego. Si no notas la diferencia, márcala como «Falló» y dinos cuál.",
       "manual": true
     }
   ]
