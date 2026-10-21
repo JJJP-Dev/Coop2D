@@ -6,6 +6,7 @@ public class PlayerIdentity : NetworkBehaviour
     private readonly SyncVar<int> _slot = new(-1);
 
     private LocalPlayerService _localPlayerService;
+    private PlayerRegistry _registry;
 
     /// <summary>
     /// Player number from 0 to 3, assigned by the server. -1 until assigned.
@@ -22,7 +23,14 @@ public class PlayerIdentity : NetworkBehaviour
     {
         base.OnStartClient();
 
-        if (!IsOwner || GameServices.Instance == null)
+        if (GameServices.Instance == null)
+            return;
+
+        // Every player, so each client knows who is in its match.
+        _registry = GameServices.Instance.PlayerRegistry;
+        _registry.Add(this);
+
+        if (!IsOwner)
             return;
 
         _localPlayerService = GameServices.Instance.LocalPlayerService;
@@ -36,6 +44,10 @@ public class PlayerIdentity : NetworkBehaviour
         if (_localPlayerService != null)
             _localPlayerService.Unregister(this);
 
+        if (_registry != null)
+            _registry.Remove(this);
+
         _localPlayerService = null;
+        _registry = null;
     }
 }

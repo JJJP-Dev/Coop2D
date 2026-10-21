@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using FishNet.Connection;
 using FishNet.Object;
+using FishNet.Object.Synchronizing;
 using UnityEngine;
 
 // Spawns the enemies of a WaveSchedule over time. Only the host runs it: FishNet
@@ -12,6 +13,31 @@ public class WaveSpawner : NetworkBehaviour
 
     private readonly List<Transform> _farEnoughPoints = new();
     private int[] _spawnedPerWave;
+
+    // How many waves have started and whether the schedule is over, for every client.
+    // LauncherEventReporter turns them into wave_started and waves_finished: as values rather than
+    // messages, they also reach the host's own client, which connects after the first wave starts.
+    private readonly SyncVar<int> _wavesStarted = new();
+    private readonly SyncVar<bool> _wavesFinished = new();
+
+    // Server side: which waves were already counted.
+    private bool[] _counted;
+
+    /// <summary>
+    /// The waves of the match this client is in. Null outside a match scene.
+    /// </summary>
+    public static WaveSpawner Current { get; private set; }
+
+    /// <summary>
+    /// Waves that have started since the schedule began, the n-th to start being wave n.
+    /// The cheats panel can start the schedule again, and then it goes back to 0.
+    /// </summary>
+    public int WavesStarted => _wavesStarted.Value;
+
+    /// <summary>
+    /// True once the schedule's time is up and no more enemies will come.
+    /// </summary>
+    public bool WavesFinished => _wavesFinished.Value;
     private float _elapsed;
     private int _aliveEnemies;
 
@@ -43,6 +69,23 @@ public class WaveSpawner : NetworkBehaviour
         }
 
         _spawnedPerWave = new int[waves.Count];
+        _counted = new bool[waves.Count];
+        _wavesStarted.Value = 0;
+        _wavesFinished.Value = false;
+    }
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        Current = this;
+    }
+
+    public override void OnStopClient()
+    {
+        base.OnStopClient();
+
+        if (Current == this)
+            Current = null;
     }
 
     private void Update()
@@ -53,7 +96,14 @@ public class WaveSpawner : NetworkBehaviour
 
         _elapsed += Time.deltaTime;
         if (_elapsed > _schedule.Duration)
+        {
+            if (!_wavesFinished.Value)
+                _wavesFinished.Value = true;
+
             return;
+        }
+
+        CountStartedWaves();
 
         IReadOnlyList<WaveEntry> waves = _schedule.Waves;
         for (int i = 0; i < waves.Count; i++)
@@ -106,6 +156,24 @@ public class WaveSpawner : NetworkBehaviour
 
         _elapsed = 0f;
         System.Array.Clear(_spawnedPerWave, 0, _spawnedPerWave.Length);
+        System.Array.Clear(_counted, 0, _counted.Length);
+        _wavesStarted.Value = 0;
+        _wavesFinished.Value = false;
+    }
+
+    // Also after the cheats panel jumps ahead: the jump only moves the clock, and this sees it on the next frame.
+    private void CountStartedWaves()
+    {
+        IReadOnlyList<WaveEntry> waves = _schedule.Waves;
+
+        for (int i = 0; i < waves.Count; i++)
+        {
+            if (_counted[i] || waves[i].EnemyPrefab == null || _elapsed < waves[i].StartTime)
+                continue;
+
+            _counted[i] = true;
+            _wavesStarted.Value++;
+        }
     }
 
     // Spawns every enemy of the wave whose time has come, while there is room.

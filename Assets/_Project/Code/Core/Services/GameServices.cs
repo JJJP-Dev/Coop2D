@@ -13,6 +13,7 @@ public class GameServices : MonoBehaviour
     [SerializeField] private InputService _inputService;
     [SerializeField] private CombatEventService _combatEventService;
     [SerializeField] private ReactionService _reactionService;
+    [SerializeField] private PlayerRegistry _playerRegistry;
 
     public ConnectionService ConnectionService => _connectionService;
     public SceneFlowService SceneFlowService => _sceneFlowService;
@@ -22,6 +23,7 @@ public class GameServices : MonoBehaviour
     public InputService InputService => _inputService;
     public CombatEventService CombatEventService => _combatEventService;
     public ReactionService ReactionService => _reactionService;
+    public PlayerRegistry PlayerRegistry => _playerRegistry;
 
     private void Awake()
     {
@@ -50,6 +52,8 @@ public class GameServices : MonoBehaviour
             Debug.LogError("[GameServices] CombatEventService is null.");
         if (ReactionService == null)
             Debug.LogError("[GameServices] ReactionService is null.");
+        if (PlayerRegistry == null)
+            Debug.LogError("[GameServices] PlayerRegistry is null.");
     }
 
     private void OnDestroy()

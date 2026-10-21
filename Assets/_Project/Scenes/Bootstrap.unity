@@ -137,10 +137,10 @@ GameObject:
   - component: {fileID: 122069406}
   - component: {fileID: 122069408}
   - component: {fileID: 122069407}
+  - component: {fileID: 122069410}
   - component: {fileID: 122069409}
   - component: {fileID: 122069396}
   - component: {fileID: 122069395}
-  - component: {fileID: 122069404}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -270,27 +270,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccf33f1bb87910a469b7c8a839dc1726, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InputService
---- !u!114 &122069404
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 122069393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34e4a322dca349547989b14021da4e23, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: FishNet.Runtime::FishNet.Managing.Transporting.TransportManager
-  Transport: {fileID: 0}
-  _maximumClientPacketSize: 20480
-  _intermediateLayer: {fileID: 0}
-  _latencySimulator:
-    _enabled: 0
-    _simulateHost: 1
-    _latency: 100
-    _outOfOrder: 0
-    _packetLoss: 0
 --- !u!114 &122069405
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -359,6 +338,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f52b6d436df387e4c8f46ce7727e4b0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VersionAuthenticator
+--- !u!114 &122069410
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 122069393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f158b23e8b6c974fbf8fc1b18a33018, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerRegistry
 --- !u!1 &223192092
 GameObject:
   m_ObjectHideFlags: 0
@@ -881,6 +872,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1040324125}
   - component: {fileID: 1040324126}
+  - component: {fileID: 1040324127}
   m_Layer: 0
   m_Name: GameServices
   m_TagString: Untagged
@@ -923,6 +915,20 @@ MonoBehaviour:
   _inputService: {fileID: 122069402}
   _combatEventService: {fileID: 122069405}
   _reactionService: {fileID: 122069407}
+  _playerRegistry: {fileID: 122069410}
+--- !u!114 &1040324127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1040324124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b615ba1c08c684bb53520d1afc7621, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LauncherEventReporter
+  _networkManager: {fileID: 122069396}
 --- !u!1 &1071946330
 GameObject:
   m_ObjectHideFlags: 0
@@ -1078,7 +1084,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 22400762, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.000015258789
+      value: 0.0000038146973
       objectReference: {fileID: 0}
     - target: {fileID: 22426080, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
       propertyPath: m_AnchorMax.x

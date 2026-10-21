@@ -5,7 +5,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "SkillDefinition", menuName = "Coop2D/Skills/Skill Definition")]
 public class SkillDefinition : ScriptableObject
 {
-    [Tooltip("snake_case and unique, as in the catalog: ember_flare, tide_wave...")]
+    [Tooltip("snake_case and unique, as in the catalog: ember_flare, tide_wave... The launcher's events use it " +
+             "(ability_cast), so once a build is out it never changes.")]
     [SerializeField] private string _id;
 
     [Tooltip("Shown to players.")]

@@ -124,6 +124,7 @@ public class PlayerSkills : NetworkBehaviour
             return;
 
         _readyTimes[index] = Time.time + skill.Cooldown;
+        LauncherEvents.AbilityCast(skill.Id, skill.GetElement(_element.Current));
         FindTargets(point, skill.Radius);
         ShowCast(skill, point);
 

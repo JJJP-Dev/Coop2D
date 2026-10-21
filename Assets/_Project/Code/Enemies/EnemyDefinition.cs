@@ -3,6 +3,10 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "EnemyDefinition", menuName = "Coop2D/Enemies/Enemy Definition")]
 public class EnemyDefinition : ScriptableObject
 {
+    [Tooltip("snake_case and unique: chaser... The launcher's events use it (enemy_killed, spawn_ cheats), " +
+             "so once a build is out it never changes.")]
+    [SerializeField] private string _id;
+
     [Tooltip("Units per second (1 unit = 16 px). Players move at 5.")]
     [SerializeField, Min(0f)] private float _moveSpeed = 2.5f;
 
@@ -12,6 +16,7 @@ public class EnemyDefinition : ScriptableObject
     [Tooltip("It stops getting closer when its feet are this far from its target's, in units.")]
     [SerializeField, Min(0f)] private float _stopDistance = 0.5f;
 
+    public string Id => _id;
     public float MoveSpeed => _moveSpeed;
     public float Acceleration => _acceleration;
     public float StopDistance => _stopDistance;

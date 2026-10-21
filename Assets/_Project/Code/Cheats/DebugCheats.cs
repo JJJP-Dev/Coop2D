@@ -95,6 +95,9 @@ public class DebugCheats : NetworkBehaviour
         }
 
         LogCheat(caller, $"spawned {amount} {prefab.name}");
+
+        string enemyId = prefab.Definition != null && !string.IsNullOrEmpty(prefab.Definition.Id) ? prefab.Definition.Id : "unknown";
+        ReportCheat(caller, amount > 1 ? $"spawn_{enemyId}_{amount}" : $"spawn_{enemyId}");
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -104,6 +107,7 @@ public class DebugCheats : NetworkBehaviour
             return;
 
         LogCheat(caller, $"killed every enemy ({KillEveryEnemy()})");
+        ReportCheat(caller, "kill_all");
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -122,6 +126,7 @@ public class DebugCheats : NetworkBehaviour
         {
             TargetReport(caller, $"Saltas a la oleada de {FormatTime(startTime)}", ToastType.Info);
             LogCheat(caller, $"skipped to the wave at {FormatTime(startTime)}");
+            ReportCheat(caller, "next_wave");
         }
         else
         {
@@ -147,6 +152,7 @@ public class DebugCheats : NetworkBehaviour
 
         TargetReport(caller, "Oleadas reiniciadas", ToastType.Info);
         LogCheat(caller, $"restarted the waves ({killed} enemies killed)");
+        ReportCheat(caller, "reset_waves");
     }
 
     // Only the player who asks: each one decides about their own.
@@ -162,6 +168,7 @@ public class DebugCheats : NetworkBehaviour
 
         health.SetInvulnerable(!health.IsInvulnerable);
         LogCheat(caller, health.IsInvulnerable ? "invulnerable on" : "invulnerable off");
+        ReportCheat(caller, "invulnerable");
     }
 
     // Players, enemies and dummies alike. The invulnerable ones ignore it.
@@ -178,6 +185,7 @@ public class DebugCheats : NetworkBehaviour
         }
 
         LogCheat(caller, $"damaged everything by {_settings.DamageAllAmount}");
+        ReportCheat(caller, "damage_all");
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -193,6 +201,7 @@ public class DebugCheats : NetworkBehaviour
         }
 
         LogCheat(caller, "healed everything");
+        ReportCheat(caller, "heal_all");
     }
 
     // Only to whoever asked: the others don't need to know.
@@ -200,6 +209,19 @@ public class DebugCheats : NetworkBehaviour
     private void TargetReport(NetworkConnection target, string message, ToastType type)
     {
         GameServices.Instance.ToastService.Show(message, type);
+    }
+
+    // For the launcher: every client writes cheat_used, so each one knows the match had a cheat in it.
+    // The id is one per button of the panel (docs/launcher-events.md).
+    private void ReportCheat(NetworkConnection caller, string cheatId)
+    {
+        ObserversCheatUsed(cheatId, caller.ClientId);
+    }
+
+    [ObserversRpc]
+    private void ObserversCheatUsed(string cheatId, int callerClientId)
+    {
+        LauncherEvents.CheatUsed(cheatId, callerClientId == LocalConnection.ClientId);
     }
 
     // Through their health, so whatever listens for deaths hears them, like the waves' count.

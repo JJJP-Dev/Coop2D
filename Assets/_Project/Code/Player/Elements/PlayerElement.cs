@@ -80,6 +80,14 @@ public class PlayerElement : NetworkBehaviour
             return;
 
         _element.Value = _library.GetNext(_element.Value);
+        ObserversElementCycled();
+    }
+
+    // Every client writes it, so each launcher knows the match had a cheat in it.
+    [ObserversRpc]
+    private void ObserversElementCycled()
+    {
+        LauncherEvents.CheatUsed("element_cycle", IsOwner);
     }
 
     private void OnElementChanged(ElementType previous, ElementType next, bool asServer)
@@ -96,6 +104,11 @@ public class PlayerElement : NetworkBehaviour
     {
         if (_element.Value == _announced || _library == null || GameServices.Instance == null)
             return;
+
+        // Later changes come from the test key. The first one, from the slot, is written by
+        // LauncherEventReporter right after match_joined, so it falls inside the match.
+        if (_announced != ElementType.None)
+            LauncherEvents.ElementSet(_element.Value, "debug_key");
 
         _announced = _element.Value;
 
