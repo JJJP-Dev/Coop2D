@@ -11,6 +11,9 @@ public class SkillDefinition : ScriptableObject
     [Tooltip("Shown to players.")]
     [SerializeField] private string _displayName;
 
+    [Tooltip("For the HUD (#73). Optional: without it the HUD shows the first letter of the name.")]
+    [SerializeField] private Sprite _icon;
+
     [Header("Element")]
     [Tooltip("The catalog's \"primary\": the skill takes the element of whoever casts it, and Element is ignored.")]
     [SerializeField] private bool _usesCasterElement;
@@ -40,6 +43,7 @@ public class SkillDefinition : ScriptableObject
 
     public string Id => _id;
     public string DisplayName => _displayName;
+    public Sprite Icon => _icon;
     public bool CanDetonate => _canDetonate;
     public AuraStrength AuraStrength => _auraStrength;
     public float Cooldown => _cooldown;
