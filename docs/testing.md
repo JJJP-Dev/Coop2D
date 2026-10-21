@@ -29,6 +29,9 @@ Al terminar, la consola debe estar limpia en todas las ventanas: sin errores y s
 | IP no válida | Escribe `abc` o `1.2.3` y pulsa Join. | Toast "IP no válida". No intenta conectar. |
 | Host inexistente | Únete a `127.0.0.1` sin ningún host abierto. | A los 10 s, un solo toast "No se encontró el host". Los botones se reactivan. |
 | Puerto ocupado | Con un host abierto, pulsa Host en otra ventana tres veces. | Tres toasts "No se pudo hospedar: el puerto está ocupado". |
+| Versión en el menú | Entra en Multiplayer. | Se ve la versión del juego (`v0.0.4`, con ` dev` en las builds de desarrollo). |
+| Recordar la IP | Únete a `127.0.0.1`, cierra el juego y vuelve a abrirlo. | El campo de IP ya tiene `127.0.0.1`. |
+| Versión distinta | En la ventana del host, cambia *Version* en *Project Settings > Player* (por ejemplo, `0.0.4-test`) y hospeda; un Player de MPPM se une. Devuélvela al terminar. | El cliente no entra: toast «Versión distinta: el host tiene la 0.0.4-test y tú la 0.0.4», y los botones se reactivan. El host avisa una vez de que lo rechazó. No sale «Conectado» ni «El host ha cerrado la partida». |
 
 ## 3. Salir
 
@@ -129,13 +132,16 @@ Con el host y dos clientes. Hasta que lleguen los personajes (#162), todos tiene
 | Hueco vacío | Pulsa Q. | No pasa nada, y la consola sigue limpia. |
 | Lo ven todos | Lanza Estallido desde un cliente. | El círculo sale en todas las ventanas, del color de quien lanza. En las demás, un poco más tarde. |
 | Daño | Lanza Estallido sobre el muñeco. | Baja 16 en todas las ventanas. Con el logger activo, el golpe sale «(mine)» solo en la ventana de quien lanza. |
-| Aura fuerte | Lanza Marca sobre el muñeco sin aura. | Sale «… (fuerte) · Jn» en todas las ventanas y dura unos 4 s. |
+| Aura fuerte | Lanza Marca sobre el muñeco sin aura. | Sale «… (fuerte) · Jn» en todas las ventanas y dura unos 6 s. |
 | Fuerte sobre débil | Deja que tu básico marque el muñeco y lanza Estallido sobre él. | El aura pasa de débil a fuerte, con tu elemento. |
 | Otro elemento | Con el muñeco marcado por J1 (fuego), J2 (agua) lanza Estallido sobre él. | El aura sigue siendo «Fuego · J1» y el muñeco recibe el daño. La reacción llega con #64. |
 | Varios objetivos | Con las oleadas en marcha, lanza Marca sobre un grupo de perseguidores. | Todos los que toca reciben daño y aura. |
 | Sin fuego amigo | Lanza Estallido sobre otro jugador. | No recibe daño ni aura. |
 | Recarga en el host | En el host, sube la *Cooldown* de `TestBurst` a 20. Un cliente lanza Estallido cada 7 s. Devuélvela a 7. | El host avisa de lanzamientos rechazados antes de su recarga, y esos no hacen daño. Son los únicos avisos esperados. |
 | Con latencia | Repite «Daño» y «Varios objetivos» con latencia, contra perseguidores en movimiento. | Los golpes cuentan y la consola del host sigue limpia. |
+| Recarga en el HUD | Lanza Estallido y mira su hueco en la barra de habilidades. | El relleno se vacía en 7 s y el número baja de 7 a 1. Al acabar puedes volver a lanzarla, ni antes ni después. Igual en el host y en un cliente con latencia. |
+| Hueco vacío en el HUD | Mira el tercer hueco (Q). | Se ve atenuado, sin número. |
+| Destello al golpear | Dispara al muñeco y a un perseguidor, y pulsa «Dañar a todos». | Cada golpe pone blanco el sprite un instante, en todas las ventanas, también a los jugadores. Cambia *Hit Flash Duration* de `DefaultFeedback` a 0,5 para verlo bien y devuélvelo a 0,05. |
 
 ## 10. Reacciones
 
@@ -229,3 +235,40 @@ Si la build se cierra de golpe, pide a quien la jugaba el archivo:
 ```
 %USERPROFILE%\AppData\LocalLow\PalitoGames\Coop2D\Player.log
 ```
+
+## 14. Laboratorio de reacciones
+
+Solo en el editor y en builds de desarrollo. Desde Multiplayer, pulsa «Laboratorio» en vez de Host; los demás se unen como siempre. Hay tres muñecos que no se mueven, y el panel aplica auras y detonaciones como si fueran del jugador que pulsa. El ataque básico de todos empieza apagado, para que no marque los muñecos; el botón «Ataque básico» lo enciende y apaga para todos.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Las 9 combinaciones | Para cada elemento de aura (fuego, agua, electricidad), pon un aura fuerte en un muñeco y detónala con cada uno de los tres elementos. Pulsa «Reiniciar» entre una y otra. | Con el mismo elemento: «el aura se refresca y no hay reacción». Con los otros dos, sale la variante de la tabla: `vapor_fire_water` con aura de fuego y agua, `vapor_water_fire` al revés, y así con Electrocución y Sobrecarga. |
+| El básico no detona | Pon un aura débil de fuego y luego otra débil de agua. | «Ignorado»: el aura débil no detona ni sustituye a otra. |
+| Bloqueo tras reaccionar | Provoca una reacción y, enseguida, pon otra aura y detónala. | La segunda detonación sale «Ignorado» si llega dentro de 0,5 s. |
+| Dúo | J1 pone el aura y J2 la detona en el mismo muñeco. | La línea de la reacción dice «aura de J1, detona J2 · ¡DÚO!» en las dos ventanas. |
+| Cambiar un valor | Sube el *Damage* de `VaporFireWater` y repite su combinación. Devuélvelo después. | El muñeco pierde la vida nueva. |
+| Reiniciar | Pulsa «Reiniciar» con muñecos dañados y con aura. | Vida llena y sin aura, en todas las ventanas. |
+| Ataque básico | Acércate a un muñeco con el básico apagado; luego pulsa «Ataque básico» en la otra ventana. | Apagado, nadie dispara y el muñeco no recibe aura. Al encenderlo, los dos jugadores disparan y la etiqueta cambia en las dos ventanas. Al volver a `Arena_Test`, el básico funciona como siempre. |
+
+## 15. Eventos del launcher
+
+El juego escribe en `Player.log` una línea `[PalitoEvent]` por cada hecho que lee Palito Launcher. El contrato está en [launcher-events.md](launcher-events.md). Se escriben en todas las builds, también en las de lanzamiento.
+
+Con la build, juega una partida corta con un host y un cliente y busca las líneas en el log de cada uno:
+
+```powershell
+Select-String -Path "$env:USERPROFILE\AppData\LocalLow\PalitoGames\Coop2D\Player.log" -Pattern '^\[PalitoEvent\] '
+```
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Arranque y cierre | Abre la build y ciérrala con normalidad. | La primera línea es `session_start` con `seq=1` y `launcher_session=none`; la última, `session_end`. Matando el proceso desde el Administrador de tareas no hay `session_end`. |
+| Números | Mira varias líneas. | `seq` sube de uno en uno sin huecos, y `t` usa punto decimal también en Windows en español. |
+| Conexión | Pulsa Host, y en el cliente únete con Enter a `127.0.0.1`. Prueba también `abc`. | En el host, `host_started result=ok`. En el cliente, `join_attempt target=loopback via=enter` y `join_result result=ok target=loopback`; con `abc`, `target=invalid` y `result=invalid_ip`. |
+| Entrar en la partida | Une al cliente con la partida empezada hace más de 10 s. | `match_joined role=client … late=true` en el cliente; en el host, `player_joined slot=2 players=2`. |
+| Reacción agrupada | Marca tres perseguidores juntos con fuego y detónalos con un Estallido de agua. | Una sola línea `reaction variant=vapor_fire_water … targets=3`, con `me=detonator` en una ventana y `me=aura` en la otra si el aura era del otro jugador. |
+| Muertes | Mata un perseguidor con el básico y otro con «Matar a todos». | `enemy_killed enemy=chaser by=me source=basic` y `enemy_killed enemy=chaser by=none source=cheat`. |
+| Trucos | Pulsa un truco del panel en el cliente. | `cheat_used … by=me` en el cliente y `by=ally` en el host. |
+| Oleadas | Usa «Siguiente oleada». | `wave_started index=…` en las dos ventanas. |
+| Salir | El cliente pulsa salir. | En el cliente, `match_left reason=quit`; en el host, `player_left slot=2 players=1`. |
+| Consola limpia | Repasa la consola del editor tras una partida. | Ningún aviso de `LauncherEventWriter`: si sale, esa línea no cumple el contrato. |
