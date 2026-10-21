@@ -11,6 +11,11 @@ public class ConnectionMenuController : MonoBehaviour
 
     private ConnectionService _connectionService;
 
+    // The join attempt waiting for its result, for the launcher's join_result.
+    private bool _joinPending;
+    private string _joinTarget;
+    private double _joinStartedAt;
+
     [SerializeField]
     private TMP_InputField _ipField;
 
@@ -54,11 +59,13 @@ public class ConnectionMenuController : MonoBehaviour
     private void OnIpSubmitted(string text)
     {
         if (_clientBtn.interactable)
-            OnClientBtn();
+            TryJoin("enter");
     }
 
     void OnClientConnectionState(SessionState newState)
     {
+        ReportJoinResult(newState);
+
         if (newState == SessionState.Connecting)
         {
             SetButtonsInteractable(false);
@@ -92,21 +99,29 @@ public class ConnectionMenuController : MonoBehaviour
 
     public void OnClientBtn()
     {
+        TryJoin("button");
+    }
+
+    // via is how it was asked for, for the launcher: button or enter.
+    private void TryJoin(string via)
+    {
         string input = _ipField.text.Trim();
 
         string[] parts = input.Split('.');
 
-        if (parts.Length != 4)
+        if (parts.Length != 4 || !IPAddress.TryParse(input, out IPAddress address))
         {
+            LauncherEvents.JoinAttempt(LauncherAddressKind.Invalid, via);
+            LauncherEvents.JoinResult("invalid_ip", LauncherAddressKind.Invalid, 0);
+
             GameServices.Instance.ToastService.Show("IP no válida", ToastType.Warning);
             return;
         }
 
-        if (!IPAddress.TryParse(input, out IPAddress address))
-        {
-            GameServices.Instance.ToastService.Show("IP no válida", ToastType.Warning);
-            return;
-        }
+        _joinPending = true;
+        _joinTarget = LauncherAddressKind.Of(address);
+        _joinStartedAt = Time.realtimeSinceStartupAsDouble;
+        LauncherEvents.JoinAttempt(_joinTarget, via);
 
         // Saved on every valid attempt, not only on success: if the host is down,
         // the address is still there for the next try.
@@ -115,5 +130,29 @@ public class ConnectionMenuController : MonoBehaviour
 
         _connectionService.SetIPAddress(address.ToString());
         _connectionService.StartClient();
+    }
+
+    // One join_result per join_attempt. The host's own client never starts here, so it never reports one.
+    private void ReportJoinResult(SessionState state)
+    {
+        if (!_joinPending || state == SessionState.Connecting)
+            return;
+
+        _joinPending = false;
+
+        string result = state switch
+        {
+            SessionState.Connected => "ok",
+            SessionState.Failed => _connectionService.LastFailReason switch
+            {
+                FailReason.VersionMismatch => "rejected",
+                FailReason.Timeout or FailReason.Unreachable => "not_found",
+                _ => "error",
+            },
+            _ => "error",
+        };
+
+        int milliseconds = (int)((Time.realtimeSinceStartupAsDouble - _joinStartedAt) * 1000.0);
+        LauncherEvents.JoinResult(result, _joinTarget, milliseconds);
     }
 }

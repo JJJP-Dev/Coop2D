@@ -1,0 +1,157 @@
+// Every event of the launcher contract (docs/launcher-events.md, v1), one method each, with the ids it allows.
+// The game tells facts from this player's point of view; it knows nothing about missions.
+// Rules of the contract: never rename or remove an event, a field or an id, or change what it means.
+// Adding new ones is always fine.
+public static class LauncherEvents
+{
+    // Values of `by`.
+    public const string ByMe = "me";
+    public const string ByAlly = "ally";
+    public const string ByNone = "none";
+
+    // Values of `me` in a reaction.
+    public const string RoleAura = "aura";
+    public const string RoleDetonator = "detonator";
+    public const string RoleBoth = "both";
+    public const string RoleNone = "none";
+
+    // --- Connection ---
+
+    /// <param name="result">ok, port_in_use or error.</param>
+    public static void HostStarted(string result)
+    {
+        LauncherEventWriter.Write("host_started", ("result", result));
+    }
+
+    /// <param name="target">loopback, lan, vpn, public or invalid. Never the address itself.</param>
+    /// <param name="via">button or enter.</param>
+    public static void JoinAttempt(string target, string via)
+    {
+        LauncherEventWriter.Write("join_attempt", ("target", target), ("via", via));
+    }
+
+    /// <param name="result">ok, invalid_ip, not_found, rejected or error.</param>
+    public static void JoinResult(string result, string target, int milliseconds)
+    {
+        LauncherEventWriter.Write("join_result", ("result", result), ("target", target), ("ms", milliseconds));
+    }
+
+    // --- Match ---
+
+    /// <param name="slot">From 1 to 4, as players count them.</param>
+    public static void MatchJoined(bool isHost, int slot, int players, int matchTime, bool late)
+    {
+        LauncherEventWriter.Write("match_joined",
+            ("role", isHost ? "host" : "client"), ("slot", slot), ("players", players),
+            ("match_time", matchTime), ("late", late));
+    }
+
+    public static void PlayerJoined(int slot, int players)
+    {
+        LauncherEventWriter.Write("player_joined", ("slot", slot), ("players", players));
+    }
+
+    public static void PlayerLeft(int slot, int players)
+    {
+        LauncherEventWriter.Write("player_left", ("slot", slot), ("players", players));
+    }
+
+    /// <param name="reason">quit, host_closed, disconnected or error.</param>
+    public static void MatchLeft(string reason, int duration)
+    {
+        LauncherEventWriter.Write("match_left", ("reason", reason), ("duration", duration));
+    }
+
+    /// <param name="index">From 1, in the order the waves start.</param>
+    public static void WaveStarted(int index, int matchTime)
+    {
+        LauncherEventWriter.Write("wave_started", ("index", index), ("match_time", matchTime));
+    }
+
+    public static void WavesFinished(int matchTime, bool alive)
+    {
+        LauncherEventWriter.Write("waves_finished", ("match_time", matchTime), ("alive", alive));
+    }
+
+    // --- Combat ---
+
+    /// <param name="source">slot, debug_key or character.</param>
+    public static void ElementSet(ElementType element, string source)
+    {
+        LauncherEventWriter.Write("element_set", ("element", ElementId(element)), ("source", source));
+    }
+
+    /// <param name="ability">The skill's id: burst, mark...</param>
+    public static void AbilityCast(string ability, ElementType element)
+    {
+        LauncherEventWriter.Write("ability_cast", ("ability", ability), ("element", ElementId(element)));
+    }
+
+    /// <param name="me">aura, detonator, both or none.</param>
+    public static void Reaction(string variant, bool duo, string me, int targets)
+    {
+        LauncherEventWriter.Write("reaction", ("variant", variant), ("duo", duo), ("me", me), ("targets", targets));
+    }
+
+    /// <param name="enemy">chaser, dummy...</param>
+    /// <param name="by">me, ally or none.</param>
+    public static void EnemyKilled(string enemy, string by, DamageKind kind)
+    {
+        LauncherEventWriter.Write("enemy_killed", ("enemy", enemy), ("by", by), ("source", SourceId(kind, by)));
+    }
+
+    /// <param name="cheat">spawn_chaser, kill_all, element_cycle...</param>
+    public static void CheatUsed(string cheat, bool byMe)
+    {
+        LauncherEventWriter.Write("cheat_used", ("cheat", cheat), ("by", byMe ? ByMe : ByAlly));
+    }
+
+    // --- Diagnostics ---
+
+    public static void Hitch(int milliseconds, int enemies)
+    {
+        LauncherEventWriter.Write("hitch", ("ms", milliseconds), ("enemies", enemies));
+    }
+
+    public static void Perf(double averageFps, int worstFrameMs, int enemies)
+    {
+        LauncherEventWriter.Write("perf", ("fps_avg", averageFps), ("frame_worst_ms", worstFrameMs), ("enemies", enemies));
+    }
+
+    public static void Net(int roundTripMs)
+    {
+        LauncherEventWriter.Write("net", ("rtt_ms", roundTripMs));
+    }
+
+    /// <param name="type">error, exception or assert.</param>
+    /// <param name="signature">8 hex characters that group errors without writing them.</param>
+    public static void LogError(string type, string signature, int count)
+    {
+        LauncherEventWriter.Write("log_error", ("type", type), ("sig", signature), ("count", count));
+    }
+
+    // --- Ids ---
+
+    public static string ElementId(ElementType element)
+    {
+        return element switch
+        {
+            ElementType.Fire => "fire",
+            ElementType.Water => "water",
+            ElementType.Electric => "electric",
+            _ => "none",
+        };
+    }
+
+    // What dealt the killing blow. Without an attacker, the only thing that kills today is a cheat.
+    private static string SourceId(DamageKind kind, string by)
+    {
+        return kind switch
+        {
+            DamageKind.Basic => "basic",
+            DamageKind.Skill => "ability",
+            DamageKind.Reaction => "reaction",
+            _ => by == ByNone ? "cheat" : "other",
+        };
+    }
+}

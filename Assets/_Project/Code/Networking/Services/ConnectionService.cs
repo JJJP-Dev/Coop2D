@@ -74,12 +74,17 @@ public class ConnectionService : MonoBehaviour
     {
         if (obj.ConnectionState == LocalConnectionState.Started)
         {
+            if (_hostPending)
+                LauncherEvents.HostStarted("ok");
+
             ServerStarted?.Invoke();
         }
         else if (obj.ConnectionState == LocalConnectionState.Stopped)
         {
             if (_hostPending)
             {
+                // The only way a host fails to start today is the port being taken.
+                LauncherEvents.HostStarted("port_in_use");
                 _hostPending = false;
                 LastFailReason = FailReason.ServerFailed;
                 SetState(SessionState.Failed);
