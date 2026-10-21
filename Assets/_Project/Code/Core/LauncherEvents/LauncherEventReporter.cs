@@ -130,8 +130,10 @@ public class LauncherEventReporter : MonoBehaviour
 
         _inMatch = false;
 
-        // Lost covers both the host closing and the connection dropping: the client can't tell them apart yet.
-        string reason = state == SessionState.Disconnected ? "quit" : "disconnected";
+        // Lost is the host closing on purpose if it said so first (HostClosingBroadcast); otherwise the connection dropped.
+        string reason = state == SessionState.Disconnected ? "quit"
+            : _services.ConnectionService.HostClosedSession ? "host_closed"
+            : "disconnected";
         LauncherEvents.MatchLeft(reason, (int)(Time.realtimeSinceStartupAsDouble - _matchStartedAt));
     }
 

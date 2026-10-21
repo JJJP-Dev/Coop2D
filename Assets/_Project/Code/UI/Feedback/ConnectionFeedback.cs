@@ -34,7 +34,10 @@ public class ConnectionFeedback : MonoBehaviour
                 break;
 
             case SessionState.Lost:
-                _gameServices.ToastService.Show("El host ha cerrado la partida", ToastType.Error);
+                if (_gameServices.ConnectionService.HostClosedSession)
+                    _gameServices.ToastService.Show("El host ha cerrado la partida", ToastType.Error);
+                else
+                    _gameServices.ToastService.Show("Se ha perdido la conexión con el host", ToastType.Error);
                 break;
 
             case SessionState.Disconnected:

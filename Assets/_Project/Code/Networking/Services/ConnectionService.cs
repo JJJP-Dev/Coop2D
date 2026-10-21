@@ -23,6 +23,12 @@ public class ConnectionService : MonoBehaviour
     /// </summary>
     public string HostVersion { get; private set; } = string.Empty;
 
+    /// <summary>
+    /// True when the last session was lost because the host closed it, not because the connection dropped.
+    /// Read it when the state changes to Lost.
+    /// </summary>
+    public bool HostClosedSession { get; private set; }
+
     public event Action ServerStarted;
     public event Action<SessionState> ClientConnectionStateChanged;
 
@@ -30,6 +36,9 @@ public class ConnectionService : MonoBehaviour
     private SessionState _currentState;
 
     private bool _hostPending = false;
+
+    // The game is closing: no more state changes, so nothing tries to load the menu on the way out.
+    private bool _quitting;
 
     public bool IsConnected => _currentState == SessionState.Connected;
 
@@ -52,6 +61,7 @@ public class ConnectionService : MonoBehaviour
         _networkManager.ClientManager.OnAuthenticated += OnClientAuthenticated;
         _networkManager.ServerManager.OnServerConnectionState += OnServerConnectionState;
         _networkManager.SceneManager.OnLoadEnd += OnSceneLoadEnd;
+        _networkManager.ClientManager.RegisterBroadcast<HostClosingBroadcast>(OnHostClosing);
 
         if (_versionAuthenticator != null)
             _versionAuthenticator.Rejected += OnVersionRejected;
@@ -65,9 +75,21 @@ public class ConnectionService : MonoBehaviour
         _networkManager.ClientManager.OnAuthenticated -= OnClientAuthenticated;
         _networkManager.ServerManager.OnServerConnectionState -= OnServerConnectionState;
         _networkManager.SceneManager.OnLoadEnd -= OnSceneLoadEnd;
+        _networkManager.ClientManager.UnregisterBroadcast<HostClosingBroadcast>(OnHostClosing);
 
         if (_versionAuthenticator != null)
             _versionAuthenticator.Rejected -= OnVersionRejected;
+    }
+
+    // Closing the host's window also closes the match on purpose, so its clients hear it too.
+    private void OnApplicationQuit()
+    {
+        if (!_networkManager.IsServerStarted)
+            return;
+
+        _quitting = true;
+        TellClientsHostIsClosing();
+        _networkManager.ServerManager.StopConnection(true);
     }
 
     private void OnServerConnectionState(ServerConnectionStateArgs obj)
@@ -124,6 +146,19 @@ public class ConnectionService : MonoBehaviour
         }
     }
 
+    // Arrives just before the disconnect, on the same reliable channel, so Stopped already knows why.
+    private void OnHostClosing(HostClosingBroadcast message, Channel channel)
+    {
+        HostClosedSession = true;
+    }
+
+    // Server side. StopConnection(true) sends whatever is queued before its own disconnect message,
+    // so this reaches every client first.
+    private void TellClientsHostIsClosing()
+    {
+        _networkManager.ServerManager.Broadcast(new HostClosingBroadcast());
+    }
+
     private void OnClientAuthenticated()
     {
         SetState(SessionState.Connected);
@@ -147,6 +182,9 @@ public class ConnectionService : MonoBehaviour
 
     void SetState(SessionState newState)
     {
+        if (_quitting)
+            return;
+
         if (newState != SessionState.Connecting)
             StopTimeout();
 
@@ -202,6 +240,7 @@ public class ConnectionService : MonoBehaviour
     {
         LastFailReason = FailReason.None;
         HostVersion = string.Empty;
+        HostClosedSession = false;
         _leaveRequested = false;
         StartTimeout();
         _networkManager.ClientManager.StartConnection();
@@ -226,6 +265,7 @@ public class ConnectionService : MonoBehaviour
 
         if (_networkManager.IsServerStarted)
         {
+            TellClientsHostIsClosing();
             _networkManager.ServerManager.StopConnection(true);
         }
 

@@ -271,4 +271,6 @@ Select-String -Path "$env:USERPROFILE\AppData\LocalLow\PalitoGames\Coop2D\Player
 | Trucos | Pulsa un truco del panel en el cliente. | `cheat_used … by=me` en el cliente y `by=ally` en el host. |
 | Oleadas | Usa «Siguiente oleada». | `wave_started index=…` en las dos ventanas. |
 | Salir | El cliente pulsa salir. | En el cliente, `match_left reason=quit`; en el host, `player_left slot=2 players=1`. |
+| El host cierra | El host pulsa salir; repítelo cerrando la ventana del host. | En el cliente, toast «El host ha cerrado la partida» y `match_left reason=host_closed` las dos veces. |
+| Se corta la red | Con un cliente en la partida, mata el proceso del host desde el Administrador de tareas. | Al rato, en el cliente, toast «Se ha perdido la conexión con el host» y `match_left reason=disconnected`. |
 | Consola limpia | Repasa la consola del editor tras una partida. | Ningún aviso de `LauncherEventWriter`: si sale, esa línea no cumple el contrato. |
