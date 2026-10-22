@@ -78,6 +78,8 @@ Algunas pruebas cambian ajustes durante el Play. Los cambios en un ScriptableObj
 
 En las pruebas de persecución, nadie debe disparar: antes de dar Play, pon a 0 el *Range* de `DefaultAutoAttack` y guarda, para que los Players de MPPM también lo carguen. Devuélvelo a 6 al terminar.
 
+Desde el #51 los perseguidores hacen daño al tocar. En las pruebas de persecución y de oleadas que no van de recibir daño, pulsa antes «Invulnerable» en el panel de trucos de cada ventana.
+
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
 | Vida sincronizada | En el panel de trucos (F1), pulsa «Dañar a todos» y luego «Curar a todos». | Todas las vidas bajan 10 y vuelven al máximo, igual en todas las ventanas. |
@@ -92,6 +94,9 @@ En las pruebas de persecución, nadie debe disparar: antes de dar Play, pon a 0 
 | Sin amontonarse | Quedaos quietos y dejad que os alcancen. | Se paran junto a vuestros pies y se reparten a vuestro alrededor, sin juntarse en un punto ni temblar. |
 | Sin choques con jugadores | Camina a través de un perseguidor y del muñeco. | Los atraviesas. Los perseguidores sí chocan entre ellos y con las paredes. |
 | Muerte de un perseguidor | Disparad a un perseguidor. | Cae al tercer disparo y desaparece en todas las ventanas, sin avisos. Con el logger activo, su «Death» sale en todas. |
+| Daño por contacto | Con *Range* a 0, deja que un perseguidor te alcance y quédate quieto. | Tu vida baja 10 cada segundo, igual en todas las ventanas. Con varios encima, como mucho 10 cada medio segundo. |
+| Contacto con latencia | Repite la prueba anterior con un cliente y 100 ms de latencia. | Igual que sin latencia, sin avisos. Si se aleja corriendo, deja de recibir daño en cuanto el host lo ve fuera de alcance. |
+| Contacto e invulnerable | Pulsa «Invulnerable» y deja que te alcancen. | La vida no baja. |
 | Disparo anticipado | Con *Range* en 6, un jugador se deja perseguir y otro, quieto a un lado, dispara a los perseguidores que pasan. Para comparar, repítelo con *Lead Factor* a 0 en `DefaultAutoAttack` y devuélvelo a 1. | Con 1, sus proyectiles salen por delante del perseguidor y casi todos aciertan, también con latencia. Con 0 fallan casi todos. |
 | Sale el perseguido | Con perseguidores detrás de un cliente, ese cliente sale de la partida. | En menos de medio segundo van a por otro jugador, sin errores. |
 | Oleadas | Hospeda, une a un cliente y jugad los 3 minutos con *Range* en 6. | Los enemigos salen por los puntos de los bordes, lejos de los jugadores, en tandas que crecen con el tiempo. Pasados los 3 minutos no sale ninguno más. Todo igual en todas las ventanas. |

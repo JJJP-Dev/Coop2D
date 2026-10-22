@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 117518165453389354}
   - component: {fileID: 5724213879338924401}
   - component: {fileID: 3437647642039921991}
+  - component: {fileID: 6387370219896057169}
   m_Layer: 6
   m_Name: Chaser
   m_TagString: Untagged
@@ -318,6 +319,22 @@ MonoBehaviour:
   _flashMaterial: {fileID: 2100000, guid: 80f9f97a186c95140a39422742057493, type: 2}
   _renderers:
   - {fileID: 3840158639380538926}
+--- !u!114 &6387370219896057169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4656169696984199199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 008f6c188f2087541b4caaae50080797, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyContactAttack
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 8511590868925322904}
+  _networkObjectCache: {fileID: 0}
+  _settings: {fileID: 11400000, guid: c3b9e5ba8707f154c8997d35f8785b2a, type: 2}
 --- !u!1 &4780370127092850077
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,5 +5,8 @@ public enum DamageKind : byte
     Other,
     Basic,
     Skill,
-    Reaction
+    Reaction,
+
+    // An enemy touching a player (#51). Added last: the value travels as a byte.
+    Contact
 }

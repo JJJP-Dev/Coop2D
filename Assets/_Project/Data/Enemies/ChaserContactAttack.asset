@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9be6847628701af4bb3426a04b866a63, type: 3}
+  m_Name: ChaserContactAttack
+  m_EditorClassIdentifier: Assembly-CSharp::ContactAttackSettings
+  _damage: 10
+  _range: 0.75
+  _attackInterval: 1
