@@ -274,3 +274,14 @@ Select-String -Path "$env:USERPROFILE\AppData\LocalLow\PalitoGames\Coop2D\Player
 | El host cierra | El host pulsa salir; repítelo cerrando la ventana del host. | En el cliente, toast «El host ha cerrado la partida» y `match_left reason=host_closed` las dos veces. |
 | Se corta la red | Con un cliente en la partida, mata el proceso del host desde el Administrador de tareas. | Al rato, en el cliente, toast «Se ha perdido la conexión con el host» y `match_left reason=disconnected`. |
 | Consola limpia | Repasa la consola del editor tras una partida. | Ningún aviso de `LauncherEventWriter`: si sale, esa línea no cumple el contrato. |
+
+## 16. Semilla
+
+Todo lo aleatorio de la partida sale de la semilla del host (#75). Se ajusta en `Assets/_Project/Data/Core/RunRandom.asset`: deja *Fixed Seed* vacío y *Log Rolls* desmarcado antes del commit.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Semilla nueva | Con *Fixed Seed* vacío, hospeda, sal y vuelve a hospedar. | Cada vez sale `[RunRandomService] Run seed` con 8 caracteres distintos. |
+| Misma semilla, mismos números | Escribe `3A9F01C2` en *Fixed Seed*, marca *Log Rolls* y hospeda dos veces. | Las dos veces, `[RunRandomService] Seed 3A9F01C2 preview · waves 47 78 4 · rooms 22 5 85 · offers J1 34 46 24`. |
+| Semilla mal escrita | Escribe `hola` en *Fixed Seed* y hospeda. | Un aviso de que no es una semilla válida y una semilla nueva. Ningún error. |
+| Solo en desarrollo | Con *Fixed Seed* escrito, haz una build sin *Development Build* y hospeda dos veces. | En el `Player.log`, cada partida tiene una semilla distinta. |

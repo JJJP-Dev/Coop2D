@@ -139,6 +139,7 @@ GameObject:
   - component: {fileID: 122069407}
   - component: {fileID: 122069410}
   - component: {fileID: 122069409}
+  - component: {fileID: 122069411}
   - component: {fileID: 122069396}
   - component: {fileID: 122069395}
   m_Layer: 0
@@ -350,6 +351,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f158b23e8b6c974fbf8fc1b18a33018, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerRegistry
+--- !u!114 &122069411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 122069393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59ce6edc02491ca47bfe2e0cd366d85b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RunRandomService
+  _settings: {fileID: 11400000, guid: a72b48f6eaf93d041bb03fb42c9314e3, type: 2}
 --- !u!1 &223192092
 GameObject:
   m_ObjectHideFlags: 0
@@ -917,6 +931,7 @@ MonoBehaviour:
   _combatEventService: {fileID: 122069405}
   _reactionService: {fileID: 122069407}
   _playerRegistry: {fileID: 122069410}
+  _runRandomService: {fileID: 122069411}
 --- !u!114 &1040324127
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1101,7 +1116,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 22400762, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.000011444092
+      value: -0.000019073486
       objectReference: {fileID: 0}
     - target: {fileID: 22426080, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
       propertyPath: m_AnchorMax.x
