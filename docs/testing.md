@@ -363,3 +363,13 @@ Con el host y dos clientes, en local y otra vez con 100 ms de latencia. «Dar ex
 | Atracción suave | Pasa cerca de varios orbes, también con 100 ms. | Vuelan hacia ti acelerando y desaparecen al llegar, sin saltos. En las otras ventanas vuelan hacia ti, no hacia ellos. |
 | Orbes al entrar tarde | Deja orbes en el suelo y une a otro cliente. | Los ve todos en su sitio, una sola vez cada uno. |
 | Sale quien los recoge | Un cliente recoge orbes y sale justo después. | Los orbes en vuelo desaparecen sin errores. |
+
+## 20. Resolución base (#42)
+
+Escena `ResolutionTest`, que no está en la build: ábrela sola y pulsa Play. En la vista *Game*, elige la resolución fija de cada prueba (*Free Aspect* › `+` para añadir 1920×1080 y 2560×1440) con la escala a 1×. Si tu monitor es más pequeño, haz una build de desarrollo con solo esta escena y ábrela a pantalla completa en cada monitor que tengáis.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Se lee a 1080p | A 1920×1080, alterna 1 y 2. | Con las dos se distinguen los 4 personajes y los enemigos en movimiento; apunta con cuál se lee mejor y con cuál se ve mejor el grupo. |
+| Se lee a 1440p | A 2560×1440, alterna 1 y 2 y luego pulsa C. | 640×360 llena la pantalla (×4). 480×270 da ×5 y, sin recorte, se ve algo más de arena; con recorte, bandas negras. |
+| Espacio para 4 | Con 30 enemigos, mira si el grupo ve venir a los enemigos antes de que lleguen. | Apunta en el issue con qué resolución hay sitio para reaccionar. |
