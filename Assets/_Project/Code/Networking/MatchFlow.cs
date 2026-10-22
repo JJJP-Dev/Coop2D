@@ -25,6 +25,9 @@ public class MatchFlow : NetworkBehaviour
     [Tooltip("Optional. Back to level 1 on a restart (#76).")]
     [SerializeField] private RunExperience _experience;
 
+    [Tooltip("Optional. Its orbs go away on a restart (#84).")]
+    [SerializeField] private ExperienceOrbs _orbs;
+
     private readonly SyncVar<MatchPhase> _phase = new();
 
     // What the panel and the launcher show, frozen when the match ends so every client says the same.
@@ -140,6 +143,10 @@ public class MatchFlow : NetworkBehaviour
             ResetDummy(dummy);
 
         services.ReactionService.ClearClouds();
+
+        // Before the experience goes back to level 1, so no orb is picked up into the new match.
+        if (_orbs != null)
+            _orbs.ResetForNewRun();
 
         if (_waves != null)
             _waves.ResetForNewRun();

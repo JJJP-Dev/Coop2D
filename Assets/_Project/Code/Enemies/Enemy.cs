@@ -49,9 +49,13 @@ public class Enemy : NetworkBehaviour
     }
 
     // Health sent the hit and the death to every client before raising Died,
-    // so the enemy can leave right away.
+    // so the enemy can leave right away. Its orb stays where it fell (#84).
     private void OnDied(Health health, NetworkObject attacker)
     {
+        ExperienceOrbs orbs = ExperienceOrbs.Current;
+        if (orbs != null && _definition != null)
+            orbs.Drop(transform.position, _definition.Experience);
+
         Despawn();
     }
 }

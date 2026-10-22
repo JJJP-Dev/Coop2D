@@ -354,3 +354,8 @@ Con el host y dos clientes, en local y otra vez con 100 ms de latencia. «Dar ex
 | Entrar tarde | Une a un cliente con el grupo en nivel 3. | Ve el mismo nivel y la misma barra. No escribe `level_up` de los niveles anteriores. |
 | Reiniciar | Pierde y reinicia. | Nivel 1 y barra vacía en todas las ventanas. |
 | Ajustar con datos | Cambia *Base Xp* de `DefaultXpCurve` a 20 en una partida nueva. Devuélvelo a 10. | El primer nivel pide 20 con un jugador. |
+| Orbes al morir | Matad perseguidores lejos y acercaos después a donde cayeron. | La barra no sube hasta que un jugador en pie pasa a menos de 1,5 casillas; entonces sube 1 por orbe, igual en todas las ventanas. |
+| Un orbe, una vez | Dos jugadores se acercan a la vez al mismo orbe, uno con 100 ms. | La barra sube 1, no 2. |
+| Derribado no recoge | Un jugador derribado sobre orbes. | No los recoge; sí quien llegue de pie. |
+| Tope de 40 | Con *Range* de `DefaultAutoAttack` en 6, «Generar 10 Chaser» y «Matar a todos» cinco veces sin recoger nada. | En el host, la lista de `ExperienceOrbs` nunca pasa de 40 (*Debug* del Inspector o la vista del commit siguiente). Al recogerlos todos, la barra sube 50. |
+| Reiniciar sin orbes | Deja orbes en el suelo, pierde y reinicia. | No queda ninguno y la barra empieza vacía. |

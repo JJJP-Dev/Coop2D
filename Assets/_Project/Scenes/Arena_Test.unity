@@ -2194,6 +2194,7 @@ GameObject:
   - component: {fileID: 484037717}
   - component: {fileID: 484037718}
   - component: {fileID: 484037719}
+  - component: {fileID: 484037720}
   m_Layer: 0
   m_Name: Match
   m_TagString: Untagged
@@ -2338,6 +2339,7 @@ MonoBehaviour:
   _waves: {fileID: 491478442}
   _charges: {fileID: 484037717}
   _experience: {fileID: 484037719}
+  _orbs: {fileID: 484037720}
 --- !u!114 &484037719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2354,6 +2356,23 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 484037714}
   _networkObjectCache: {fileID: 0}
   _curve: {fileID: 11400000, guid: f42aecc3226e6b647af84f0704a0371a, type: 2}
+--- !u!114 &484037720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 484037712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef0f1047cd74d8f46a3dd2c3b460ea78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ExperienceOrbs
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 484037714}
+  _networkObjectCache: {fileID: 0}
+  _settings: {fileID: 11400000, guid: efa685929a2e9644cab8e5bb1948c97d, type: 2}
+  _experience: {fileID: 484037719}
 --- !u!1 &491478441
 GameObject:
   m_ObjectHideFlags: 0
