@@ -373,3 +373,4 @@ Escena `ResolutionTest`, que no está en la build: ábrela sola y pulsa Play. En
 | Se lee a 1080p | A 1920×1080, alterna 1 y 2. | Con las dos se distinguen los 4 personajes y los enemigos en movimiento; apunta con cuál se lee mejor y con cuál se ve mejor el grupo. |
 | Se lee a 1440p | A 2560×1440, alterna 1 y 2 y luego pulsa C. | 640×360 llena la pantalla (×4). 480×270 da ×5 y, sin recorte, se ve algo más de arena; con recorte, bandas negras. |
 | Espacio para 4 | Con 30 enemigos, mira si el grupo ve venir a los enemigos antes de que lleguen. | Apunta en el issue con qué resolución hay sitio para reaccionar. |
+| Personajes más grandes | A 1920×1080 con 640×360, pulsa S para ver los sprites ×1,5 y ×2. Compara con 480×270 a ×1. | Con ×1,5 un personaje de 24 px se ve como uno de 36, y con ×2 como uno de 48; la vista sigue siendo de 40×22 casillas. Apunta qué tamaño se siente cerca sin tapar el grupo con 30 enemigos. |

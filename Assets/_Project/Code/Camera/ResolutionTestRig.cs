@@ -5,12 +5,16 @@ using UnityEngine.Rendering.Universal;
 
 // Test bench for choosing the base resolution (#42). In a scene of its own, without network: it fills
 // the screen with 4 player stand-ins and 30 wandering enemies, and switches the Pixel Perfect Camera
-// between 480×270 and 640×360 with keys, so both can be compared at 1080p and 1440p.
+// between 480×270 and 640×360 with keys, so both can be compared at 1080p and 1440p. Another key
+// draws the stand-ins bigger on the same 16 px grid, to judge larger characters before drawing them.
 // Only for that decision: no game scene uses it, and the randomness is UnityEngine.Random on purpose.
 public class ResolutionTestRig : MonoBehaviour
 {
     private static readonly Vector2Int SmallResolution = new(480, 270);
     private static readonly Vector2Int LargeResolution = new(640, 360);
+
+    // ×1.5 is only a preview: scaled pixel art shows uneven pixels, which drawing it at that size won't have.
+    private static readonly float[] SpriteScales = { 1f, 1.5f, 2f };
 
     [SerializeField] private PixelPerfectCamera _camera;
 
@@ -28,9 +32,11 @@ public class ResolutionTestRig : MonoBehaviour
     [Tooltip("Units per second, like a chaser.")]
     [SerializeField, Min(0f)] private float _enemySpeed = 2.5f;
 
+    private readonly List<Transform> _standIns = new();
     private readonly List<Transform> _wanderers = new();
     private readonly List<Vector2> _targets = new();
     private bool _paused;
+    private int _scaleIndex;
 
     private void Start()
     {
@@ -93,8 +99,20 @@ public class ResolutionTestRig : MonoBehaviour
                 ? PixelPerfectCamera.CropFrame.Windowbox
                 : PixelPerfectCamera.CropFrame.None;
 
+        if (keyboard.sKey.wasPressedThisFrame)
+            SetSpriteScale((_scaleIndex + 1) % SpriteScales.Length);
+
         if (keyboard.spaceKey.wasPressedThisFrame)
             _paused = !_paused;
+    }
+
+    private void SetSpriteScale(int index)
+    {
+        _scaleIndex = index;
+        Vector3 scale = Vector3.one * SpriteScales[index];
+
+        foreach (Transform standIn in _standIns)
+            standIn.localScale = scale;
     }
 
     private void SetResolution(Vector2Int resolution)
@@ -123,10 +141,10 @@ public class ResolutionTestRig : MonoBehaviour
         string text =
             $"Base {_camera.refResolutionX}×{_camera.refResolutionY} · pantalla {Screen.width}×{Screen.height} · ×{zoom}\n" +
             $"Se ven {visibleX:0}×{visibleY:0} px ({visibleX / 16f:0.0}×{visibleY / 16f:0.0} casillas) · " +
-            $"recorte {(cropped ? "sí" : "no")}\n" +
-            "1: 480×270 · 2: 640×360 · C: recorte · Espacio: pausa";
+            $"recorte {(cropped ? "sí" : "no")} · sprites ×{SpriteScales[_scaleIndex]}\n" +
+            "1: 480×270 · 2: 640×360 · C: recorte · S: tamaño de sprites · Espacio: pausa";
 
-        GUI.Label(new Rect(8, 8, 900, 60), text);
+        GUI.Label(new Rect(8, 8, 1000, 60), text);
     }
 
     private Transform Create(string objectName, Sprite sprite, Vector2 position, int sortingOrder)
@@ -138,6 +156,7 @@ public class ResolutionTestRig : MonoBehaviour
         SpriteRenderer renderer = created.AddComponent<SpriteRenderer>();
         renderer.sprite = sprite;
         renderer.sortingOrder = sortingOrder;
+        _standIns.Add(created.transform);
         return created.transform;
     }
 
