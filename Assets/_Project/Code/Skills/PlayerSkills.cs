@@ -19,6 +19,7 @@ public class PlayerSkills : NetworkBehaviour
     [SerializeField] private ElementLibrary _elements;
 
     private PlayerElement _element;
+    private PlayerDowned _downed;
     private InputService _input;
     private ContactFilter2D _targetFilter;
 
@@ -34,6 +35,9 @@ public class PlayerSkills : NetworkBehaviour
     private void Awake()
     {
         _element = GetComponent<PlayerElement>();
+
+        // Optional: without it the player can never be downed (#51).
+        TryGetComponent(out _downed);
 
         if (_castSettings == null || _elements == null)
         {
@@ -116,6 +120,10 @@ public class PlayerSkills : NetworkBehaviour
         if (skill == null || _castSettings == null || Time.time < _readyTimes[index])
             return;
 
+        // A downed player can't cast (#51).
+        if (_downed != null && _downed.IsDowned)
+            return;
+
         // A click on a menu button is not a cast.
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
@@ -189,6 +197,11 @@ public class PlayerSkills : NetworkBehaviour
             Debug.LogWarning($"[PlayerSkills] Rejected a cast from client {OwnerId}: slot {slot} has no skill.", this);
             return;
         }
+
+        // A cast sent just before the player went down still arrives. It's honest, so there's no warning,
+        // but the host has the last word on who is downed (#51).
+        if (_downed != null && _downed.IsDowned)
+            return;
 
         // The host sees this player slightly in the past, so the range gets some slack.
         float distance = Vector2.Distance(transform.position, point);

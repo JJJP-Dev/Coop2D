@@ -17,6 +17,7 @@ public class PlayerAutoAttack : NetworkBehaviour
     private readonly List<Collider2D> _candidates = new();
     private ContactFilter2D _targetFilter;
     private PlayerElement _element;
+    private PlayerDowned _downed;
 
     // Owner side.
     private float _nextAttackTime;
@@ -32,6 +33,9 @@ public class PlayerAutoAttack : NetworkBehaviour
     {
         if (!TryGetComponent(out _element))
             Debug.LogError("[PlayerAutoAttack] No PlayerElement on this player, so its shots leave no aura.", this);
+
+        // Optional: without it the player can never be downed (#51).
+        TryGetComponent(out _downed);
 
         if (_settings == null || _settings.ProjectilePrefab == null)
         {
@@ -68,6 +72,10 @@ public class PlayerAutoAttack : NetworkBehaviour
             return;
 
         if (Time.time < _nextAttackTime)
+            return;
+
+        // A downed player doesn't shoot (#51).
+        if (_downed != null && _downed.IsDowned)
             return;
 
         // The reaction test scene can switch it off, so it doesn't mark the dummies (#147).
@@ -124,6 +132,11 @@ public class PlayerAutoAttack : NetworkBehaviour
 
     private void FireOnServer(Vector2 origin, Vector2 direction, uint tick, ushort shotId)
     {
+        // A shot sent just before the player went down still arrives. It's honest, so there's no warning,
+        // but the host has the last word on who is downed (#51). Shots already flying still hit.
+        if (_downed != null && _downed.IsDowned)
+            return;
+
         if (direction.sqrMagnitude < 0.01f || !TrySpendShot())
         {
             Debug.LogWarning($"[PlayerAutoAttack] Rejected a shot from client {OwnerId}: too fast or without a direction.", this);

@@ -295,3 +295,14 @@ Todo lo aleatorio de la partida sale de la semilla del host (#75). Se ajusta en 
 | Todos ven la misma semilla | Hospeda, une a dos clientes y abre el panel de trucos (F1) en las tres ventanas. | Las tres dicen «Semilla: …» con los mismos 8 caracteres que `[RunRandomService] Run seed` en el host, y cada ventana escribe `[MatchSeed] Match seed` con ese valor. |
 | Semilla al entrar tarde | Une a un cliente con la partida empezada hace un rato, con 100 ms de latencia. | Ve la misma semilla que los demás nada más entrar. |
 | Semilla nueva al volver a hospedar | El host sale y vuelve a hospedar, con *Fixed Seed* vacío. | El panel muestra la semilla nueva en todas las ventanas. |
+
+## 17. Derribado y reanimación
+
+Con el host y dos clientes, en local y otra vez con 100 ms de latencia. Con *Range* a 0 en `DefaultAutoAttack` los perseguidores llegan antes; también puedes bajar la vida con «Dañar a todos» (10 cada vez). Si caen todos, la partida se queda parada hasta el #52: sal con «Curar a todos».
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Caer | Deja que los perseguidores te bajen a 0. | En todas las ventanas tu cuerpo se aclara y encima pone «Derribado». No te mueves, no disparas ni lanzas habilidades, y los perseguidores dejan de pegarte y van a por otro jugador. |
+| Caer con latencia | Repite con un cliente y 100 ms. | Igual. Como mucho da un paso o sale un disparo justo al caer, y el host no avisa de nada. |
+| Levantarse con trucos | Con un jugador derribado, pulsa «Curar a todos». | Se levanta con la vida llena en todas las ventanas y vuelve a moverse y disparar. |
+| Derribado al entrar tarde | Con un jugador derribado, une a otro cliente. | El nuevo lo ve derribado desde el principio. |

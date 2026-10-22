@@ -9,11 +9,15 @@ public class PlayerMovement : NetworkBehaviour
 
     private Rigidbody2D _body;
     private PlayerInputReader _input;
+    private PlayerDowned _downed;
 
     private void Awake()
     {
         _body = GetComponent<Rigidbody2D>();
         _input = GetComponent<PlayerInputReader>();
+
+        // Optional: without it the player can never be downed (#51).
+        TryGetComponent(out _downed);
 
         if (_settings == null)
             Debug.LogError("[PlayerMovement] Movement settings are not assigned.", this);
@@ -33,6 +37,13 @@ public class PlayerMovement : NetworkBehaviour
     {
         if (!IsOwner || _settings == null)
             return;
+
+        // A downed player stays where it fell until someone gets it up (#51).
+        if (_downed != null && _downed.IsDowned)
+        {
+            _body.linearVelocity = Vector2.zero;
+            return;
+        }
 
         _body.linearVelocity = CalculateVelocity(_body.linearVelocity, _input.MoveInput, Time.fixedDeltaTime);
     }
