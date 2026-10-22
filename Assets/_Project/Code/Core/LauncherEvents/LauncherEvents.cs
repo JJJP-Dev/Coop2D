@@ -74,6 +74,21 @@ public static class LauncherEvents
         LauncherEventWriter.Write("waves_finished", ("match_time", matchTime), ("alive", alive));
     }
 
+    /// <param name="slot">The downed player's, from 1 to 4.</param>
+    /// <param name="me">True when it's the local player.</param>
+    public static void PlayerDowned(int slot, bool me)
+    {
+        LauncherEventWriter.Write("player_downed", ("slot", slot), ("me", me));
+    }
+
+    /// <param name="slot">The revived player's, from 1 to 4.</param>
+    /// <param name="me">True when it's the local player.</param>
+    /// <param name="by">me, ally or none (a cheat).</param>
+    public static void PlayerRevived(int slot, bool me, string by)
+    {
+        LauncherEventWriter.Write("player_revived", ("slot", slot), ("me", me), ("by", by));
+    }
+
     // --- Combat ---
 
     /// <param name="source">slot, debug_key or character.</param>

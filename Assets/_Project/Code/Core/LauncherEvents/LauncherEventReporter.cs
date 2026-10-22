@@ -158,11 +158,13 @@ public class LauncherEventReporter : MonoBehaviour
             LauncherEvents.WaveStarted(_reportedWaves, MatchTime());
         }
 
-        // Players can't die yet, so everyone is still alive at the end.
+        // Alive means not downed (#51): players don't die, they go down and wait for a teammate.
         if (waves.WavesFinished && !_reportedWavesFinished)
         {
             _reportedWavesFinished = true;
-            LauncherEvents.WavesFinished(MatchTime(), true);
+            PlayerIdentity player = _services.LocalPlayerService.Current;
+            bool alive = player == null || !player.TryGetComponent(out PlayerDowned downed) || !downed.IsDowned;
+            LauncherEvents.WavesFinished(MatchTime(), alive);
         }
     }
 

@@ -278,6 +278,8 @@ Select-String -Path "$env:USERPROFILE\AppData\LocalLow\PalitoGames\Coop2D\Player
 | Salir | El cliente pulsa salir. | En el cliente, `match_left reason=quit`; en el host, `player_left slot=2 players=1`. |
 | El host cierra | El host pulsa salir; repítelo cerrando la ventana del host. | En el cliente, toast «El host ha cerrado la partida» y `match_left reason=host_closed` las dos veces. |
 | Se corta la red | Con un cliente en la partida, mata el proceso del host desde el Administrador de tareas. | Al rato, en el cliente, toast «Se ha perdido la conexión con el host» y `match_left reason=disconnected`. |
+| Derribado y reanimado | En el host, deja que derriben al cliente y reanímalo con el host. Después, derriba al host y levántalo con «Curar a todos». | En el cliente: `player_downed slot=2 me=true` y `player_revived slot=2 me=true by=ally`; en el host, `me=false` y `by=me`. Con el truco, `player_revived slot=1 … by=none` en las dos ventanas. |
+| Fin de oleadas derribado | Quédate derribado cuando acaben los 3 minutos de oleadas. | `waves_finished … alive=false` en tu ventana y `alive=true` en la de quien sigue en pie. |
 | Consola limpia | Repasa la consola del editor tras una partida. | Ningún aviso de `LauncherEventWriter`: si sale, esa línea no cumple el contrato. |
 
 ## 16. Semilla

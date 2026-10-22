@@ -8,6 +8,7 @@ using UnityEngine;
 // only receive the tick it started on and work out the progress with their own copy of the tick,
 // which FishNet keeps in step with the host's, like MatchClock. So the bar fills smoothly everywhere
 // and nothing is sent while it fills.
+// It also tells every client when this player goes down and gets up, for the launcher's events.
 [RequireComponent(typeof(PlayerDowned))]
 public class PlayerRevive : NetworkBehaviour
 {
@@ -27,6 +28,7 @@ public class PlayerRevive : NetworkBehaviour
     // Server side. The reviver is the closest living teammate at the last check.
     private float _nextCheckTime;
     private NetworkObject _reviver;
+    private bool _wasDowned;
 
     /// <summary>
     /// From 0 to 1 while a teammate is reviving this player, on every client. 0 otherwise.
@@ -58,6 +60,7 @@ public class PlayerRevive : NetworkBehaviour
         // Pooled players come back without the revive of their previous life.
         StopReviving();
         _nextCheckTime = 0f;
+        _wasDowned = _downed.IsDowned;
     }
 
     private void Update()
@@ -71,8 +74,20 @@ public class PlayerRevive : NetworkBehaviour
 
         _nextCheckTime = now + CheckInterval;
 
+        bool downed = _downed.IsDowned;
+        if (downed != _wasDowned)
+        {
+            _wasDowned = downed;
+
+            // Getting up without a revive is the Heal All cheat: nobody did it.
+            if (downed)
+                ObserversDowned();
+            else
+                ObserversRevived(null);
+        }
+
         // Up again some other way, like the Heal All cheat.
-        if (!_downed.IsDowned)
+        if (!downed)
         {
             StopReviving();
             return;
@@ -101,7 +116,34 @@ public class PlayerRevive : NetworkBehaviour
     {
         int health = Mathf.Max(1, Mathf.RoundToInt(_health.Max * _settings.HealthFraction));
         _health.Revive(health, _settings.InvulnerableDuration);
+
+        // Told here, with who did it, so the next check doesn't report it again as a cheat.
+        _wasDowned = false;
+        ObserversRevived(_reviver);
+
         StopReviving();
+    }
+
+    // Each client writes it from its own point of view. The host's client receives it too.
+    [ObserversRpc]
+    private void ObserversDowned()
+    {
+        if (TryGetComponent(out PlayerIdentity identity))
+            LauncherEvents.PlayerDowned(identity.Slot + 1, IsOwner);
+    }
+
+    // Null reviver: nobody revived it (a cheat). A reviver that left the game also arrives as null.
+    [ObserversRpc]
+    private void ObserversRevived(NetworkObject reviver)
+    {
+        if (!TryGetComponent(out PlayerIdentity identity))
+            return;
+
+        string by = reviver == null ? LauncherEvents.ByNone
+            : reviver.IsOwner ? LauncherEvents.ByMe
+            : LauncherEvents.ByAlly;
+
+        LauncherEvents.PlayerRevived(identity.Slot + 1, IsOwner, by);
     }
 
     private void StopReviving()

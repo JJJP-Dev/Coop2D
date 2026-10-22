@@ -212,7 +212,26 @@ Una vez por partida, cuando ya no quedan oleadas por salir (pasados los 3 minuto
 | Campo | Tipo | Valor |
 |---|---|---|
 | `match_time` | entero | Segundos de partida |
-| `alive` | bool | Si el jugador local seguía vivo (o `true` si los jugadores aún no pueden morir) |
+| `alive` | bool | Si el jugador local seguía en pie: `false` si estaba derribado (#51) |
+
+#### `player_downed` · Obligatorio
+
+Cuando un jugador cae a 0 de vida y queda derribado (#51), en todas las ventanas.
+
+| Campo | Tipo | Valor |
+|---|---|---|
+| `slot` | entero | Hueco del jugador derribado |
+| `me` | bool | `true` si es el jugador local |
+
+#### `player_revived` · Obligatorio
+
+Cuando un jugador derribado se levanta (#51), en todas las ventanas.
+
+| Campo | Tipo | Valor |
+|---|---|---|
+| `slot` | entero | Hueco del jugador que se levanta |
+| `me` | bool | `true` si es el jugador local |
+| `by` | id | Quién lo reanimó: `me` (el jugador local), `ally` (otro jugador) o `none` (un truco, como «Curar a todos») |
 
 ### 5.4 Combate
 
