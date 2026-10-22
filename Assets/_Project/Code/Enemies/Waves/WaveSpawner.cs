@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
@@ -209,9 +210,15 @@ public class WaveSpawner : NetworkBehaviour
         _aliveEnemies--;
     }
 
-    // UnityEngine.Random is temporary: the shared seed (#75) will replace it.
+    // A random spawn point far enough from every player, or the farthest one if none is.
+    // The roll comes from the run's seed (#75), and always one per enemy, drawn before looking at the
+    // players: where they stand changes which points are far enough, but never how many numbers are
+    // used, so two runs with the same seed stay in step even when the players move differently.
     private Vector2 PickSpawnPosition()
     {
+        RunRandomService randomService = GameServices.Instance.RunRandomService;
+        float roll = randomService.GetStream(RandomStream.Waves).Value();
+
         float minSqrDistance = _schedule.MinDistanceFromPlayers * _schedule.MinDistanceFromPlayers;
         Transform farthest = null;
         float farthestSqrDistance = -1f;
@@ -235,10 +242,19 @@ public class WaveSpawner : NetworkBehaviour
             }
         }
 
-        if (_farEnoughPoints.Count > 0)
-            return _farEnoughPoints[Random.Range(0, _farEnoughPoints.Count)].position;
+        // The roll is below 1, so the index is below Count; Min only guards against float rounding.
+        Transform chosen = _farEnoughPoints.Count > 0
+            ? _farEnoughPoints[Mathf.Min((int)(roll * _farEnoughPoints.Count), _farEnoughPoints.Count - 1)]
+            : farthest;
 
-        return farthest != null ? farthest.position : transform.position;
+        // Invariant, so two PCs with different languages write the same line.
+        if (randomService.LogRolls)
+        {
+            string rollText = roll.ToString("0.000", CultureInfo.InvariantCulture);
+            Debug.Log($"[WaveSpawner] Spawn roll {rollText} -> {(chosen != null ? chosen.name : "spawner")}", this);
+        }
+
+        return chosen != null ? chosen.position : transform.position;
     }
 
     private float SqrDistanceToNearestPlayer(Vector2 position)
