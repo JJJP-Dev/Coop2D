@@ -6,6 +6,7 @@ using UnityEngine;
 // Gets this player up when it's downed and living teammates stay close long enough (#51).
 // The host decides everything: who is close, how fast it goes and when it ends. Each revive takes
 // longer than the last one of the match, and every extra teammate close makes it faster (#79).
+// A teammate who takes a hit stops helping for a moment, so protecting whoever revives matters.
 // The clients don't receive the progress itself but a line: where it was at a tick and how fast it
 // grows from there. Each one works out the progress with its own copy of the tick, which FishNet
 // keeps in step with the host's, like MatchClock. So the label fills smoothly everywhere, and the
@@ -204,9 +205,11 @@ public class PlayerRevive : NetworkBehaviour
         _anchorProgress.Value = 0f;
     }
 
-    // Living teammates within the radius, and the nearest of them, which is null when there are none.
+    // Living teammates within the radius who weren't just hit, and the nearest of them,
+    // which is null when there are none.
     private int CountHelpers(out NetworkObject nearest)
     {
+        float hitBefore = Time.time - _settings.HitLockout;
         Vector2 position = transform.position;
         float radiusSqr = _settings.Radius * _settings.Radius;
         float nearestSqrDistance = float.MaxValue;
@@ -221,6 +224,10 @@ public class PlayerRevive : NetworkBehaviour
                 continue;
 
             if (!player.TryGetComponent(out Health health) || health.IsDead)
+                continue;
+
+            // Hit a moment ago: it doesn't count until the lockout ends, while the others go on.
+            if (health.LastDamagedAt > hitBefore)
                 continue;
 
             float sqrDistance = ((Vector2)player.transform.position - position).sqrMagnitude;

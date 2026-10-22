@@ -311,6 +311,9 @@ Con el host y dos clientes, en local y otra vez con 100 ms de latencia. Con *Ran
 | Reanimar | Con un jugador derribado, ponte a menos de 1,5 casillas y quédate cerca. | En todas las ventanas sube «Reanimando N %» sin saltos. La primera reanimación de la partida tarda 3 s; se levanta con 50 de vida y vuelve a moverse y disparar. |
 | Alejarse | Empieza a reanimar y aléjate antes de los 3 s. Vuelve después. | Al alejarte vuelve a «Derribado». Al volver, el porcentaje empieza de cero. |
 | Reanimar con latencia | Un cliente con 100 ms reanima a otro. | El porcentaje sube igual de suave en todas las ventanas y se levanta en todas a la vez (el cliente lento puede verlo un instante después). |
+| Golpe a quien reanima | Reanima tú solo y deja que un perseguidor te toque, o pulsa «Dañar a todos». | El porcentaje vuelve a «Derribado»: se pierde. Al pasar 1 s sin golpes, vuelve a empezar de cero. |
+| Golpe con dos reanimando | Reanimad dos y que golpeen solo a uno. | El porcentaje sigue, más despacio, mientras el otro siga cerca. Al pasar 1 s sin golpes, el golpeado vuelve a acelerarlo. |
+| Invulnerable no corta | Reanima con «Invulnerable» activo y deja que te toquen. | Los golpes no cuentan y la reanimación sigue. |
 | Margen al levantarse | Reanima a alguien rodeado de perseguidores. | Durante 1 s su vida no baja; después vuelve a recibir daño. |
 | Un derribado no reanima | Con dos jugadores derribados uno junto al otro. | Ninguno levanta al otro. |
 | Ajustar con datos | Sube *Duration* de `DefaultRevive` a 6 y repite «Reanimar» en una partida nueva. Devuélvelo a 3. | La primera tarda 6 s. |

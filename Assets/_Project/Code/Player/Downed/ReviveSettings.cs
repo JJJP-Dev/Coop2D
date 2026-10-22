@@ -17,6 +17,11 @@ public class ReviveSettings : ScriptableObject
              "1.5 times as fast and three of them twice as fast (#79).")]
     [SerializeField, Min(0f)] private float _extraSpeedPerHelper = 0.5f;
 
+    [Tooltip("Seconds a teammate stops helping after taking a hit. The others go on; if nobody is left " +
+             "helping, the progress is lost (#79). Enemies hit at most every 0.5 s, so 1 s keeps out " +
+             "anyone standing in a crowd.")]
+    [SerializeField, Min(0f)] private float _hitLockout = 1f;
+
     [Tooltip("Share of its maximum health the player gets up with. 0.5 is 50 with 100.")]
     [SerializeField, Range(0.01f, 1f)] private float _healthFraction = 0.5f;
 
@@ -29,6 +34,7 @@ public class ReviveSettings : ScriptableObject
     [SerializeField] private int[] _chargesByPlayers = { 1, 2, 3, 3 };
 
     public float Radius => _radius;
+    public float HitLockout => _hitLockout;
     public float HealthFraction => _healthFraction;
     public float InvulnerableDuration => _invulnerableDuration;
 

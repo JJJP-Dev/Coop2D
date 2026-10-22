@@ -12,6 +12,12 @@ public class Health : NetworkBehaviour
 
     private float _invulnerableUntil;
 
+    /// <summary>
+    /// Server only. Time.time of the last hit it took, rejected hits not counted. Revives use it:
+    /// a teammate who was just hit stops helping for a moment (#79).
+    /// </summary>
+    public float LastDamagedAt { get; private set; } = float.NegativeInfinity;
+
     public int Current => _current.Value;
     public int Max => _settings != null ? _settings.MaxHealth : 0;
     public bool IsDead => _current.Value <= 0;
@@ -50,8 +56,9 @@ public class Health : NetworkBehaviour
     {
         base.OnStartServer();
 
-        // Pooled objects come back with the invulnerability of their previous life.
+        // Pooled objects come back with the invulnerability and the last hit of their previous life.
         _invulnerableUntil = 0f;
+        LastDamagedAt = float.NegativeInfinity;
         _invulnerable.Value = false;
     }
 
@@ -143,6 +150,7 @@ public class Health : NetworkBehaviour
     {
         _current.Value = Mathf.Max(0, _current.Value - amount);
         _invulnerableUntil = Time.time + _settings.InvulnerabilityDuration;
+        LastDamagedAt = Time.time;
 
         bool died = IsDead;
 
