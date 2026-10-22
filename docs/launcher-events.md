@@ -176,6 +176,7 @@ Cuando el jugador local aparece en la Arena, en el host y en los clientes.
 | `players` | entero | Jugadores en la partida contándose a sí mismo |
 | `match_time` | entero | Segundos que lleva la partida (desde que el host la creó). El host escribe `0` |
 | `late` | bool | `true` si la partida llevaba al menos **10 s** en marcha al entrar |
+| `seed` | id | Semilla de la partida (#75): 8 caracteres hexadecimales en mayúsculas, como `3A9F01C2`, iguales en todas las ventanas. `none` si la escena no tiene semilla. Llega con la primera build del Pre 3 |
 
 #### `player_joined` / `player_left` · Obligatorio
 
@@ -351,7 +352,7 @@ sale:
 [PalitoEvent] v=1 seq=1 t=0.412 ev=session_start game_version=0.0.4-prototype.2 dev_build=true launcher_session=9f2c4e7a1b3d4c5e8f9a0b1c2d3e4f50 utc=2026-10-31T20:02:11Z
 [PalitoEvent] v=1 seq=2 t=14.050 ev=join_attempt target=public via=enter
 [PalitoEvent] v=1 seq=3 t=15.318 ev=join_result result=ok target=public ms=1268
-[PalitoEvent] v=1 seq=4 t=15.901 ev=match_joined role=client slot=3 players=3 match_time=74 late=true
+[PalitoEvent] v=1 seq=4 t=15.901 ev=match_joined role=client slot=3 players=3 match_time=74 late=true seed=3A9F01C2
 [PalitoEvent] v=1 seq=5 t=15.902 ev=element_set element=electric source=slot
 [PalitoEvent] v=1 seq=6 t=31.270 ev=wave_started index=3 match_time=90
 [PalitoEvent] v=1 seq=7 t=44.600 ev=ability_cast ability=burst element=electric

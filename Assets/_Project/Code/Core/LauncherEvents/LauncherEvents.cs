@@ -39,11 +39,12 @@ public static class LauncherEvents
     // --- Match ---
 
     /// <param name="slot">From 1 to 4, as players count them.</param>
-    public static void MatchJoined(bool isHost, int slot, int players, int matchTime, bool late)
+    /// <param name="seed">The match's seed in 8 hexadecimal characters (#75). Null writes none.</param>
+    public static void MatchJoined(bool isHost, int slot, int players, int matchTime, bool late, string seed)
     {
         LauncherEventWriter.Write("match_joined",
             ("role", isHost ? "host" : "client"), ("slot", slot), ("players", players),
-            ("match_time", matchTime), ("late", late));
+            ("match_time", matchTime), ("late", late), ("seed", seed));
     }
 
     public static void PlayerJoined(int slot, int players)

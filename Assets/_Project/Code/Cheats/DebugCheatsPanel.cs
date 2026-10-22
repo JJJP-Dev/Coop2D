@@ -26,9 +26,13 @@ public class DebugCheatsPanel : MonoBehaviour
     [SerializeField] private Button _damageAllButton;
     [SerializeField] private Button _healAllButton;
 
+    [Tooltip("Optional. Shows the match's seed (#75), to write it in RunRandomSettings and play the same run again.")]
+    [SerializeField] private TMP_Text _seedLabel;
+
     private InputService _inputService;
     private TMP_Text _invulnerableLabel;
     private bool? _shownInvulnerable;
+    private string _shownSeed;
 
     private void Awake()
     {
@@ -85,6 +89,8 @@ public class DebugCheatsPanel : MonoBehaviour
         if (!_window.activeSelf || _inputService == null)
             return;
 
+        UpdateSeedLabel();
+
         PlayerIdentity player = GameServices.Instance.LocalPlayerService.Current;
         bool invulnerable = player != null && player.TryGetComponent(out Health health) && health.IsInvulnerable;
 
@@ -93,6 +99,20 @@ public class DebugCheatsPanel : MonoBehaviour
 
         _shownInvulnerable = invulnerable;
         _invulnerableLabel.text = invulnerable ? "Invulnerable: sí" : "Invulnerable: no";
+    }
+
+    // Only when it changes, so the text isn't rebuilt every frame.
+    private void UpdateSeedLabel()
+    {
+        if (_seedLabel == null)
+            return;
+
+        string seed = MatchSeed.Current != null ? MatchSeed.Current.SeedText : "-";
+        if (seed == _shownSeed)
+            return;
+
+        _shownSeed = seed;
+        _seedLabel.text = $"Semilla: {seed}";
     }
 
     private void OnToggle(InputAction.CallbackContext context)

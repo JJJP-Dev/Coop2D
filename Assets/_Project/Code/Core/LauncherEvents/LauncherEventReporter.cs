@@ -102,8 +102,10 @@ public class LauncherEventReporter : MonoBehaviour
         _inMatch = true;
         _matchStartedAt = Time.realtimeSinceStartupAsDouble;
 
+        // The scene's seed arrived with the scene, before our player, so it's already here.
+        string seed = MatchSeed.Current != null ? MatchSeed.Current.SeedText : null;
         LauncherEvents.MatchJoined(isHost, player.Slot + 1, _services.PlayerRegistry.Count, matchTime,
-                                   !isHost && matchTime >= LateJoinSeconds);
+                                   !isHost && matchTime >= LateJoinSeconds, seed);
 
         // The host writes every wave, the ones that started before its own client connected included.
         // A client that arrives later only writes the waves that start from now on.

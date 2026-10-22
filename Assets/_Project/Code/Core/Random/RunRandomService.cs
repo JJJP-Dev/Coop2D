@@ -31,6 +31,11 @@ public class RunRandomService : MonoBehaviour
     /// </summary>
     public bool LogRolls => _settings != null && _settings.LogRolls && Debug.isDebugBuild;
 
+    /// <summary>
+    /// Server only. A run started, with this seed. MatchSeed hears it to tell every client.
+    /// </summary>
+    public event Action<uint> RunStarted;
+
     private void Awake()
     {
         if (_settings == null)
@@ -68,6 +73,8 @@ public class RunRandomService : MonoBehaviour
 
         if (LogRolls)
             LogPreview();
+
+        RunStarted?.Invoke(seed);
     }
 
     /// <summary>
