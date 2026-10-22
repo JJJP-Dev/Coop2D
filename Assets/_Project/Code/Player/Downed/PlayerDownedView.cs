@@ -2,13 +2,17 @@ using TMPro;
 using UnityEngine;
 
 // Shows that a player is downed (#51), with placeholders until there is art: the body fades and a
-// label above it says so. Only the picture: every client works it out from the health it receives.
+// label above it says so, or how far a teammate's revive has got. Only the picture: every client
+// works it out from the health and the revive it receives.
 public class PlayerDownedView : MonoBehaviour
 {
     // Placeholder look until the downed sprite exists.
     private const float DownedAlpha = 0.4f;
 
     [SerializeField] private PlayerDowned _downed;
+
+    [Tooltip("Optional. Without it the label never shows the revive's progress.")]
+    [SerializeField] private PlayerRevive _revive;
 
     [Tooltip("The body's sprite, which fades while the player is downed. Not the slot marker, " +
              "so everyone still sees whose body it is.")]
@@ -19,6 +23,9 @@ public class PlayerDownedView : MonoBehaviour
 
     private Color _baseColor;
     private bool? _shownDowned;
+
+    // -1: the label says «Derribado». Otherwise the percentage it shows.
+    private int _shownPercent = -1;
 
     private void Awake()
     {
@@ -39,16 +46,34 @@ public class PlayerDownedView : MonoBehaviour
     private void Update()
     {
         bool downed = _downed.IsDowned;
-        if (_shownDowned == downed)
+
+        if (_shownDowned != downed)
+        {
+            _shownDowned = downed;
+
+            Color color = _baseColor;
+            if (downed)
+                color.a *= DownedAlpha;
+
+            _visual.color = color;
+            _shownPercent = -1;
+            _label.text = downed ? "Derribado" : "";
+        }
+
+        if (downed)
+            ShowReviveProgress();
+    }
+
+    // The text only changes when the whole percentage does, not every frame.
+    private void ShowReviveProgress()
+    {
+        float progress = _revive != null ? _revive.Progress : 0f;
+        int percent = progress > 0f ? Mathf.FloorToInt(progress * 100f) : -1;
+
+        if (percent == _shownPercent)
             return;
 
-        _shownDowned = downed;
-
-        Color color = _baseColor;
-        if (downed)
-            color.a *= DownedAlpha;
-
-        _visual.color = color;
-        _label.text = downed ? "Derribado" : "";
+        _shownPercent = percent;
+        _label.text = percent < 0 ? "Derribado" : $"Reanimando {percent} %";
     }
 }

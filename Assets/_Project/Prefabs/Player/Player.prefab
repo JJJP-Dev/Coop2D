@@ -400,6 +400,7 @@ GameObject:
   - component: {fileID: 5074802504927878542}
   - component: {fileID: 3781323485103818344}
   - component: {fileID: 4088126060001671563}
+  - component: {fileID: 4992590136018386484}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -767,8 +768,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDownedView
   _downed: {fileID: 3781323485103818344}
+  _revive: {fileID: 4992590136018386484}
   _visual: {fileID: 1516942260192534978}
   _label: {fileID: 2152166687288444170}
+--- !u!114 &4992590136018386484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4950291352465746428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b533358a0b138b4c873e542fa5db96e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerRevive
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 3332554340608108226}
+  _networkObjectCache: {fileID: 0}
+  _settings: {fileID: 11400000, guid: fb010c19ad00fbf4fae22a851f7152a5, type: 2}
 --- !u!1 &5171306280570818574
 GameObject:
   m_ObjectHideFlags: 0

@@ -107,6 +107,25 @@ public class Health : NetworkBehaviour
     }
 
     /// <summary>
+    /// Server only. Gets a downed player up (#51) with this much health, and ignores hits for a few
+    /// seconds so the enemies around it can't drop it again at once. Does nothing unless it's at 0.
+    /// </summary>
+    public void Revive(int health, float invulnerableSeconds)
+    {
+        if (!IsServerInitialized)
+        {
+            Debug.LogWarning("[Health] Only the server can revive.", this);
+            return;
+        }
+
+        if (!IsDead)
+            return;
+
+        _current.Value = Mathf.Clamp(health, 1, Max);
+        _invulnerableUntil = Time.time + invulnerableSeconds;
+    }
+
+    /// <summary>
     /// Server only.
     /// </summary>
     public void SetInvulnerable(bool invulnerable)
