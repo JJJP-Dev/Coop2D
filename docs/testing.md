@@ -357,5 +357,9 @@ Con el host y dos clientes, en local y otra vez con 100 ms de latencia. «Dar ex
 | Orbes al morir | Matad perseguidores lejos y acercaos después a donde cayeron. | La barra no sube hasta que un jugador en pie pasa a menos de 1,5 casillas; entonces sube 1 por orbe, igual en todas las ventanas. |
 | Un orbe, una vez | Dos jugadores se acercan a la vez al mismo orbe, uno con 100 ms. | La barra sube 1, no 2. |
 | Derribado no recoge | Un jugador derribado sobre orbes. | No los recoge; sí quien llegue de pie. |
-| Tope de 40 | Con *Range* de `DefaultAutoAttack` en 6, «Generar 10 Chaser» y «Matar a todos» cinco veces sin recoger nada. | En el host, la lista de `ExperienceOrbs` nunca pasa de 40 (*Debug* del Inspector o la vista del commit siguiente). Al recogerlos todos, la barra sube 50. |
+| Tope de 40 | Con *Range* de `DefaultAutoAttack` en 6, «Generar 10 Chaser» y «Matar a todos» cinco veces sin recoger nada. | Nunca hay más de 40 orbes en el suelo (cuenta los `ExperienceOrb(Clone)` activos bajo `Match` en la *Hierarchy*); los que se suman a otro se ven más grandes. Al recogerlos todos, la barra sube 50. |
 | Reiniciar sin orbes | Deja orbes en el suelo, pierde y reinicia. | No queda ninguno y la barra empieza vacía. |
+| Se ven en todas | Matad perseguidores. | Cada uno deja un orbe donde cayó, en el mismo sitio en todas las ventanas. |
+| Atracción suave | Pasa cerca de varios orbes, también con 100 ms. | Vuelan hacia ti acelerando y desaparecen al llegar, sin saltos. En las otras ventanas vuelan hacia ti, no hacia ellos. |
+| Orbes al entrar tarde | Deja orbes en el suelo y une a otro cliente. | Los ve todos en su sitio, una sola vez cada uno. |
+| Sale quien los recoge | Un cliente recoge orbes y sale justo después. | Los orbes en vuelo desaparecen sin errores. |

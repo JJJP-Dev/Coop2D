@@ -2195,6 +2195,7 @@ GameObject:
   - component: {fileID: 484037718}
   - component: {fileID: 484037719}
   - component: {fileID: 484037720}
+  - component: {fileID: 484037721}
   m_Layer: 0
   m_Name: Match
   m_TagString: Untagged
@@ -2373,6 +2374,20 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 0}
   _settings: {fileID: 11400000, guid: efa685929a2e9644cab8e5bb1948c97d, type: 2}
   _experience: {fileID: 484037719}
+--- !u!114 &484037721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 484037712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dc5aa0b0e7bd3245bfa0b7a5948a5dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ExperienceOrbsView
+  _orbs: {fileID: 484037720}
+  _orbPrefab: {fileID: 8465633879568451531, guid: 0f5e9d7cad7806a4bb1411380d9924e1, type: 3}
 --- !u!1 &491478441
 GameObject:
   m_ObjectHideFlags: 0
