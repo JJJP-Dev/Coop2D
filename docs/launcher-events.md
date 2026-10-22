@@ -232,6 +232,7 @@ Cuando un jugador derribado se levanta (#51), en todas las ventanas.
 | `slot` | entero | Hueco del jugador que se levanta |
 | `me` | bool | `true` si es el jugador local |
 | `by` | id | Quién lo reanimó: `me` (el jugador local), `ally` (otro jugador) o `none` (un truco, como «Curar a todos») |
+| `left` | entero | Reanimaciones que le quedan al grupo después de esta (#79). Los trucos no gastan. `none` si la escena no las limita |
 
 ### 5.4 Combate
 

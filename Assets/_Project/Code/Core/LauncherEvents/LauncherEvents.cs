@@ -84,9 +84,11 @@ public static class LauncherEvents
     /// <param name="slot">The revived player's, from 1 to 4.</param>
     /// <param name="me">True when it's the local player.</param>
     /// <param name="by">me, ally or none (a cheat).</param>
-    public static void PlayerRevived(int slot, bool me, string by)
+    /// <param name="chargesLeft">The group's revives left after this one (#79). Negative writes none.</param>
+    public static void PlayerRevived(int slot, bool me, string by, int chargesLeft)
     {
-        LauncherEventWriter.Write("player_revived", ("slot", slot), ("me", me), ("by", by));
+        LauncherEventWriter.Write("player_revived", ("slot", slot), ("me", me), ("by", by),
+                                  ("left", chargesLeft >= 0 ? (object)chargesLeft : null));
     }
 
     // --- Combat ---

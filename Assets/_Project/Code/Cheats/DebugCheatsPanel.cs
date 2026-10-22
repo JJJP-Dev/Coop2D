@@ -29,10 +29,15 @@ public class DebugCheatsPanel : MonoBehaviour
     [Tooltip("Optional. Shows the match's seed (#75), to write it in RunRandomSettings and play the same run again.")]
     [SerializeField] private TMP_Text _seedLabel;
 
+    [Tooltip("Optional. Shows the group's revives left out of its total (#79).")]
+    [SerializeField] private TMP_Text _reviveLabel;
+
     private InputService _inputService;
     private TMP_Text _invulnerableLabel;
     private bool? _shownInvulnerable;
     private string _shownSeed;
+    private int _shownRemaining = -1;
+    private int _shownTotal = -1;
 
     private void Awake()
     {
@@ -90,6 +95,7 @@ public class DebugCheatsPanel : MonoBehaviour
             return;
 
         UpdateSeedLabel();
+        UpdateReviveLabel();
 
         PlayerIdentity player = GameServices.Instance.LocalPlayerService.Current;
         bool invulnerable = player != null && player.TryGetComponent(out Health health) && health.IsInvulnerable;
@@ -113,6 +119,23 @@ public class DebugCheatsPanel : MonoBehaviour
 
         _shownSeed = seed;
         _seedLabel.text = $"Semilla: {seed}";
+    }
+
+    private void UpdateReviveLabel()
+    {
+        if (_reviveLabel == null)
+            return;
+
+        ReviveCharges charges = ReviveCharges.Current;
+        int remaining = charges != null ? charges.Remaining : -1;
+        int total = charges != null ? charges.Total : -1;
+
+        if (remaining == _shownRemaining && total == _shownTotal)
+            return;
+
+        _shownRemaining = remaining;
+        _shownTotal = total;
+        _reviveLabel.text = charges != null ? $"Reanimaciones: {remaining}/{total}" : "Reanimaciones: sin límite";
     }
 
     private void OnToggle(InputAction.CallbackContext context)

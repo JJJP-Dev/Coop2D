@@ -2,8 +2,8 @@ using TMPro;
 using UnityEngine;
 
 // Shows that a player is downed (#51), with placeholders until there is art: the body fades and a
-// label above it says so, or how far a teammate's revive has got. Only the picture: every client
-// works it out from the health and the revive it receives.
+// label above it says so, how far a teammate's revive has got, or that the group has no revives
+// left (#79). Only the picture: every client works it out from what it receives.
 public class PlayerDownedView : MonoBehaviour
 {
     // Placeholder look until the downed sprite exists.
@@ -24,8 +24,10 @@ public class PlayerDownedView : MonoBehaviour
     private Color _baseColor;
     private bool? _shownDowned;
 
-    // -1: the label says «Derribado». Otherwise the percentage it shows.
-    private int _shownPercent = -1;
+    // What the label says while downed: NoChargesLeft, Waiting («Derribado») or the percentage.
+    private const int NoChargesLeft = -2;
+    private const int Waiting = -1;
+    private int _shownPercent = Waiting;
 
     private void Awake()
     {
@@ -56,7 +58,7 @@ public class PlayerDownedView : MonoBehaviour
                 color.a *= DownedAlpha;
 
             _visual.color = color;
-            _shownPercent = -1;
+            _shownPercent = Waiting;
             _label.text = downed ? "Derribado" : "";
         }
 
@@ -64,16 +66,25 @@ public class PlayerDownedView : MonoBehaviour
             ShowReviveProgress();
     }
 
-    // The text only changes when the whole percentage does, not every frame.
+    // The text only changes when what it says does, not every frame.
     private void ShowReviveProgress()
     {
+        ReviveCharges charges = ReviveCharges.Current;
         float progress = _revive != null ? _revive.Progress : 0f;
-        int percent = progress > 0f ? Mathf.FloorToInt(progress * 100f) : -1;
+
+        int percent = charges != null && charges.Remaining <= 0 ? NoChargesLeft
+            : progress > 0f ? Mathf.FloorToInt(progress * 100f)
+            : Waiting;
 
         if (percent == _shownPercent)
             return;
 
         _shownPercent = percent;
-        _label.text = percent < 0 ? "Derribado" : $"Reanimando {percent} %";
+        _label.text = percent switch
+        {
+            NoChargesLeft => "Sin reanimaciones",
+            Waiting => "Derribado",
+            _ => $"Reanimando {percent} %",
+        };
     }
 }

@@ -9,6 +9,7 @@ using UnityEngine;
 // which FishNet keeps in step with the host's, like MatchClock. So the bar fills smoothly everywhere
 // and nothing is sent while it fills.
 // It also tells every client when this player goes down and gets up, for the launcher's events.
+// Each revive uses one of the group's charges (#79): with none left, nobody can get this player up.
 [RequireComponent(typeof(PlayerDowned))]
 public class PlayerRevive : NetworkBehaviour
 {
@@ -79,15 +80,23 @@ public class PlayerRevive : NetworkBehaviour
         {
             _wasDowned = downed;
 
-            // Getting up without a revive is the Heal All cheat: nobody did it.
+            // Getting up without a revive is the Heal All cheat: nobody did it, and it uses no charge.
             if (downed)
                 ObserversDowned();
             else
-                ObserversRevived(null);
+                ObserversRevived(null, ChargesLeft());
         }
 
         // Up again some other way, like the Heal All cheat.
         if (!downed)
+        {
+            StopReviving();
+            return;
+        }
+
+        // No charges left: a teammate standing here changes nothing, so no progress shows.
+        ReviveCharges charges = ReviveCharges.Current;
+        if (charges != null && charges.Remaining <= 0)
         {
             StopReviving();
             return;
@@ -114,12 +123,21 @@ public class PlayerRevive : NetworkBehaviour
 
     private void FinishRevive()
     {
+        // Spent when it ends, not when it starts, so a revive cut short costs nothing. Two revives
+        // ending at once with one charge left: the second finds none and stays down.
+        ReviveCharges charges = ReviveCharges.Current;
+        if (charges != null && !charges.TrySpend())
+        {
+            StopReviving();
+            return;
+        }
+
         int health = Mathf.Max(1, Mathf.RoundToInt(_health.Max * _settings.HealthFraction));
         _health.Revive(health, _settings.InvulnerableDuration);
 
         // Told here, with who did it, so the next check doesn't report it again as a cheat.
         _wasDowned = false;
-        ObserversRevived(_reviver);
+        ObserversRevived(_reviver, ChargesLeft());
 
         StopReviving();
     }
@@ -133,8 +151,9 @@ public class PlayerRevive : NetworkBehaviour
     }
 
     // Null reviver: nobody revived it (a cheat). A reviver that left the game also arrives as null.
+    // The charges left travel with it: the charges' own value may reach a client a moment later.
     [ObserversRpc]
-    private void ObserversRevived(NetworkObject reviver)
+    private void ObserversRevived(NetworkObject reviver, int chargesLeft)
     {
         if (!TryGetComponent(out PlayerIdentity identity))
             return;
@@ -143,7 +162,13 @@ public class PlayerRevive : NetworkBehaviour
             : reviver.IsOwner ? LauncherEvents.ByMe
             : LauncherEvents.ByAlly;
 
-        LauncherEvents.PlayerRevived(identity.Slot + 1, IsOwner, by);
+        LauncherEvents.PlayerRevived(identity.Slot + 1, IsOwner, by, chargesLeft);
+    }
+
+    // -1 in a scene that doesn't limit revives.
+    private static int ChargesLeft()
+    {
+        return ReviveCharges.Current != null ? ReviveCharges.Current.Remaining : -1;
     }
 
     private void StopReviving()

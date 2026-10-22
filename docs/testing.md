@@ -278,7 +278,7 @@ Select-String -Path "$env:USERPROFILE\AppData\LocalLow\PalitoGames\Coop2D\Player
 | Salir | El cliente pulsa salir. | En el cliente, `match_left reason=quit`; en el host, `player_left slot=2 players=1`. |
 | El host cierra | El host pulsa salir; repítelo cerrando la ventana del host. | En el cliente, toast «El host ha cerrado la partida» y `match_left reason=host_closed` las dos veces. |
 | Se corta la red | Con un cliente en la partida, mata el proceso del host desde el Administrador de tareas. | Al rato, en el cliente, toast «Se ha perdido la conexión con el host» y `match_left reason=disconnected`. |
-| Derribado y reanimado | En el host, deja que derriben al cliente y reanímalo con el host. Después, derriba al host y levántalo con «Curar a todos». | En el cliente: `player_downed slot=2 me=true` y `player_revived slot=2 me=true by=ally`; en el host, `me=false` y `by=me`. Con el truco, `player_revived slot=1 … by=none` en las dos ventanas. |
+| Derribado y reanimado | En el host, deja que derriben al cliente y reanímalo con el host. Después, derriba al host y levántalo con «Curar a todos». | En el cliente: `player_downed slot=2 me=true` y `player_revived slot=2 me=true by=ally left=1`; en el host, `me=false`, `by=me` y el mismo `left`. Con el truco, `player_revived slot=1 … by=none left=1` en las dos ventanas: no gasta. |
 | Fin de oleadas derribado | Quédate derribado cuando acaben los 3 minutos de oleadas. | `waves_finished … alive=false` en tu ventana y `alive=true` en la de quien sigue en pie. |
 | Consola limpia | Repasa la consola del editor tras una partida. | Ningún aviso de `LauncherEventWriter`: si sale, esa línea no cumple el contrato. |
 
@@ -314,3 +314,7 @@ Con el host y dos clientes, en local y otra vez con 100 ms de latencia. Con *Ran
 | Margen al levantarse | Reanima a alguien rodeado de perseguidores. | Durante 1 s su vida no baja; después vuelve a recibir daño. |
 | Un derribado no reanima | Con dos jugadores derribados uno junto al otro. | Ninguno levanta al otro. |
 | Ajustar con datos | Sube *Duration* de `DefaultRevive` a 6 y repite «Reanimar». Devuélvelo a 3. | Tarda 6 s. |
+| Cargas con 2 jugadores | Host y un cliente. Abre F1 y derribaos y reanimaos por turnos. | El panel dice «Reanimaciones: 2/2», luego 1/2 y 0/2, igual en las dos ventanas. Al caer otra vez, la etiqueta dice «Sin reanimaciones», el compañero no puede levantarte y «Curar a todos» sí (no gasta). |
+| Cargas con 4 jugadores | Host y tres clientes. | «Reanimaciones: 3/3» en las cuatro ventanas. |
+| Entra o sale alguien | Con 2 jugadores, gasta una carga (1/2); une a un tercero y luego que salga. | Al entrar pasa a 2/3; al salir sigue en 2/3. |
+| Cortar no gasta | Empieza a reanimar y aléjate antes de terminar. | Las cargas no bajan. |
