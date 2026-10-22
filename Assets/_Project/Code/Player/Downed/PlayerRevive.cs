@@ -127,6 +127,19 @@ public class PlayerRevive : NetworkBehaviour
             SetLine(progress, rate);
     }
 
+    /// <summary>
+    /// Server only. Call it right after restoring this player's health for a restarted match (#52):
+    /// it forgets the revive and that the player was down, so getting up there isn't reported as a cheat.
+    /// </summary>
+    public void ResetForNewRun()
+    {
+        if (!IsServerInitialized)
+            return;
+
+        StopReviving();
+        _wasDowned = _downed.IsDowned;
+    }
+
     private void FinishRevive()
     {
         // Spent when it ends, not when it starts, so a revive cut short costs nothing. Two revives

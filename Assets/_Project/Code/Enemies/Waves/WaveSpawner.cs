@@ -42,6 +42,9 @@ public class WaveSpawner : NetworkBehaviour
     private float _elapsed;
     private int _aliveEnemies;
 
+    // Server side. While paused the schedule's clock stops and nothing spawns (#52).
+    private bool _paused;
+
     private void Awake()
     {
         if (_schedule == null)
@@ -58,6 +61,7 @@ public class WaveSpawner : NetworkBehaviour
         _elapsed = 0f;
         _aliveEnemies = 0;
         _spawnedPerWave = null;
+        _paused = false;
 
         if (_schedule == null || _spawnPoints == null || _spawnPoints.Length == 0)
             return;
@@ -92,7 +96,7 @@ public class WaveSpawner : NetworkBehaviour
     private void Update()
     {
         // Null on clients, and when the setup is missing something.
-        if (!IsServerInitialized || _spawnedPerWave == null)
+        if (!IsServerInitialized || _spawnedPerWave == null || _paused)
             return;
 
         _elapsed += Time.deltaTime;
@@ -109,6 +113,16 @@ public class WaveSpawner : NetworkBehaviour
         IReadOnlyList<WaveEntry> waves = _schedule.Waves;
         for (int i = 0; i < waves.Count; i++)
             SpawnDueEnemies(waves[i], i);
+    }
+
+    /// <summary>
+    /// Server only. Stops the schedule where it is, or lets it go on. MatchFlow pauses it when the match
+    /// ends (#52), so no more enemies come while everyone is downed.
+    /// </summary>
+    public void SetPaused(bool paused)
+    {
+        if (IsServerInitialized)
+            _paused = paused;
     }
 
     /// <summary>
@@ -160,6 +174,20 @@ public class WaveSpawner : NetworkBehaviour
         System.Array.Clear(_counted, 0, _counted.Length);
         _wavesStarted.Value = 0;
         _wavesFinished.Value = false;
+    }
+
+    /// <summary>
+    /// Server only. The schedule from the beginning, for a restarted match (#52). Call it after
+    /// despawning every enemy: despawned enemies never die, so the count of living ones starts at 0.
+    /// </summary>
+    public void ResetForNewRun()
+    {
+        if (!IsServerInitialized || _spawnedPerWave == null)
+            return;
+
+        RestartWaves();
+        _aliveEnemies = 0;
+        _paused = false;
     }
 
     // Also after the cheats panel jumps ahead: the jump only moves the clock, and this sees it on the next frame.

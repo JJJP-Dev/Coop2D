@@ -323,3 +323,21 @@ Con el host y dos clientes, en local y otra vez con 100 ms de latencia. Con *Ran
 | Cargas con 4 jugadores | Host y tres clientes. | «Reanimaciones: 3/3» en las cuatro ventanas. |
 | Entra o sale alguien | Con 2 jugadores, gasta una carga (1/2); une a un tercero y luego que salga. | Al entrar pasa a 2/3; al salir sigue en 2/3. |
 | Cortar no gasta | Empieza a reanimar y aléjate antes de terminar. | Las cargas no bajan. |
+
+## 18. Fin de partida y reinicio
+
+Con el host y dos clientes, en local y otra vez con 100 ms de latencia. Para acabar rápido, pon *Range* a 0 en `DefaultAutoAttack` y deja que os derriben, o usad «Dañar a todos» varias veces.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Caen todos | Dejad que derriben a los tres. | Al caer el último, en todas las ventanas sale «Habéis caído» con las mismas oleadas y el mismo tiempo. Dejan de salir enemigos y los que hay se quedan quietos. En el host, `[MatchFlow] Every player is downed`. |
+| Queda uno en pie | Que derriben a dos y el tercero siga vivo, sin cargas. | No sale la pantalla. Al caer el tercero, sí. |
+| Salir desde la pantalla | Con la pantalla de fin, un cliente pulsa «Salir». | Vuelve al menú como con el botón de salir de siempre. |
+| Entrar con la partida acabada | Con la pantalla de fin, une a otro cliente. | Aparece de pie y ve la pantalla de fin con los mismos datos. |
+| Evento de fin | Mira los logs al caer todos. | Un solo `match_over result=defeat match_time=… waves=…`, igual en todas las ventanas. |
+| Solo el host reinicia | Con la pantalla de fin abierta, mira las tres ventanas. | El host ve «Reiniciar» y «Salir»; los clientes, «Esperando al host…» y «Salir». |
+| Reiniciar | El host pulsa «Reiniciar». | En todas las ventanas: se cierra la pantalla, todos de pie con 100 de vida en su punto de aparición (los demás saltan allí, sin deslizarse), sin enemigos, el reloj vuelve a 0:00 y la primera oleada sale como al empezar. F1 muestra una semilla nueva, igual en todas, y las reanimaciones completas (2/2 con dos jugadores, 3/3 con tres). En el host, `[MatchFlow] Match restarted (1)`. |
+| Tres veces seguidas | Perded y reiniciad tres veces seguidas, una de ellas con 100 ms de latencia. | Todo igual la tercera vez que la primera. En la *Hierarchy* del host no queda ningún `Chaser(Clone)` justo después de reiniciar, y la consola sigue limpia. |
+| Nadie se levanta por truco | Mira los logs al reiniciar. | Ningún `player_revived` al reiniciar: levantarse ahí no es una reanimación. |
+| Reinicio para el launcher | Mira los logs al reiniciar. | En cada ventana, `match_left reason=restart` y enseguida `match_joined` con la semilla nueva y `match_time=0`. Un truco usado antes del reinicio no aparece después. |
+| Entrar tras reiniciar | Reinicia y une a otro cliente. | Entra en la partida nueva, con la misma semilla que los demás. |

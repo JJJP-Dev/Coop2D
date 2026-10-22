@@ -193,7 +193,7 @@ Cuando el jugador local vuelve al menú.
 
 | Campo | Tipo | Valor |
 |---|---|---|
-| `reason` | id | `quit` (pulsó salir), `host_closed`, `disconnected` o `error` |
+| `reason` | id | `quit` (pulsó salir), `host_closed`, `disconnected`, `error` o `restart` (el host reinició la partida tras perderla, #52; justo después llega un `match_joined` nuevo con la semilla nueva) |
 | `duration` | entero | Segundos dentro de la partida |
 
 #### `wave_started` · Obligatorio
@@ -213,6 +213,16 @@ Una vez por partida, cuando ya no quedan oleadas por salir (pasados los 3 minuto
 |---|---|---|
 | `match_time` | entero | Segundos de partida |
 | `alive` | bool | Si el jugador local seguía en pie: `false` si estaba derribado (#51) |
+
+#### `match_over` · Obligatorio
+
+Una vez por partida, cuando termina (#52), en todas las ventanas. Ahora solo hay derrota: todos los jugadores derribados.
+
+| Campo | Tipo | Valor |
+|---|---|---|
+| `result` | id | `defeat`. La victoria llegará con el jefe (#93) |
+| `match_time` | entero | Segundos que duró la partida, iguales en todas las ventanas |
+| `waves` | entero | Oleadas que habían empezado |
 
 #### `player_downed` · Obligatorio
 

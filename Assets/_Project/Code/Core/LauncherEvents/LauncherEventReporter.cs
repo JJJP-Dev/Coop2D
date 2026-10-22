@@ -23,6 +23,10 @@ public class LauncherEventReporter : MonoBehaviour
     private int _reportedWaves;
     private bool _reportedWavesFinished;
 
+    // Whether match_over was written for this match (#52), and which restart of the scene it is.
+    private bool _reportedMatchOver;
+    private int _reportedRunNumber;
+
     // Slots (1 to 4) of players who left this frame. Held until LateUpdate: when the whole session ends,
     // every player leaves at once, and that's a match_left, not a player_left for each one.
     private readonly List<int> _leftSlots = new();
@@ -71,7 +75,11 @@ public class LauncherEventReporter : MonoBehaviour
             ReportMatchJoined();
 
         if (_inMatch)
+        {
+            ReportRestart();
             ReportWaves();
+            ReportMatchOver();
+        }
     }
 
     private void LateUpdate()
@@ -112,6 +120,10 @@ public class LauncherEventReporter : MonoBehaviour
         WaveSpawner waves = WaveSpawner.Current;
         _reportedWaves = !isHost && waves != null ? waves.WavesStarted : 0;
         _reportedWavesFinished = !isHost && waves != null && waves.WavesFinished;
+
+        // Arriving at a match that is already over isn't seeing it end.
+        _reportedMatchOver = MatchFlow.Current != null && MatchFlow.Current.Phase == MatchPhase.Over;
+        _reportedRunNumber = MatchFlow.Current != null ? MatchFlow.Current.RunNumber : 0;
 
         // The element the slot gave us. It arrived with the player, so it's already here.
         // Changes with the test key are written by PlayerElement itself.
@@ -166,6 +178,32 @@ public class LauncherEventReporter : MonoBehaviour
             bool alive = player == null || !player.TryGetComponent(out PlayerDowned downed) || !downed.IsDowned;
             LauncherEvents.WavesFinished(MatchTime(), alive);
         }
+    }
+
+    // A restart is a new match for the launcher (#52): the old one ends and the new one begins, with its
+    // own seed, so a cheat used before the restart doesn't count against the next one.
+    // match_joined goes one frame later, like when joining, so the new seed has arrived too.
+    private void ReportRestart()
+    {
+        MatchFlow flow = MatchFlow.Current;
+        if (flow == null || flow.RunNumber == _reportedRunNumber)
+            return;
+
+        _reportedRunNumber = flow.RunNumber;
+        _inMatch = false;
+        LauncherEvents.MatchLeft("restart", (int)(Time.realtimeSinceStartupAsDouble - _matchStartedAt));
+        _matchJoinFrame = Time.frameCount;
+    }
+
+    // Once per match, with the values the host froze when it ended, so every window writes the same.
+    private void ReportMatchOver()
+    {
+        MatchFlow flow = MatchFlow.Current;
+        if (flow == null || flow.Phase != MatchPhase.Over || _reportedMatchOver)
+            return;
+
+        _reportedMatchOver = true;
+        LauncherEvents.MatchOver("defeat", flow.EndSeconds, flow.EndWaves);
     }
 
     private static int MatchTime()

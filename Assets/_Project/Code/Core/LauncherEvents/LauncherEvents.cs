@@ -74,6 +74,13 @@ public static class LauncherEvents
         LauncherEventWriter.Write("waves_finished", ("match_time", matchTime), ("alive", alive));
     }
 
+    /// <param name="result">defeat. Others (victory) come with the boss (#93).</param>
+    /// <param name="waves">Waves that had started.</param>
+    public static void MatchOver(string result, int matchTime, int waves)
+    {
+        LauncherEventWriter.Write("match_over", ("result", result), ("match_time", matchTime), ("waves", waves));
+    }
+
     /// <param name="slot">The downed player's, from 1 to 4.</param>
     /// <param name="me">True when it's the local player.</param>
     public static void PlayerDowned(int slot, bool me)

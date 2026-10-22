@@ -1,3 +1,5 @@
+using FishNet.Component.Transforming;
+using FishNet.Connection;
 using FishNet.Object;
 using UnityEngine;
 
@@ -10,6 +12,7 @@ public class PlayerMovement : NetworkBehaviour
     private Rigidbody2D _body;
     private PlayerInputReader _input;
     private PlayerDowned _downed;
+    private NetworkTransform _networkTransform;
 
     private void Awake()
     {
@@ -18,6 +21,8 @@ public class PlayerMovement : NetworkBehaviour
 
         // Optional: without it the player can never be downed (#51).
         TryGetComponent(out _downed);
+
+        TryGetComponent(out _networkTransform);
 
         if (_settings == null)
             Debug.LogError("[PlayerMovement] Movement settings are not assigned.", this);
@@ -46,6 +51,39 @@ public class PlayerMovement : NetworkBehaviour
         }
 
         _body.linearVelocity = CalculateVelocity(_body.linearVelocity, _input.MoveInput, Time.fixedDeltaTime);
+    }
+
+    /// <summary>
+    /// Server only. Moves this player to a point, for a restarted match (#52). The owner moves its own
+    /// player (its NetworkTransform is client authoritative), so the host asks the owner to do it.
+    /// </summary>
+    public void PlaceAt(Vector2 position)
+    {
+        if (!IsServerInitialized)
+            return;
+
+        // The host's own player: the host is its owner.
+        if (IsOwner)
+            MoveTo(position);
+        else
+            TargetPlaceAt(Owner, position);
+    }
+
+    [TargetRpc]
+    private void TargetPlaceAt(NetworkConnection target, Vector2 position)
+    {
+        MoveTo(position);
+    }
+
+    // Owner side. Teleport makes the others jump there instead of sliding across the arena.
+    private void MoveTo(Vector2 position)
+    {
+        if (_networkTransform != null)
+            _networkTransform.Teleport();
+
+        _body.position = position;
+        _body.linearVelocity = Vector2.zero;
+        transform.position = position;
     }
 
     // No networking here on purpose: client-side prediction will reuse it as is.

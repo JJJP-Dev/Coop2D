@@ -245,6 +245,15 @@ public class ReactionService : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Server only. Removes every cloud, for a restarted match (#52). They're only on the host:
+    /// the clients drew theirs when the reaction happened and those fade by themselves.
+    /// </summary>
+    public void ClearClouds()
+    {
+        _clouds.Clear();
+    }
+
     // Clouds belong to the match that made them.
     private void OnServerConnectionState(ServerConnectionStateArgs args)
     {

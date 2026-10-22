@@ -25,6 +25,15 @@ public class MatchClock : NetworkBehaviour
         _startTick.Value = TimeManager.Tick;
     }
 
+    /// <summary>
+    /// Server only. Counts again from 0, for a restarted match (#52).
+    /// </summary>
+    public void Restart()
+    {
+        if (IsServerInitialized)
+            _startTick.Value = TimeManager.Tick;
+    }
+
     public override void OnStartClient()
     {
         base.OnStartClient();

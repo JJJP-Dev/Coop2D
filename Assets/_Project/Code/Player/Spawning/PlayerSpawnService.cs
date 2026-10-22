@@ -101,7 +101,10 @@ public class PlayerSpawnService : MonoBehaviour
         _networkManager.ServerManager.Spawn(player, conn, scene);
     }
 
-    private Vector3 GetSpawnPosition(Scene scene, int slot)
+    /// <summary>
+    /// Server only. Where the player of this slot appears in that scene. The restart (#52) puts players back here.
+    /// </summary>
+    public Vector3 GetSpawnPosition(Scene scene, int slot)
     {
         if (_spawnPoints == null || _spawnPoints.gameObject.scene != scene)
         {

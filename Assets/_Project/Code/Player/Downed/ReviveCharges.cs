@@ -84,6 +84,20 @@ public class ReviveCharges : NetworkBehaviour
     }
 
     /// <summary>
+    /// Server only. Every charge back, for a restarted match (#52). The players who are here now are
+    /// the most it has had: someone who left before the restart no longer counts.
+    /// </summary>
+    public void ResetForNewRun()
+    {
+        if (!IsServerInitialized || _settings == null)
+            return;
+
+        _mostPlayers = CountPlayers();
+        _used.Value = 0;
+        _total.Value = _settings.GetCharges(_mostPlayers);
+    }
+
+    /// <summary>
     /// Server only. Uses one charge if there is one left. False if the group has none.
     /// </summary>
     public bool TrySpend()

@@ -78,6 +78,15 @@ public class RunRandomService : MonoBehaviour
     }
 
     /// <summary>
+    /// Server only. Starts a run with a new seed, or the fixed one of the settings in development,
+    /// exactly as hosting does. The host's restart uses it (#52).
+    /// </summary>
+    public void BeginNewRun()
+    {
+        BeginRun(PickSeed());
+    }
+
+    /// <summary>
     /// Server only. The stream for one purpose of the run. Ask for it every time you draw instead of
     /// keeping it: a new run replaces every stream.
     /// </summary>
