@@ -3,11 +3,13 @@ using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using UnityEngine;
 
-// Gets this player up when it's downed and a living teammate stays close long enough (#51).
-// The host decides everything: who is close, when the revive starts and when it ends. The clients
-// only receive the tick it started on and work out the progress with their own copy of the tick,
-// which FishNet keeps in step with the host's, like MatchClock. So the bar fills smoothly everywhere
-// and nothing is sent while it fills.
+// Gets this player up when it's downed and living teammates stay close long enough (#51).
+// The host decides everything: who is close, how fast it goes and when it ends. Each revive takes
+// longer than the last one of the match, and every extra teammate close makes it faster (#79).
+// The clients don't receive the progress itself but a line: where it was at a tick and how fast it
+// grows from there. Each one works out the progress with its own copy of the tick, which FishNet
+// keeps in step with the host's, like MatchClock. So the label fills smoothly everywhere, and the
+// host only sends something when the speed changes: someone arrives, leaves or a revive ends.
 // It also tells every client when this player goes down and gets up, for the launcher's events.
 // Each revive uses one of the group's charges (#79): with none left, nobody can get this player up.
 [RequireComponent(typeof(PlayerDowned))]
@@ -16,34 +18,26 @@ public class PlayerRevive : NetworkBehaviour
     // Checking every frame would be wasted work: a tenth of a second is far below what players notice.
     private const float CheckInterval = 0.1f;
 
-    // 0 means nobody is reviving: the host's tick is never 0 once the server runs.
-    private const uint NotReviving = 0;
-
     [SerializeField] private ReviveSettings _settings;
 
-    private readonly SyncVar<uint> _startTick = new();
+    // The progress line. A rate of 0 means nobody is reviving. They change together, in the same tick,
+    // so they arrive together; for a frame in between, only the label would be off.
+    private readonly SyncVar<uint> _anchorTick = new();
+    private readonly SyncVar<float> _anchorProgress = new();
+    private readonly SyncVar<float> _rate = new();
 
     private Health _health;
     private PlayerDowned _downed;
 
-    // Server side. The reviver is the closest living teammate at the last check.
+    // Server side. The reviver is the closest teammate helping at the last check, for the launcher.
     private float _nextCheckTime;
     private NetworkObject _reviver;
     private bool _wasDowned;
 
     /// <summary>
-    /// From 0 to 1 while a teammate is reviving this player, on every client. 0 otherwise.
+    /// From 0 to 1 while teammates are reviving this player, on every client. 0 otherwise.
     /// </summary>
-    public float Progress
-    {
-        get
-        {
-            if (!IsSpawned || _settings == null || _startTick.Value == NotReviving)
-                return 0f;
-
-            return Mathf.Clamp01((float)(TimeManager.TimePassed(_startTick.Value) / _settings.Duration));
-        }
-    }
+    public float Progress => IsSpawned ? ProgressNow() : 0f;
 
     private void Awake()
     {
@@ -102,23 +96,34 @@ public class PlayerRevive : NetworkBehaviour
             return;
         }
 
-        _reviver = FindReviver();
+        int helpers = CountHelpers(out _reviver);
 
-        // Nobody close: the progress is lost (#51), so a revive is a choice to stay.
-        if (_reviver == null)
+        // Nobody helping: the progress is lost (#51), so a revive is a choice to stay.
+        if (helpers == 0)
         {
             StopReviving();
             return;
         }
 
-        if (_startTick.Value == NotReviving)
+        int used = charges != null ? charges.Used : 0;
+        float rate = _settings.GetSpeed(helpers) / _settings.GetDuration(used);
+
+        if (_rate.Value <= 0f)
         {
-            _startTick.Value = TimeManager.Tick;
+            SetLine(0f, rate);
             return;
         }
 
-        if (TimeManager.TimePassed(_startTick.Value) >= _settings.Duration)
+        float progress = ProgressNow();
+        if (progress >= 1f)
+        {
             FinishRevive();
+            return;
+        }
+
+        // A new line from where it is now, so the progress never jumps, only bends.
+        if (!Mathf.Approximately(rate, _rate.Value))
+            SetLine(progress, rate);
     }
 
     private void FinishRevive()
@@ -171,21 +176,42 @@ public class PlayerRevive : NetworkBehaviour
         return ReviveCharges.Current != null ? ReviveCharges.Current.Remaining : -1;
     }
 
+    // The same sum on the host and on every client.
+    private float ProgressNow()
+    {
+        if (_rate.Value <= 0f)
+            return 0f;
+
+        return Mathf.Clamp01(_anchorProgress.Value + _rate.Value * (float)TimeManager.TimePassed(_anchorTick.Value));
+    }
+
+    // Server side.
+    private void SetLine(float progress, float rate)
+    {
+        _anchorTick.Value = TimeManager.Tick;
+        _anchorProgress.Value = progress;
+        _rate.Value = rate;
+    }
+
     private void StopReviving()
     {
         _reviver = null;
 
-        if (_startTick.Value != NotReviving)
-            _startTick.Value = NotReviving;
+        if (_rate.Value <= 0f)
+            return;
+
+        _rate.Value = 0f;
+        _anchorProgress.Value = 0f;
     }
 
-    // The nearest living teammate within the radius, or null.
-    private NetworkObject FindReviver()
+    // Living teammates within the radius, and the nearest of them, which is null when there are none.
+    private int CountHelpers(out NetworkObject nearest)
     {
         Vector2 position = transform.position;
         float radiusSqr = _settings.Radius * _settings.Radius;
-        NetworkObject nearest = null;
         float nearestSqrDistance = float.MaxValue;
+        int helpers = 0;
+        nearest = null;
 
         // Each connection's first object is its player (see PlayerSpawnService).
         foreach (NetworkConnection connection in ServerManager.Clients.Values)
@@ -198,13 +224,18 @@ public class PlayerRevive : NetworkBehaviour
                 continue;
 
             float sqrDistance = ((Vector2)player.transform.position - position).sqrMagnitude;
-            if (sqrDistance <= radiusSqr && sqrDistance < nearestSqrDistance)
+            if (sqrDistance > radiusSqr)
+                continue;
+
+            helpers++;
+
+            if (sqrDistance < nearestSqrDistance)
             {
                 nearestSqrDistance = sqrDistance;
                 nearest = player;
             }
         }
 
-        return nearest;
+        return helpers;
     }
 }

@@ -7,8 +7,15 @@ public class ReviveSettings : ScriptableObject
     [Tooltip("A living teammate this close to the downed player, in units (1 unit = 1 tile), revives it.")]
     [SerializeField, Min(0.1f)] private float _radius = 1.5f;
 
-    [Tooltip("Seconds a teammate has to stay close. If nobody is close, the progress is lost.")]
+    [Tooltip("Seconds the first revive of the match takes with one teammate close. If nobody is close, the progress is lost.")]
     [SerializeField, Min(0.1f)] private float _duration = 3f;
+
+    [Tooltip("Seconds each revive already used in the match adds to the next one: 3, 4, 5... (#79).")]
+    [SerializeField, Min(0f)] private float _extraSecondsPerRevive = 1f;
+
+    [Tooltip("How much faster it goes for each teammate close after the first: 0.5 makes two of them " +
+             "1.5 times as fast and three of them twice as fast (#79).")]
+    [SerializeField, Min(0f)] private float _extraSpeedPerHelper = 0.5f;
 
     [Tooltip("Share of its maximum health the player gets up with. 0.5 is 50 with 100.")]
     [SerializeField, Range(0.01f, 1f)] private float _healthFraction = 0.5f;
@@ -22,9 +29,24 @@ public class ReviveSettings : ScriptableObject
     [SerializeField] private int[] _chargesByPlayers = { 1, 2, 3, 3 };
 
     public float Radius => _radius;
-    public float Duration => _duration;
     public float HealthFraction => _healthFraction;
     public float InvulnerableDuration => _invulnerableDuration;
+
+    /// <summary>
+    /// Seconds a revive takes with one teammate, after the group has used this many in the match.
+    /// </summary>
+    public float GetDuration(int revivesUsed)
+    {
+        return _duration + _extraSecondsPerRevive * Mathf.Max(0, revivesUsed);
+    }
+
+    /// <summary>
+    /// How many times faster than one teammate this many teammates revive. 0 with nobody.
+    /// </summary>
+    public float GetSpeed(int helpers)
+    {
+        return helpers <= 0 ? 0f : 1f + _extraSpeedPerHelper * (helpers - 1);
+    }
 
     /// <summary>
     /// The group's revives for a match that has had this many players at most. 0 if the list is empty.

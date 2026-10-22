@@ -308,12 +308,14 @@ Con el host y dos clientes, en local y otra vez con 100 ms de latencia. Con *Ran
 | Caer con latencia | Repite con un cliente y 100 ms. | Igual. Como mucho da un paso o sale un disparo justo al caer, y el host no avisa de nada. |
 | Levantarse con trucos | Con un jugador derribado, pulsa «Curar a todos». | Se levanta con la vida llena en todas las ventanas y vuelve a moverse y disparar. |
 | Derribado al entrar tarde | Con un jugador derribado, une a otro cliente. | El nuevo lo ve derribado desde el principio. |
-| Reanimar | Con un jugador derribado, ponte a menos de 1,5 casillas y quédate cerca. | En todas las ventanas sube «Reanimando N %» sin saltos. A los 3 s se levanta con 50 de vida y vuelve a moverse y disparar. |
+| Reanimar | Con un jugador derribado, ponte a menos de 1,5 casillas y quédate cerca. | En todas las ventanas sube «Reanimando N %» sin saltos. La primera reanimación de la partida tarda 3 s; se levanta con 50 de vida y vuelve a moverse y disparar. |
 | Alejarse | Empieza a reanimar y aléjate antes de los 3 s. Vuelve después. | Al alejarte vuelve a «Derribado». Al volver, el porcentaje empieza de cero. |
 | Reanimar con latencia | Un cliente con 100 ms reanima a otro. | El porcentaje sube igual de suave en todas las ventanas y se levanta en todas a la vez (el cliente lento puede verlo un instante después). |
 | Margen al levantarse | Reanima a alguien rodeado de perseguidores. | Durante 1 s su vida no baja; después vuelve a recibir daño. |
 | Un derribado no reanima | Con dos jugadores derribados uno junto al otro. | Ninguno levanta al otro. |
-| Ajustar con datos | Sube *Duration* de `DefaultRevive` a 6 y repite «Reanimar». Devuélvelo a 3. | Tarda 6 s. |
+| Ajustar con datos | Sube *Duration* de `DefaultRevive` a 6 y repite «Reanimar» en una partida nueva. Devuélvelo a 3. | La primera tarda 6 s. |
+| Cada vez más lenta | Con 4 jugadores (3 cargas), reanima tres veces seguidas con un solo compañero. Cronometra. | Tardan 3, 4 y 5 s. |
+| Varios a la vez | Con 3 jugadores, derriba a uno y reanimadlo los otros dos a la vez, en la primera reanimación de una partida. Repite con uno solo y luego con los dos, empezando uno y llegando el otro a la mitad. | Con dos tarda 2 s (×1,5); con uno, 3 s. Si llega el segundo a la mitad, el porcentaje acelera desde donde iba, sin saltar. Si se va uno, frena sin perder lo hecho. |
 | Cargas con 2 jugadores | Host y un cliente. Abre F1 y derribaos y reanimaos por turnos. | El panel dice «Reanimaciones: 2/2», luego 1/2 y 0/2, igual en las dos ventanas. Al caer otra vez, la etiqueta dice «Sin reanimaciones», el compañero no puede levantarte y «Curar a todos» sí (no gasta). |
 | Cargas con 4 jugadores | Host y tres clientes. | «Reanimaciones: 3/3» en las cuatro ventanas. |
 | Entra o sale alguien | Con 2 jugadores, gasta una carga (1/2); une a un tercero y luego que salga. | Al entrar pasa a 2/3; al salir sigue en 2/3. |
