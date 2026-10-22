@@ -23,6 +23,9 @@ public class LauncherEventReporter : MonoBehaviour
     private int _reportedWaves;
     private bool _reportedWavesFinished;
 
+    // The group's level already written in this match (#76).
+    private int _reportedLevel;
+
     // Whether match_over was written for this match (#52), and which restart of the scene it is.
     private bool _reportedMatchOver;
     private int _reportedRunNumber;
@@ -78,6 +81,7 @@ public class LauncherEventReporter : MonoBehaviour
         {
             ReportRestart();
             ReportWaves();
+            ReportLevels();
             ReportMatchOver();
         }
     }
@@ -124,6 +128,10 @@ public class LauncherEventReporter : MonoBehaviour
         // Arriving at a match that is already over isn't seeing it end.
         _reportedMatchOver = MatchFlow.Current != null && MatchFlow.Current.Phase == MatchPhase.Over;
         _reportedRunNumber = MatchFlow.Current != null ? MatchFlow.Current.RunNumber : 0;
+
+        // Levels the group reached before this player arrived aren't seen. The host's own client
+        // arrives at level 1, before anyone can earn experience.
+        _reportedLevel = RunExperience.Current != null ? RunExperience.Current.Level : 1;
 
         // The element the slot gave us. It arrived with the player, so it's already here.
         // Changes with the test key are written by PlayerElement itself.
@@ -193,6 +201,25 @@ public class LauncherEventReporter : MonoBehaviour
         _inMatch = false;
         LauncherEvents.MatchLeft("restart", (int)(Time.realtimeSinceStartupAsDouble - _matchStartedAt));
         _matchJoinFrame = Time.frameCount;
+    }
+
+    // One line per level, also when an orb or a cheat gives several at once: the level travels as a
+    // value, so a client may only see the last of them.
+    private void ReportLevels()
+    {
+        RunExperience experience = RunExperience.Current;
+        if (experience == null)
+            return;
+
+        // A restarted match starts at level 1 again.
+        if (experience.Level < _reportedLevel)
+            _reportedLevel = experience.Level;
+
+        while (_reportedLevel < experience.Level)
+        {
+            _reportedLevel++;
+            LauncherEvents.LevelUp(_reportedLevel, MatchTime());
+        }
     }
 
     // Once per match, with the values the host froze when it ended, so every window writes the same.

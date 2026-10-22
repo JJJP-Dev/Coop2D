@@ -97,7 +97,7 @@ id nuevo** en esta tabla; no reutilices uno existente para otra cosa.
 | `by` | `me`, `ally`, `none` | Quién lo hizo: el jugador local, otro jugador o nadie (truco, oleada, entorno) |
 | `source` | `basic`, `ability`, `reaction`, `cheat`, `other` | Qué lo causó |
 | `target` | `loopback`, `lan`, `vpn`, `public`, `invalid` | Tipo de dirección a la que se intenta unir (ver `join_attempt`) |
-| `cheat` | `spawn_chaser`, `spawn_chaser_10`, `kill_all`, `invulnerable`, `damage_all`, `heal_all`, `next_wave`, `reset_waves`, `element_cycle`, `reaction_lab` | Un id por botón del panel F1; `element_cycle` es la tecla F6; `reaction_lab`, cualquier botón del panel del laboratorio de reacciones |
+| `cheat` | `spawn_chaser`, `spawn_chaser_10`, `kill_all`, `invulnerable`, `damage_all`, `heal_all`, `next_wave`, `reset_waves`, `give_xp`, `element_cycle`, `reaction_lab` | Un id por botón del panel F1; `element_cycle` es la tecla F6; `reaction_lab`, cualquier botón del panel del laboratorio de reacciones |
 
 ## 5. Catálogo de eventos
 
@@ -213,6 +213,15 @@ Una vez por partida, cuando ya no quedan oleadas por salir (pasados los 3 minuto
 |---|---|---|
 | `match_time` | entero | Segundos de partida |
 | `alive` | bool | Si el jugador local seguía en pie: `false` si estaba derribado (#51) |
+
+#### `level_up` · Obligatorio
+
+Cada vez que el grupo sube de nivel (#76), en todas las ventanas. La experiencia es compartida: todos suben a la vez. Si un orbe o un truco da varios niveles de golpe, una línea por nivel.
+
+| Campo | Tipo | Valor |
+|---|---|---|
+| `level` | entero | Nivel nuevo del grupo, desde 2 |
+| `match_time` | entero | Segundos de partida |
 
 #### `match_over` · Obligatorio
 

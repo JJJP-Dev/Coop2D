@@ -22,6 +22,9 @@ public class MatchFlow : NetworkBehaviour
     [Tooltip("Optional. Its charges come back on a restart.")]
     [SerializeField] private ReviveCharges _charges;
 
+    [Tooltip("Optional. Back to level 1 on a restart (#76).")]
+    [SerializeField] private RunExperience _experience;
+
     private readonly SyncVar<MatchPhase> _phase = new();
 
     // What the panel and the launcher show, frozen when the match ends so every client says the same.
@@ -149,9 +152,12 @@ public class MatchFlow : NetworkBehaviour
 
         ResetPlayers(services.PlayerSpawnService);
 
-        // After the players: the charges count the players who are here now.
+        // After the players: the charges and the first level count the players who are here now.
         if (_charges != null)
             _charges.ResetForNewRun();
+
+        if (_experience != null)
+            _experience.ResetForNewRun();
 
         _endSeconds.Value = 0;
         _endWaves.Value = 0;

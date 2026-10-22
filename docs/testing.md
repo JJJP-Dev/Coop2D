@@ -341,3 +341,16 @@ Con el host y dos clientes, en local y otra vez con 100 ms de latencia. Para aca
 | Nadie se levanta por truco | Mira los logs al reiniciar. | Ningún `player_revived` al reiniciar: levantarse ahí no es una reanimación. |
 | Reinicio para el launcher | Mira los logs al reiniciar. | En cada ventana, `match_left reason=restart` y enseguida `match_joined` con la semilla nueva y `match_time=0`. Un truco usado antes del reinicio no aparece después. |
 | Entrar tras reiniciar | Reinicia y une a otro cliente. | Entra en la partida nueva, con la misma semilla que los demás. |
+
+## 19. Experiencia y niveles
+
+Con el host y dos clientes, en local y otra vez con 100 ms de latencia. «Dar experiencia» (F1) suma 10 al grupo.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Primer nivel con todos | Hospeda solo y une a dos clientes en los primeros segundos. Pulsa «Dar experiencia» tres veces. | Con 3 jugadores el primer nivel pide 19 (10 × 1,9). Al tercer clic se sube al nivel 2 con 11 de 34. Igual en todas las ventanas. |
+| Varios niveles de golpe | Sube *Give Xp Amount* a 100 en `DebugCheats` y pulsa una vez. Devuélvelo a 10. | Sube varios niveles a la vez, con el sobrante en la barra. En los logs, una línea `level_up` por cada nivel. |
+| Cambiar de jugadores a mitad de nivel | Con experiencia en la barra, une a otro cliente. | El nivel actual sigue pidiendo lo mismo; el siguiente ya cuenta al nuevo. |
+| Entrar tarde | Une a un cliente con el grupo en nivel 3. | Ve el mismo nivel y la misma barra. No escribe `level_up` de los niveles anteriores. |
+| Reiniciar | Pierde y reinicia. | Nivel 1 y barra vacía en todas las ventanas. |
+| Ajustar con datos | Cambia *Base Xp* de `DefaultXpCurve` a 20 en una partida nueva. Devuélvelo a 10. | El primer nivel pide 20 con un jugador. |

@@ -74,6 +74,12 @@ public static class LauncherEvents
         LauncherEventWriter.Write("waves_finished", ("match_time", matchTime), ("alive", alive));
     }
 
+    /// <param name="level">The group's new level, from 2 (#76).</param>
+    public static void LevelUp(int level, int matchTime)
+    {
+        LauncherEventWriter.Write("level_up", ("level", level), ("match_time", matchTime));
+    }
+
     /// <param name="result">defeat. Others (victory) come with the boss (#93).</param>
     /// <param name="waves">Waves that had started.</param>
     public static void MatchOver(string result, int matchTime, int waves)

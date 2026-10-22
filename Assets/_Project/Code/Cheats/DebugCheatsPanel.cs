@@ -26,6 +26,9 @@ public class DebugCheatsPanel : MonoBehaviour
     [SerializeField] private Button _damageAllButton;
     [SerializeField] private Button _healAllButton;
 
+    [Tooltip("Optional. Gives the group experience (#76).")]
+    [SerializeField] private Button _giveXpButton;
+
     [Tooltip("Optional. Shows the match's seed (#75), to write it in RunRandomSettings and play the same run again.")]
     [SerializeField] private TMP_Text _seedLabel;
 
@@ -66,6 +69,9 @@ public class DebugCheatsPanel : MonoBehaviour
         _invulnerableButton.onClick.AddListener(_cheats.ToggleInvulnerable);
         _damageAllButton.onClick.AddListener(_cheats.DamageAll);
         _healAllButton.onClick.AddListener(_cheats.HealAll);
+
+        if (_giveXpButton != null)
+            _giveXpButton.onClick.AddListener(_cheats.GiveXp);
 
         _invulnerableLabel = _invulnerableButton.GetComponentInChildren<TMP_Text>();
     }

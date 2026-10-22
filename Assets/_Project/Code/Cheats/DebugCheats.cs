@@ -63,6 +63,12 @@ public class DebugCheats : NetworkBehaviour
             ServerHealAll();
     }
 
+    public void GiveXp()
+    {
+        if (IsClientInitialized)
+            ServerGiveXp();
+    }
+
     // Nobody owns this scene object, so it has to allow calls from anyone.
     // FishNet fills in caller with the connection that sent it.
     [ServerRpc(RequireOwnership = false)]
@@ -202,6 +208,25 @@ public class DebugCheats : NetworkBehaviour
 
         LogCheat(caller, "healed everything");
         ReportCheat(caller, "heal_all");
+    }
+
+    // To the whole group: the experience is shared (#76).
+    [ServerRpc(RequireOwnership = false)]
+    private void ServerGiveXp(NetworkConnection caller = null)
+    {
+        if (!IsAllowed(caller))
+            return;
+
+        RunExperience experience = RunExperience.Current;
+        if (experience == null)
+        {
+            TargetReport(caller, "Esta escena no tiene experiencia", ToastType.Warning);
+            return;
+        }
+
+        experience.AddExperience(_settings.GiveXpAmount);
+        LogCheat(caller, $"gave the group {_settings.GiveXpAmount} experience");
+        ReportCheat(caller, "give_xp");
     }
 
     // Only to whoever asked: the others don't need to know.

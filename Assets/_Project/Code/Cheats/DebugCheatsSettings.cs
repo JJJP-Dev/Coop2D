@@ -16,8 +16,12 @@ public class DebugCheatsSettings : ScriptableObject
     [Tooltip("Health that Damage All takes from everything that has it.")]
     [SerializeField, Min(1)] private int _damageAllAmount = 10;
 
+    [Tooltip("Experience that Give XP adds to the group (#76). The first level needs 10 with one player.")]
+    [SerializeField, Min(1)] private int _giveXpAmount = 10;
+
     public IReadOnlyList<Enemy> Enemies => _enemies;
     public float SpawnDistance => _spawnDistance;
     public IReadOnlyList<int> SpawnAmounts => _spawnAmounts;
     public int DamageAllAmount => _damageAllAmount;
+    public int GiveXpAmount => _giveXpAmount;
 }
