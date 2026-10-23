@@ -9,11 +9,19 @@ using UnityEngine.EventSystems;
 // The host checks the cast and applies its effects, and the other clients draw it.
 // Which skills: the starting ones of the player's character (#162). The character arrives with the
 // player's spawn, so every PC reads the same ones without sending them.
+// Where they hit: a circle, a line or a cone (SkillArea). The owner sends where it stood and where it
+// aimed, and the host rebuilds the same area from those two points to check the targets.
 [RequireComponent(typeof(PlayerElement))]
 [RequireComponent(typeof(PlayerCharacter))]
 public class PlayerSkills : NetworkBehaviour
 {
     public const int SlotCount = 3;
+
+    // A line or a cone needs a direction: closer than this, the cursor is on the player and gives none.
+    private const float MinAimDistance = 0.1f;
+
+    // A circle's aim point is clamped to its range on the owner; this only absorbs rounding.
+    private const float AimSlack = 0.05f;
 
     [SerializeField] private SkillCastSettings _castSettings;
     [SerializeField] private ElementLibrary _elements;
@@ -150,14 +158,17 @@ public class PlayerSkills : NetworkBehaviour
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
 
-        if (!TryGetAimPoint(skill, out Vector2 point))
+        Vector2 origin = transform.position;
+        if (!TryGetAimPoint(skill, origin, out Vector2 point))
             return;
 
         _castTimes[index] = Time.time;
         _readyTimes[index] = Time.time + skill.Cooldown;
         LauncherEvents.AbilityCast(skill.Id, skill.GetElement(_element.Current));
-        FindTargets(point, skill.Radius);
-        ShowCast(skill, point);
+
+        SkillArea area = SkillArea.For(skill, origin, point);
+        FindTargets(area);
+        ShowCast(skill, area);
 
         // The tick goes with the cast, so a timed effect it gives (Tempo) starts and ends on the same
         // tick on the host and here (#157).
@@ -166,18 +177,18 @@ public class PlayerSkills : NetworkBehaviour
         // The host's own player runs the server's checks right here.
         if (IsServerInitialized)
         {
-            CastOnServer(slot, point, _targets, tick);
+            CastOnServer(slot, origin, point, _targets, tick);
             return;
         }
 
-        ServerCast(slot, point, _targets, tick);
+        ServerCast(slot, origin, point, _targets, tick);
 
         // Lo tuyo, al instante: the owner shows the effects of its own cast without waiting (#157).
         if (_events != null)
             _events.PredictSkillCast(tick);
     }
 
-    private bool TryGetAimPoint(SkillDefinition skill, out Vector2 point)
+    private bool TryGetAimPoint(SkillDefinition skill, Vector2 origin, out Vector2 point)
     {
         point = default;
 
@@ -188,23 +199,38 @@ public class PlayerSkills : NetworkBehaviour
         // The camera is orthographic, so the depth of the screen point doesn't matter.
         Vector2 screenPosition = _input.Aim.ReadValue<Vector2>();
         Vector2 cursor = camera.ScreenToWorldPoint(screenPosition);
-        Vector2 origin = transform.position;
+        Vector2 toCursor = cursor - origin;
+
+        // A line or a cone only needs a direction: with the cursor right on the player there's none.
+        if (skill.IsAimedByDirection)
+        {
+            if (toCursor.sqrMagnitude < MinAimDistance * MinAimDistance)
+                return false;
+
+            point = origin + toCursor.normalized * skill.Length;
+            return true;
+        }
 
         // Aiming beyond the range drops it at the range, in the same direction.
-        point = origin + Vector2.ClampMagnitude(cursor - origin, skill.CastRange);
+        point = origin + Vector2.ClampMagnitude(toCursor, skill.CastRange);
         return true;
     }
 
-    // Every living enemy the owner sees inside the circle. The host only checks this list.
-    private void FindTargets(Vector2 point, float radius)
+    // Every living enemy the owner sees touching the area. The host only checks this list.
+    private void FindTargets(SkillArea area)
     {
         _targets.Clear();
-        Physics2D.OverlapCircle(point, radius, _targetFilter, _candidates);
+
+        // A circle around the whole area first, then the exact shape.
+        Physics2D.OverlapCircle(area.BoundsCenter, area.BoundsRadius, _targetFilter, _candidates);
 
         foreach (Collider2D candidate in _candidates)
         {
             Health health = candidate.GetComponentInParent<Health>();
             if (health == null || health.IsDead || _targets.Contains(health))
+                continue;
+
+            if (area.DistanceOutside(candidate) > 0f)
                 continue;
 
             _targets.Add(health);
@@ -216,12 +242,12 @@ public class PlayerSkills : NetworkBehaviour
 
     // A target that no longer exists arrives as null.
     [ServerRpc]
-    private void ServerCast(AttackSlot slot, Vector2 point, List<Health> targets, uint tick)
+    private void ServerCast(AttackSlot slot, Vector2 origin, Vector2 point, List<Health> targets, uint tick)
     {
-        CastOnServer(slot, point, targets, tick);
+        CastOnServer(slot, origin, point, targets, tick);
     }
 
-    private void CastOnServer(AttackSlot slot, Vector2 point, List<Health> targets, uint tick)
+    private void CastOnServer(AttackSlot slot, Vector2 origin, Vector2 point, List<Health> targets, uint tick)
     {
         SkillDefinition skill = GetSkill(slot);
         int index = ToIndex(slot);
@@ -237,11 +263,23 @@ public class PlayerSkills : NetworkBehaviour
         if (_downed != null && _downed.IsDowned)
             return;
 
-        // The host sees this player slightly in the past, so the range gets some slack.
-        float distance = Vector2.Distance(transform.position, point);
-        if (distance > skill.CastRange + _castSettings.PositionTolerance)
+        // The host sees this player slightly in the past, so where it says it stood gets some slack.
+        float offset = Vector2.Distance(transform.position, origin);
+        if (offset > _castSettings.PositionTolerance)
         {
-            Debug.LogWarning($"[PlayerSkills] Rejected {skill.Id} from client {OwnerId}: {distance:0.00} units away, beyond its range.", this);
+            Debug.LogWarning($"[PlayerSkills] Rejected {skill.Id} from client {OwnerId}: cast from {offset:0.00} units away from where the host sees it.", this);
+            return;
+        }
+
+        // The owner clamps a circle to its range and puts lines and cones at full length, so the aim point
+        // has to agree with that, from the origin it sent (#162).
+        float distance = Vector2.Distance(origin, point);
+        bool aimFits = skill.IsAimedByDirection
+            ? distance >= MinAimDistance
+            : distance <= skill.CastRange + AimSlack;
+        if (!aimFits)
+        {
+            Debug.LogWarning($"[PlayerSkills] Rejected {skill.Id} from client {OwnerId}: aimed {distance:0.00} units away, which its shape doesn't allow.", this);
             return;
         }
 
@@ -254,8 +292,10 @@ public class PlayerSkills : NetworkBehaviour
 
         _serverCastTimes[index] = now;
         _serverReadyTimes[index] = now + skill.Cooldown;
-        ApplyToTargets(skill, slot, point, targets);
-        ApplyToRing(skill, slot, point);
+
+        SkillArea area = SkillArea.For(skill, origin, point);
+        ApplyToTargets(skill, slot, area, targets);
+        ApplyToRing(skill, slot, area);
 
         // The upgrades that listen to casts (Tempo, #161), from the tick the owner cast it on.
         if (_events != null)
@@ -263,12 +303,12 @@ public class PlayerSkills : NetworkBehaviour
 
         // The caster already drew it, so the host only draws a client's cast.
         if (!IsOwner)
-            ShowCast(skill, point);
+            ShowCast(skill, area);
 
-        ObserversCast(slot, point);
+        ObserversCast(slot, origin, point);
     }
 
-    private void ApplyToTargets(SkillDefinition skill, AttackSlot slot, Vector2 point, List<Health> targets)
+    private void ApplyToTargets(SkillDefinition skill, AttackSlot slot, SkillArea area, List<Health> targets)
     {
         _appliedTargets.Clear();
 
@@ -276,7 +316,6 @@ public class PlayerSkills : NetworkBehaviour
             return;
 
         ElementType element = skill.GetElement(_element.Current);
-        float reach = skill.Radius + _castSettings.TargetTolerance;
         int applied = 0;
 
         foreach (Health target in targets)
@@ -298,11 +337,12 @@ public class PlayerSkills : NetworkBehaviour
                 continue;
             }
 
-            // Measured to the edge of the body, so its size barely matters.
-            float distance = Vector2.Distance(point, body.ClosestPoint(point));
-            if (distance > reach)
+            // Measured to the edge of the body, so its size barely matters. The enemy kept moving while the
+            // cast was on its way, so it may be a little outside by now.
+            float distance = area.DistanceOutside(body);
+            if (distance > _castSettings.TargetTolerance)
             {
-                Debug.LogWarning($"[PlayerSkills] Rejected {target.name} as a target of {skill.Id} from client {OwnerId}: {distance:0.00} units outside the circle.", this);
+                Debug.LogWarning($"[PlayerSkills] Rejected {target.name} as a target of {skill.Id} from client {OwnerId}: {distance:0.00} units outside its {skill.Shape}.", this);
                 continue;
             }
 
@@ -319,7 +359,24 @@ public class PlayerSkills : NetworkBehaviour
             // The reaction it just detonated may have killed it, and a dead enemy is already despawned.
             if (!target.IsDead)
                 target.TryTakeDamage(GetDamage(skill, hasAura), NetworkObject, DamageKind.Skill, element);
+
+            if (!target.IsDead)
+                Push(skill, area, target);
         }
+    }
+
+    // Ola (#162): straight away from where the caster stood. Only enemies with EnemyStatus can be moved,
+    // so training dummies stay put, as with Sobrecarga.
+    private static void Push(SkillDefinition skill, SkillArea area, Health target)
+    {
+        if (skill.Knockback <= 0f || !target.TryGetComponent(out EnemyStatus status))
+            return;
+
+        Vector2 away = (Vector2)target.transform.position - area.Origin;
+        if (away.sqrMagnitude < 0.0001f)
+            away = area.Direction;
+
+        status.ApplyPush(away, skill.Knockback, skill.KnockbackDuration);
     }
 
     // The skill's damage with the player's upgrades (#161). Conditional bonuses need to know the target.
@@ -332,11 +389,12 @@ public class PlayerSkills : NetworkBehaviour
         return Mathf.Max(0, Mathf.RoundToInt(_stats.Get(StatId.SkillDamage, skill.Damage, met)));
     }
 
-    // Aura expansiva (#161): the skill's aura also lands on enemies just around its circle, without damage
+    // Aura expansiva (#161): the skill's aura also lands on enemies just around its area, without damage
     // and never detonating (catalog engine rule 6), so it marks a crowd without setting off reactions.
     // Only the host looks for them, with what it sees: like the auras themselves, it's the host's decision.
-    // The targets of the circle are already in _appliedTargets, so nobody gets it twice.
-    private void ApplyToRing(SkillDefinition skill, AttackSlot slot, Vector2 point)
+    // The targets of the area are already in _appliedTargets, so nobody gets it twice. For a line or a
+    // cone the ring is the same: everything up to that many units outside the shape (#162).
+    private void ApplyToRing(SkillDefinition skill, AttackSlot slot, SkillArea area)
     {
         ElementType element = skill.GetElement(_element.Current);
         if (_stats == null || element == ElementType.None)
@@ -347,8 +405,7 @@ public class PlayerSkills : NetworkBehaviour
         if (extraRadius <= 0f || extraTargets <= 0)
             return;
 
-        float ringRadius = skill.Radius + extraRadius;
-        Physics2D.OverlapCircle(point, ringRadius, _targetFilter, _ringCandidates);
+        Physics2D.OverlapCircle(area.BoundsCenter, area.BoundsRadius + extraRadius, _targetFilter, _ringCandidates);
 
         int marked = 0;
         foreach (Collider2D candidate in _ringCandidates)
@@ -357,7 +414,10 @@ public class PlayerSkills : NetworkBehaviour
                 break;
 
             Health target = candidate.GetComponentInParent<Health>();
-            if (target == null || target.IsDead || !_appliedTargets.Add(target))
+            if (target == null || target.IsDead || _appliedTargets.Contains(target))
+                continue;
+
+            if (area.DistanceOutside(candidate) > extraRadius || !_appliedTargets.Add(target))
                 continue;
 
             if (target.TryGetComponent(out AuraHolder aura))
@@ -431,24 +491,26 @@ public class PlayerSkills : NetworkBehaviour
     }
 
     // The caster and the host already drew it.
+    // With the origin the caster sent: a line or a cone starts where it stood when it cast, not where
+    // this PC sees it now (#162).
     [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
-    private void ObserversCast(AttackSlot slot, Vector2 point)
+    private void ObserversCast(AttackSlot slot, Vector2 origin, Vector2 point)
     {
         SkillDefinition skill = GetSkill(slot);
         if (skill != null)
-            ShowCast(skill, point);
+            ShowCast(skill, SkillArea.For(skill, origin, point));
     }
 
-    private void ShowCast(SkillDefinition skill, Vector2 point)
+    private void ShowCast(SkillDefinition skill, SkillArea area)
     {
-        if (skill.VisualPrefab == null)
+        if (skill.Visual == null)
             return;
 
         ElementDefinition element = _elements != null ? _elements.Get(skill.GetElement(_element.Current)) : null;
         Color color = element != null ? element.Color : Color.white;
 
-        SkillCircleVisual visual = Instantiate(skill.VisualPrefab, point, Quaternion.identity);
-        visual.Show(skill.Radius, color);
+        SkillShapeVisual visual = Instantiate(skill.Visual, area.Origin, Quaternion.identity);
+        visual.Show(area, color);
     }
 
     // Skill1 is slot 0. The basic attack has no slot here.

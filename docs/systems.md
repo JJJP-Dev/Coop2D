@@ -203,7 +203,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 | Velocidad, aceleración, frenada | `Data/Characters/DefaultPlayerMovement.asset` | 5 · 50 · 60 |
 | Color de cada hueco | `Data/Players/PlayerColors.asset` | rojo, azul, verde, amarillo |
 | Personaje de cada hueco, y la lista de personajes | `Data/Players/PlayerCharacters.asset` | Brasa, Marea, Voltio, Brasa |
-| Nombre, elemento y habilidades de inicio de cada personaje | `Data/Characters/Ember.asset`, `Tide.asset`, `Volt.asset` | Brasa fuego, Marea agua, Voltio electricidad; todos con Estallido y Marca hasta que lleguen sus kits |
+| Nombre, elemento y habilidades de inicio de cada personaje | `Data/Characters/Ember.asset`, `Tide.asset`, `Volt.asset` | Brasa fuego, Marea agua, Voltio electricidad; los tres con Estallido y Marca, y en la Q Llovizna, Ola y Cortocircuito |
 
 **Cuidado con.** Máximo 4 jugadores (`PlayerSlots.MaxPlayers`); el quinto se desconecta. Los puntos de aparición están en `PlayerSpawnPoints` de cada escena: sin ellos, todos aparecen en el origen.
 - **Un personaje que no está en la lista *Characters* de `PlayerCharacters` no se puede jugar**: los demás PCs reciben su id y no encontrarían su ficha. El asset avisa en consola si das a un hueco uno que no está.
@@ -264,22 +264,46 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 
 ### 4.6 Habilidades
 
-**Qué hace.** Tres huecos de habilidad: clic izquierdo, clic derecho y Q. Ahora hay dos de prueba, iguales para todos: **Estallido** (clic izquierdo, detona reacciones) y **Marca** (clic derecho, solo marca). Q está vacío hasta que haya personajes.
+**Qué hace.** Tres huecos de habilidad: clic izquierdo, clic derecho y Q. Ahora, todos los personajes llevan las dos de prueba, **Estallido** (clic izquierdo, detona reacciones) y **Marca** (clic derecho, solo marca), y en la Q una de su kit: **Llovizna** Brasa, **Ola** Marea y **Cortocircuito** Voltio. **Chispa** (de Marea) ya existe, pero no está en ningún hueco hasta que las habilidades se consigan con las ofertas (#162).
 
-**Piezas.** `Code/Skills/PlayerSkills.cs`, `SkillDefinition`, `SkillCastSettings`, `SkillCircleVisual`; en el HUD, `Code/UI/InGame/SkillSlotView.cs`.
+**Formas** (`SkillShape`):
+
+| Forma | Cómo se apunta | Ejemplo |
+|---|---|---|
+| *Circle* | Donde apuntas, como mucho a su alcance (*Cast Range*) | Estallido, Marca, Llovizna, Cortocircuito |
+| *Line* | Desde ti hacia el cursor, siempre a todo su largo; golpea a todos los que toca | Chispa (5 × 0,5 m) |
+| *Cone* | Desde ti hacia el cursor; una cuña de *Length* de radio y *Angle* grados de abertura | Ola (3 m, 60°) |
+
+**Piezas.** `Code/Skills/PlayerSkills.cs`, `SkillDefinition`, `SkillShape`, `SkillArea` (la zona de un lanzamiento ya colocada, con sus cuentas), `SkillCastSettings`, `SkillShapeVisual` (el dibujo provisional) y `Prefabs/Skills/SkillShapeVisual.prefab`; en el HUD, `Code/UI/InGame/SkillSlotView.cs`.
 
 **Cómo funciona.**
-1. El dueño pulsa, el juego calcula el punto apuntado (como mucho a su alcance), busca los enemigos del círculo **en su pantalla** y lo dibuja al momento.
-2. Manda al host el hueco, el punto y la lista de objetivos (`ServerCast`).
-3. El host comprueba alcance, recarga y que cada objetivo esté de verdad cerca del círculo; aplica primero el **aura fuerte** (que puede detonar una reacción) y después el daño.
-   - **Con Aura expansiva**, después el host busca él mismo enemigos en un anillo de 1 m alrededor del círculo y les pone el aura de la habilidad, hasta 8: **sin daño y sin detonar nunca** (regla 6 del motor). Sirve para marcar a un grupo sin provocar reacciones. Los busca el host con lo que él ve, porque el aura es decisión suya; el dueño no los manda. El círculo que se dibuja no cambia de tamaño.
-4. Los demás dibujan el círculo (`ObserversCast`).
+1. El dueño pulsa. El juego toma **desde dónde** lanza (su posición) y **hacia dónde** (el cursor; un círculo se queda a su alcance, una línea o un cono solo usan la dirección) y arma la zona (`SkillArea`). Busca los enemigos que la tocan **en su pantalla** y la dibuja al momento.
+2. Manda al host el hueco, el origen, el punto apuntado y la lista de objetivos (`ServerCast`).
+3. El host comprueba que el origen está cerca de donde él ve al jugador (*Position Tolerance*), que el punto cuadra con la forma, la recarga, y **arma la misma zona con esos dos puntos**. Cada objetivo tiene que tocarla, con un margen (*Target Tolerance*) porque los enemigos se mueven mientras llega el mensaje. Aplica primero el **aura fuerte** (que puede detonar una reacción), después el daño y, si la habilidad empuja (Ola, 0,5 casillas), el empuje, siempre alejándolo de donde estaba el lanzador. Los muñecos no se mueven.
+   - **Con Aura expansiva**, después el host busca él mismo enemigos hasta 1 m por fuera de la zona, sea cual sea su forma, y les pone el aura de la habilidad, hasta 8: **sin daño y sin detonar nunca** (regla 6 del motor). Sirve para marcar a un grupo sin provocar reacciones. Los busca el host con lo que él ve, porque el aura es decisión suya; el dueño no los manda. La zona que se dibuja no cambia de tamaño.
+4. Los demás dibujan la zona (`ObserversCast`) con el origen que mandó el lanzador: una línea sale de donde estaba al lanzarla, aunque en otra pantalla se le vea un poco atrás.
 5. **El lanzamiento lleva su tick** (el reloj del host tal como lo estima el dueño). Las mejoras que escuchan lanzamientos (Tempo) cuentan desde ese tick, así que su efecto empieza y acaba en el mismo tick en el host y en el dueño. El host no acepta un tick del futuro ni de más de 0,5 s atrás.
 6. **Recarga devuelta** (Relevo, Asistencia): `RefundCooldowns` (host) quita segundos a cada recarga que esté corriendo, en el host y, con un `TargetRpc`, en el dueño; cada uno lo calcula con su reloj. Nunca deja una recarga por debajo del **60 %** de su tiempo completo desde que se lanzó (regla 1 del motor): con 7 s, como pronto a los 4,2 s.
 
-**Qué ajustar.** Cada habilidad es un asset en `Data/Skills/` (`TestBurst.asset`, `TestMark.asset`): id, nombre, icono, si usa el elemento de quien la lanza, si detona, fuerza del aura, recarga (7 s), alcance (7), daño (16 / 10), radio (1,5 / 2) y el dibujo. Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objetivos), con el suelo de la recarga devuelta (*Min Cooldown Fraction*, 0,6) y la edad máxima del tick de un lanzamiento (*Max Cast Tick Age*, 0,5 s).
+**Qué ajustar.** Cada habilidad es un asset en `Data/Skills/`: id, nombre, icono, si usa el elemento de quien la lanza (o el suyo), si detona, fuerza del aura, recarga, alcance (solo círculo), forma con sus medidas (*Radius*; *Length* y *Width*; *Length* y *Angle*), daño, empuje y el dibujo (*Visual* = `SkillShapeVisual.prefab`).
 
-**Cuidado con.** El id de la habilidad (`burst`, `mark`) lo usa el launcher (`ability_cast`): no lo cambies una vez publicada una build. Las habilidades de cada jugador son las *Starting Skills* de la ficha de su personaje (`Data/Characters/`). Hasta que lleguen los kits (#162), los tres tienen Estallido y Marca. Como el personaje llega con el jugador, cada PC sabe sus habilidades sin que se manden.
+| Habilidad | Asset | Elemento | Forma | Daño | Recarga | Detona |
+|---|---|---|---|---|---|---|
+| Estallido | `TestBurst` | el tuyo | círculo 1,5, a 7 | 16 | 7 s | sí |
+| Marca | `TestMark` | el tuyo | círculo 2, a 7 | 10 | 7 s | no |
+| Llovizna | `EmberDrizzle` | agua | círculo 2, a 7 | 10 | 7 s | sí |
+| Cortocircuito | `VoltShort` | fuego | círculo 1,5, a 7 | 16 | 7 s | sí |
+| Chispa | `TideSpark` | electricidad | línea 5 × 0,5 | 15 | 7 s | sí |
+| Ola | `TideWave` | agua | cono 3 m, 60°; empuja 0,5 | 20 | 6 s | sí |
+
+Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objetivos), con el suelo de la recarga devuelta (*Min Cooldown Fraction*, 0,6) y la edad máxima del tick de un lanzamiento (*Max Cast Tick Age*, 0,5 s).
+
+**Cuidado con.**
+- `SkillShape` se guarda como número en los assets: formas nuevas, **al final**.
+- Un cono de más de 180° no es una cuña: las cuentas de `SkillArea` lo dan por hecho (el Inspector no deja pasar de 180).
+- El dibujo (`SkillShapeVisual`) es solo eso: construye una malla con la misma `SkillArea`, así que siempre enseña la zona real. Llegará el arte de verdad con las familias de efecto del catálogo (E.5).
+- El id de la habilidad (`burst`, `mark`, `tide_wave`…) lo usa el launcher (`ability_cast`): no lo cambies una vez publicada una build.
+- Las habilidades de cada jugador son las *Starting Skills* de la ficha de su personaje (`Data/Characters/`). Como el personaje llega con el jugador, cada PC sabe sus habilidades sin que se manden. Cuando se consigan con las ofertas (#162), pasarán a sincronizarse.
 
 ### 4.7 Elementos y auras
 
@@ -674,9 +698,14 @@ Con esto funcionan las 10 genéricas del Pre 3 y las 3 de prueba. Las 6 de perso
 
 Abre `Data/Enemies/Waves/ArenaTestWaves.asset` y añade una fila (segundo de inicio, prefab, cantidad, intervalo), o crea otro horario (*Create › Coop2D › Enemies › Wave Schedule*) y asígnalo al `WaveSpawner` de la escena. Pruébalo con F1 › «Siguiente oleada».
 
-### 5.3 Una habilidad nueva con las reglas actuales (círculo)
+### 5.3 Una habilidad nueva con las formas que hay (círculo, línea, cono)
 
-*Create › Coop2D › Skills › Skill Definition* en `Data/Skills/`, con un id nuevo. Asígnala a un hueco de `PlayerSkills` en el prefab Player. Si necesita otra forma (línea, cono, proyectil), es código: hoy `PlayerSkills` solo sabe círculos.
+1. *Create › Coop2D › Skills › Skill Definition* en `Data/Skills/`, con el id del catálogo (`skills.json`) y el nombre del archivo en PascalCase del id (`TideSpark` para `tide_spark`).
+2. Rellena elemento, si detona, recarga, forma y medidas, daño y empuje, y en *Visual* pon `Prefabs/Skills/SkillShapeVisual.prefab`.
+3. Para jugarla, ponla en un hueco de *Starting Skills* de la ficha de un personaje (`Data/Characters/`).
+4. Añade su id a la tabla `ability` de launcher-events.md.
+
+Si necesita otra cosa (un proyectil que vuela, algo que se queda en el suelo, un retraso), es código: un caso nuevo en `SkillShape` y en `SkillArea`, o un sistema aparte para lo que dura (#158).
 
 ### 5.4 Cambiar una reacción
 

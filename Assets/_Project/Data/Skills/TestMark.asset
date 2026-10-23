@@ -20,6 +20,12 @@ MonoBehaviour:
   _auraStrength: 1
   _cooldown: 7
   _castRange: 7
-  _damage: 10
+  _shape: 0
   _radius: 2
-  _visualPrefab: {fileID: 2092902514801731553, guid: 258a031f7e77b0744ba63a7d70df0a9d, type: 3}
+  _length: 5
+  _width: 0.5
+  _angle: 60
+  _damage: 10
+  _knockback: 0
+  _knockbackDuration: 0.15
+  _visual: {fileID: 5301884050686939402, guid: 70d7fecba95a40b9aa94e3da0195caab, type: 3}

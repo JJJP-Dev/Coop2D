@@ -124,7 +124,7 @@ Para las pruebas del muñeco, desmarca el componente `WaveSpawner` de `Arena_Tes
 
 ## 9. Habilidades
 
-Con el host y dos clientes. Hasta que lleguen los personajes (#162), todos tienen las mismas dos habilidades de prueba, del color de su elemento: **Estallido** con el clic izquierdo (círculo de 1,5) y **Marca** con el derecho (círculo de 2). Las dos tienen 7 de alcance y 7 s de recarga. La Q queda reservada para el tercer hueco. Quien lanza ve su círculo al instante; el host comprueba el lanzamiento y aplica el daño y el aura fuerte.
+Con el host y dos clientes. Todos los personajes tienen las dos habilidades de prueba, del color de su elemento: **Estallido** con el clic izquierdo (círculo de 1,5) y **Marca** con el derecho (círculo de 2). Las dos tienen 7 de alcance y 7 s de recarga. La Q lleva una de su kit; se prueba en la sección 24. Quien lanza ve su zona al instante; el host comprueba el lanzamiento y aplica el daño y el aura fuerte.
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
@@ -134,7 +134,6 @@ Con el host y dos clientes. Hasta que lleguen los personajes (#162), todos tiene
 | Recarga | Haz clic izquierdo varias veces seguidas. | Solo sale un círculo cada 7 s. El clic derecho tiene su propia recarga. |
 | Sobre la interfaz | Pon el ratón sobre el botón de salir y haz clic derecho. | No sale ningún círculo. |
 | Sigue a tu elemento | Pulsa F6 y lanza otra vez. | El círculo sale del color del elemento nuevo. |
-| Hueco vacío | Pulsa Q. | No pasa nada, y la consola sigue limpia. |
 | Lo ven todos | Lanza Estallido desde un cliente. | El círculo sale en todas las ventanas, del color de quien lanza. En las demás, un poco más tarde. |
 | Daño | Lanza Estallido sobre el muñeco. | Baja 16 en todas las ventanas. Con el logger activo, el golpe sale «(mine)» solo en la ventana de quien lanza. |
 | Aura fuerte | Lanza Marca sobre el muñeco sin aura. | Sale «… (fuerte) · Jn» en todas las ventanas y dura unos 6 s. |
@@ -145,7 +144,7 @@ Con el host y dos clientes. Hasta que lleguen los personajes (#162), todos tiene
 | Recarga en el host | En el host, sube la *Cooldown* de `TestBurst` a 20. Un cliente lanza Estallido cada 7 s. Devuélvela a 7. | El host avisa de lanzamientos rechazados antes de su recarga, y esos no hacen daño. Son los únicos avisos esperados. |
 | Con latencia | Repite «Daño» y «Varios objetivos» con latencia, contra perseguidores en movimiento. | Los golpes cuentan y la consola del host sigue limpia. |
 | Recarga en el HUD | Lanza Estallido y mira su hueco en la barra de habilidades. | El relleno se vacía en 7 s y el número baja de 7 a 1. Al acabar puedes volver a lanzarla, ni antes ni después. Igual en el host y en un cliente con latencia. |
-| Hueco vacío en el HUD | Mira el tercer hueco (Q). | Se ve atenuado, sin número. |
+| Tercer hueco en el HUD | Mira el tercer hueco (Q). | Muestra la inicial de la habilidad de tu personaje (L, O o C) y su recarga, como los otros dos. |
 | Destello al golpear | Dispara al muñeco y a un perseguidor, y pulsa «Dañar a todos». | Cada golpe pone blanco el sprite un instante, en todas las ventanas, también a los jugadores. Cambia *Hit Flash Duration* de `DefaultFeedback` a 0,5 para verlo bien y devuélvelo a 0,05. |
 
 ## 10. Reacciones
@@ -444,14 +443,35 @@ Arena_Test. Abre F1: la línea de estadísticas enseña las tuyas tal como las c
 
 ## 23. Personajes (#162)
 
-Arena_Test, con el host y tres clientes. Hasta la sala de espera (#173) el personaje sale del hueco, y hasta que lleguen los kits todos tienen Estallido y Marca.
+Arena_Test, con el host y tres clientes. Hasta la sala de espera (#173) el personaje sale del hueco. Hasta que las habilidades se consigan con las ofertas, todos tienen Estallido y Marca, y en la Q una de su kit.
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
 | Personaje por hueco | Hospeda y une a tres clientes. | J1 Brasa (fuego), J2 Marea (agua), J3 Voltio (electricidad) y J4 Brasa (fuego): lo dice el toast de cada ventana. Disparos, auras y círculos salen del color de ese elemento en todas las ventanas. |
-| Habilidades del personaje | En cada ventana, mira la barra de habilidades y lanza las dos. | Estallido en el clic izquierdo, Marca en el derecho y la Q vacía, como antes. Sin avisos en la consola del host. |
+| Habilidades del personaje | En cada ventana, mira la barra de habilidades y lanza las tres. | Estallido en el clic izquierdo, Marca en el derecho y en la Q Llovizna (Brasa), Ola (Marea) o Cortocircuito (Voltio). Sin avisos en la consola del host. |
 | Entrar tarde | Con la partida empezada, une a otro cliente con 100 ms de latencia. | Recibe el personaje de su hueco y ve a los demás con el elemento correcto desde el principio. |
 | Volver al hueco | J2 sale y vuelve a entrar. | Vuelve a ser Marea. |
-| Datos | En `Data/Players/PlayerCharacters.asset`, pon Voltio en el hueco 0 (*By Slot*, elemento 0) y hospeda. Devuélvelo a Brasa. | El host juega Voltio, con electricidad. |
+| Datos | En `Data/Players/PlayerCharacters.asset`, pon Voltio en el hueco 0 (*By Slot*, elemento 0) y hospeda. Devuélvelo a Brasa. | El host juega Voltio, con electricidad, y su Q es Cortocircuito. |
 | Mejoras de personaje | Sube hasta el nivel 12 con cada personaje. | No sale ninguna de las 6 de personaje (no tienen efecto todavía). Con la semilla `3A9F01C2`, las ofertas son las mismas que en la sección 21. |
 | Reiniciar | Pierde y reinicia. | Cada uno sigue con su personaje y su elemento. |
+
+## 24. Formas de las habilidades (#162)
+
+Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). Para Chispa, que aún no está en ningún hueco, pon `TideSpark` en el tercer hueco de *Starting Skills* de `Data/Characters/Tide.asset` antes de dar Play y devuélvelo a `TideWave` al terminar. Para las pruebas de daño, el muñeco y los perseguidores; con el logger de combate (`CombatEventLogger`) se ven los golpes.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Llovizna | J1 lanza Q sobre un perseguidor. | Círculo azul de 2 donde apuntas (como mucho a 7). Le quita 10 y le pone «Agua (fuerte) · J1». |
+| Vapor en solitario | J1 lanza Marca (fuego) sobre un grupo y, antes de 6 s, Llovizna encima. | Reacción `vapor_fire_water` sin dúo («J1  EN SOLITARIO»). |
+| Cortocircuito | J3 lanza Marca (electricidad) sobre un grupo y luego Q encima. | Círculo naranja de 1,5; reacción `overload_electric_fire` en solitario. |
+| Ola | J2 se acerca a un grupo y lanza Q hacia él. | Una cuña azul de 3 m y 60° sale de J2 hacia el cursor. Los que toca reciben 20, aura de agua y se alejan media casilla de J2, igual en todas las ventanas. El muñeco recibe daño, pero no se mueve. |
+| Ola detona | J1 marca con fuego un grupo cercano a J2 y J2 lanza Ola. | Reacción `vapor_fire_water` dúo. |
+| Ola sin cursor | Pon el cursor justo encima de J2 y pulsa Q. | No sale nada y la recarga no empieza. |
+| Chispa | Con `TideSpark` en la Q de Marea, J2 la lanza hacia una fila de perseguidores. | Una banda amarilla de 5 × 0,5 sale de J2. Todos los que toca reciben 15 y aura eléctrica, aunque haya varios en fila. Los que quedan fuera de la banda no. |
+| Electrocución en solitario | J2 lanza Marca (agua) sobre un grupo y luego Chispa hacia ellos. | Reacción `electrocution_water_electric` en solitario. |
+| Línea y cono con ping | Con 100 ms de latencia, un cliente lanza Ola y Chispa mientras corre hacia un grupo. | La zona sale de donde estaba al lanzar, en todas las ventanas. Los enemigos que veía dentro reciben el golpe, y la consola del host sigue sin `Rejected`. |
+| Origen falso | En el host, baja *Position Tolerance* de `DefaultSkillCast` a 0 y, con 150 ms, que un cliente lance corriendo. Devuélvelo a 2. | El host avisa `cast from … away from where the host sees it` y ese lanzamiento no hace nada. Son los únicos avisos esperados. |
+| Aura expansiva con línea | Coge Aura expansiva (F1 › «Dar experiencia» y reroll) y lanza Chispa junto a enemigos que quedan justo fuera de la banda. | Los que están a menos de 1 m por fuera reciben solo el aura, sin daño ni reacción. Como mucho 8. |
+| Cazador de auras con cono | Con Cazador de auras, lanza Ola sobre un enemigo con aura y otro sin ella. | 23 al que tenía aura (20 + 15 %) y 20 al otro. |
+| Lo ven todos | Lanza cada habilidad desde un cliente. | Su zona sale en todas las ventanas, del color del elemento de la habilidad (no del jugador): Llovizna azul también en Brasa. |
+| Estallido y Marca igual que antes | Repite «Lanzar», «Alcance» y «Varios objetivos» de la sección 9. | Igual que antes. El círculo se dibuja ahora como una forma lisa del color del elemento, del mismo tamaño. |

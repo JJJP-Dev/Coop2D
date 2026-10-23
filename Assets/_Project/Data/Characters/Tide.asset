@@ -18,4 +18,4 @@ MonoBehaviour:
   _startingSkills:
   - {fileID: 11400000, guid: 5f7fcdf2db3152c4e99348e3f155108d, type: 2}
   - {fileID: 11400000, guid: d4b84e33c2276c8469ba6b14d3b9d33f, type: 2}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 8e42cc26d8494f11916645f3acce4a76, type: 2}

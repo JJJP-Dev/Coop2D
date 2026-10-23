@@ -30,17 +30,39 @@ public class SkillDefinition : ScriptableObject
     [Tooltip("Seconds.")]
     [SerializeField, Min(0.1f)] private float _cooldown = 7f;
 
-    [Tooltip("How far from the caster it can land, in units. Aiming farther drops it at this distance.")]
+    [Tooltip("Circle only: how far from the caster it can land, in units. Aiming farther drops it at this " +
+             "distance. Lines and cones start at the caster, so their reach is their Length.")]
     [SerializeField, Min(0f)] private float _castRange = 7f;
+
+    [Header("Shape (#162)")]
+    [Tooltip("Circle: where you aim. Line and Cone: from you towards the cursor, always at full length.")]
+    [SerializeField] private SkillShape _shape = SkillShape.Circle;
+
+    [Tooltip("Circle only: radius in units. The catalog asks for at least 1.5.")]
+    [SerializeField, Min(0.1f)] private float _radius = 1.5f;
+
+    [Tooltip("Line and Cone: how far they reach from the caster, in units.")]
+    [SerializeField, Min(0.1f)] private float _length = 5f;
+
+    [Tooltip("Line only: total width of the band, in units. Nothing asks for more precision than the basic " +
+             "attack (catalog E.0), so keep it at 0.5 or more.")]
+    [SerializeField, Min(0.1f)] private float _width = 0.5f;
+
+    [Tooltip("Cone only: full opening in degrees, from one edge to the other. At most 180.")]
+    [SerializeField, Range(10f, 180f)] private float _angle = 60f;
 
     [Header("Effect")]
     [SerializeField, Min(0)] private int _damage = 16;
 
-    [Tooltip("Radius of the circle, in units. The catalog asks for at least 1.5.")]
-    [SerializeField, Min(0.1f)] private float _radius = 1.5f;
+    [Tooltip("Units each enemy hit is pushed straight away from the caster. 0: no push. Bosses and " +
+             "champions won't be moved (catalog E.0 rule 10) once they exist.")]
+    [SerializeField, Min(0f)] private float _knockback;
+
+    [Tooltip("Seconds the push takes.")]
+    [SerializeField, Min(0.01f)] private float _knockbackDuration = 0.15f;
 
     [Tooltip("What players see where it lands. Only the picture: it never decides hits.")]
-    [SerializeField] private SkillCircleVisual _visualPrefab;
+    [SerializeField] private SkillShapeVisual _visual;
 
     public string Id => _id;
     public string DisplayName => _displayName;
@@ -49,9 +71,20 @@ public class SkillDefinition : ScriptableObject
     public AuraStrength AuraStrength => _auraStrength;
     public float Cooldown => _cooldown;
     public float CastRange => _castRange;
-    public int Damage => _damage;
+    public SkillShape Shape => _shape;
     public float Radius => _radius;
-    public SkillCircleVisual VisualPrefab => _visualPrefab;
+    public float Length => _length;
+    public float Width => _width;
+    public float Angle => _angle;
+    public int Damage => _damage;
+    public float Knockback => _knockback;
+    public float KnockbackDuration => _knockbackDuration;
+    public SkillShapeVisual Visual => _visual;
+
+    /// <summary>
+    /// Lines and cones start at the caster and point at the cursor; a circle lands on it.
+    /// </summary>
+    public bool IsAimedByDirection => _shape != SkillShape.Circle;
 
     public ElementType GetElement(ElementType casterElement)
     {

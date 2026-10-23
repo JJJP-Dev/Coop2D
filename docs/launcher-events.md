@@ -91,7 +91,7 @@ id nuevo** en esta tabla; no reutilices uno existente para otra cosa.
 | `slot` | `1`, `2`, `3`, `4` | Hueco del jugador (J1…J4) |
 | `element` | `fire`, `water`, `electric` | |
 | `character` | `ember`, `tide`, `volt` | Brasa, Marea y Voltio (#162). Los ids del catálogo de progresión; Filo será `blade` |
-| `ability` | `basic`, `burst`, `mark` | Estallido = `burst`, Marca = `mark`. Con los personajes (#162), un id por habilidad |
+| `ability` | `basic`, `burst`, `mark`, `ember_drizzle`, `tide_wave`, `tide_spark`, `volt_short` | Estallido = `burst`, Marca = `mark` (de prueba). Las demás, con los ids del catálogo (#162): Llovizna, Ola, Chispa y Cortocircuito. Cada habilidad nueva añade el suyo |
 | `variant` | `vapor_fire_water`, `vapor_water_fire`, `electrocution_water_electric`, `electrocution_electric_water`, `overload_electric_fire`, `overload_fire_electric` | Los mismos ids que ya usa `CombatEventLogger` |
 | `me` | `aura`, `detonator`, `both`, `none` | Papel del jugador local en una reacción. `both` = reacción en solitario propia |
 | `enemy` | `chaser`, `dummy` | |
@@ -297,7 +297,7 @@ Cuando el jugador local lanza una habilidad que sí sale (pasada su recarga). El
 
 | Campo | Tipo | Valor |
 |---|---|---|
-| `ability` | id | `burst`, `mark`… |
+| `ability` | id | Ver [`ability`](#4-valores-fijos-enumeraciones): `burst`, `tide_wave`… |
 | `element` | id | Elemento con el que se lanza |
 
 #### `reaction` · Obligatorio

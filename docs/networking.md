@@ -32,7 +32,7 @@ Los clientes **proponen y enseñan**. Nunca deciden algo que afecte a los demás
 | Moverte | No (tu movimiento se copia a los demás tal cual) |
 | Disparar el básico y ver tu bala (o tus balas, con Doble disparo) | Que no disparas más rápido de lo permitido, ni desde lejos, ni con más balas de las que tienes |
 | Que tu bala toque a un enemigo | Que ese disparo existe, no se ha usado y pasa cerca del enemigo |
-| Lanzar una habilidad y ver el círculo | Alcance, recarga y que cada objetivo estaba dentro |
+| Lanzar una habilidad y ver su zona (círculo, línea o cono) | Que lanzaste desde cerca de donde él te ve, el alcance, la recarga y que cada objetivo tocaba la zona, que él arma con tu origen y tu punto |
 | Abrir la franja de mejoras y elegir | Que la oferta sigue pendiente y la opción vale |
 | Notar Tempo al lanzar una habilidad | Que aceptó el lanzamiento y la mejora estaba lista; su copia sustituye a la tuya, y si no llega en 1 s la tuya se quita |
 
@@ -126,6 +126,8 @@ El tick de FishNet es el mismo en todos los PCs. En vez de mandar un valor que c
 ### 4.8 Validar en el host con margen
 
 El host ve a los demás jugadores un poco en el pasado (el ping). Toda comprobación lleva una **tolerancia** en un ScriptableObject: distancia desde la que sale un disparo, distancia de un impacto a la trayectoria, alcance extra de una habilidad, margen de recarga. Cuando la comprobación falla por poco, a veces el host **corrige** en vez de rechazar (un disparo desde muy lejos sale desde donde el host ve al jugador). Las tolerancias se ajustan pensando en 200 ms de ping.
+
+**Mandar desde dónde, no solo hacia dónde.** Las habilidades que salen del jugador (línea, cono) mandan su origen además del punto apuntado. El host comprueba que ese origen está cerca de donde él ve al jugador y luego arma la zona **con ese origen**, no con la posición que él ve, que va unos 100-200 ms atrás. Si usara la suya, una Chispa lanzada corriendo saldría desplazada y el host rechazaría objetivos que el jugador sí veía dentro (#162).
 
 ### 4.9 Ritmos con tiempo real en el host
 
