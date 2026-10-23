@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FishNet.Connection;
 using FishNet.Object;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -21,16 +22,19 @@ public class PlayerSkills : NetworkBehaviour
     private PlayerElement _element;
     private PlayerDowned _downed;
     private PlayerStats _stats;
+    private PlayerUpgradeEvents _events;
     private InputService _input;
     private ContactFilter2D _targetFilter;
 
-    // Owner side, in Time.time.
+    // Owner side, in Time.time. The cast times are for the floor of a cooldown given back (#161).
     private readonly float[] _readyTimes = new float[SlotCount];
+    private readonly float[] _castTimes = new float[SlotCount];
     private readonly List<Collider2D> _candidates = new();
     private readonly List<Health> _targets = new();
 
     // Server side, in real time: casts arrive at the pace of the client's clock, not the host's frames.
     private readonly double[] _serverReadyTimes = new double[SlotCount];
+    private readonly double[] _serverCastTimes = new double[SlotCount];
     private readonly HashSet<Health> _appliedTargets = new();
     private readonly List<Collider2D> _ringCandidates = new();
 
@@ -41,8 +45,9 @@ public class PlayerSkills : NetworkBehaviour
         // Optional: without it the player can never be downed (#51).
         TryGetComponent(out _downed);
 
-        // Optional: without it no upgrade changes the skills (#161).
+        // Optional: without them no upgrade changes the skills or hears about them (#161).
         TryGetComponent(out _stats);
+        TryGetComponent(out _events);
 
         if (_castSettings == null || _elements == null)
         {
@@ -61,6 +66,7 @@ public class PlayerSkills : NetworkBehaviour
 
         // Pooled players come back with the cooldowns of their previous life.
         Array.Clear(_serverReadyTimes, 0, _serverReadyTimes.Length);
+        Array.Clear(_serverCastTimes, 0, _serverCastTimes.Length);
     }
 
     public override void OnStartClient()
@@ -68,6 +74,7 @@ public class PlayerSkills : NetworkBehaviour
         base.OnStartClient();
 
         Array.Clear(_readyTimes, 0, _readyTimes.Length);
+        Array.Clear(_castTimes, 0, _castTimes.Length);
 
         if (IsOwner && GameServices.Instance != null)
             _input = GameServices.Instance.InputService;
@@ -136,16 +143,28 @@ public class PlayerSkills : NetworkBehaviour
         if (!TryGetAimPoint(skill, out Vector2 point))
             return;
 
+        _castTimes[index] = Time.time;
         _readyTimes[index] = Time.time + skill.Cooldown;
         LauncherEvents.AbilityCast(skill.Id, skill.GetElement(_element.Current));
         FindTargets(point, skill.Radius);
         ShowCast(skill, point);
 
+        // The tick goes with the cast, so a timed effect it gives (Tempo) starts and ends on the same
+        // tick on the host and here (#157).
+        uint tick = TimeManager.Tick;
+
         // The host's own player runs the server's checks right here.
         if (IsServerInitialized)
-            CastOnServer(slot, point, _targets);
-        else
-            ServerCast(slot, point, _targets);
+        {
+            CastOnServer(slot, point, _targets, tick);
+            return;
+        }
+
+        ServerCast(slot, point, _targets, tick);
+
+        // Lo tuyo, al instante: the owner shows the effects of its own cast without waiting (#157).
+        if (_events != null)
+            _events.PredictSkillCast(tick);
     }
 
     private bool TryGetAimPoint(SkillDefinition skill, out Vector2 point)
@@ -187,12 +206,12 @@ public class PlayerSkills : NetworkBehaviour
 
     // A target that no longer exists arrives as null.
     [ServerRpc]
-    private void ServerCast(AttackSlot slot, Vector2 point, List<Health> targets)
+    private void ServerCast(AttackSlot slot, Vector2 point, List<Health> targets, uint tick)
     {
-        CastOnServer(slot, point, targets);
+        CastOnServer(slot, point, targets, tick);
     }
 
-    private void CastOnServer(AttackSlot slot, Vector2 point, List<Health> targets)
+    private void CastOnServer(AttackSlot slot, Vector2 point, List<Health> targets, uint tick)
     {
         SkillDefinition skill = GetSkill(slot);
         int index = ToIndex(slot);
@@ -223,9 +242,14 @@ public class PlayerSkills : NetworkBehaviour
             return;
         }
 
+        _serverCastTimes[index] = now;
         _serverReadyTimes[index] = now + skill.Cooldown;
         ApplyToTargets(skill, slot, point, targets);
         ApplyToRing(skill, slot, point);
+
+        // The upgrades that listen to casts (Tempo, #161), from the tick the owner cast it on.
+        if (_events != null)
+            _events.RaiseSkillCast(ClampCastTick(tick));
 
         // The caster already drew it, so the host only draws a client's cast.
         if (!IsOwner)
@@ -272,16 +296,30 @@ public class PlayerSkills : NetworkBehaviour
                 continue;
             }
 
+            // Read before the aura goes on: a detonation consumes it, and Cazador de auras still counts
+            // (catalog engine rule 10).
+            bool hasAura = target.TryGetComponent(out AuraHolder aura) && aura.HasAura;
+
             // The aura goes before the damage, so a killing blow still detonates.
-            if (target.TryGetComponent(out AuraHolder aura))
+            if (aura != null)
                 aura.TryApply(element, skill.AuraStrength, NetworkObject, slot, skill.CanDetonate);
 
             applied++;
 
             // The reaction it just detonated may have killed it, and a dead enemy is already despawned.
             if (!target.IsDead)
-                target.TryTakeDamage(skill.Damage, NetworkObject, DamageKind.Skill, element);
+                target.TryTakeDamage(GetDamage(skill, hasAura), NetworkObject, DamageKind.Skill, element);
         }
+    }
+
+    // The skill's damage with the player's upgrades (#161). Conditional bonuses need to know the target.
+    private int GetDamage(SkillDefinition skill, bool targetHasAura)
+    {
+        if (_stats == null)
+            return skill.Damage;
+
+        TargetConditions met = targetHasAura ? TargetConditions.HasAura : TargetConditions.None;
+        return Mathf.Max(0, Mathf.RoundToInt(_stats.Get(StatId.SkillDamage, skill.Damage, met)));
     }
 
     // Aura expansiva (#161): the skill's aura also lands on enemies just around its circle, without damage
@@ -316,6 +354,69 @@ public class PlayerSkills : NetworkBehaviour
                 aura.TryApply(element, skill.AuraStrength, NetworkObject, slot, canDetonate: false);
 
             marked++;
+        }
+    }
+
+    // A client's tick is its estimate of the host's clock. It can't be in the future, and at most
+    // MaxCastTickAge in the past: a made-up tick can't move a timed effect.
+    private uint ClampCastTick(uint tick)
+    {
+        uint now = TimeManager.Tick;
+        if (tick > now)
+            return now;
+
+        uint maxAge = TimeManager.TimeToTicks(_castSettings.MaxCastTickAge);
+        return now - tick > maxAge ? now - maxAge : tick;
+    }
+
+    /// <summary>
+    /// Server only. Takes seconds off every cooldown that is running, on the host and on the owner
+    /// (#161, Relevo and Asistencia). Never below the floor: MinCooldownFraction of the full cooldown
+    /// after the cast (catalog engine rule 1).
+    /// </summary>
+    public void RefundCooldowns(float seconds)
+    {
+        if (!IsServerInitialized || seconds <= 0f || _castSettings == null)
+            return;
+
+        float minFraction = _castSettings.MinCooldownFraction;
+        double now = Time.realtimeSinceStartupAsDouble;
+        for (int i = 0; i < SlotCount; i++)
+        {
+            // Only cooldowns that are running: a ready skill stays as it is.
+            SkillDefinition skill = i < _skills.Length ? _skills[i] : null;
+            if (skill == null || _serverReadyTimes[i] <= now)
+                continue;
+
+            double floor = _serverCastTimes[i] + skill.Cooldown * minFraction;
+            _serverReadyTimes[i] = Math.Max(floor, _serverReadyTimes[i] - seconds);
+        }
+
+        // The host's own player: its owner side is right here.
+        if (IsOwner)
+            RefundLocal(seconds);
+        else
+            TargetRefund(Owner, seconds);
+    }
+
+    // Each side works it out with its own clock and the same rule, so the HUD and the host agree.
+    [TargetRpc]
+    private void TargetRefund(NetworkConnection target, float seconds)
+    {
+        RefundLocal(seconds);
+    }
+
+    private void RefundLocal(float seconds)
+    {
+        float minFraction = _castSettings != null ? _castSettings.MinCooldownFraction : 0.6f;
+        for (int i = 0; i < SlotCount; i++)
+        {
+            SkillDefinition skill = i < _skills.Length ? _skills[i] : null;
+            if (skill == null || _readyTimes[i] <= Time.time)
+                continue;
+
+            float floor = _castTimes[i] + skill.Cooldown * minFraction;
+            _readyTimes[i] = Mathf.Max(floor, _readyTimes[i] - seconds);
         }
     }
 

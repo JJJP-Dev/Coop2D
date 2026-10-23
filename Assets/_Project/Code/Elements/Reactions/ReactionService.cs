@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FishNet.Managing;
 using FishNet.Object;
@@ -26,6 +27,12 @@ public class ReactionService : MonoBehaviour
     private readonly List<ReactionCloud> _clouds = new();
     private ContactFilter2D _enemyFilter;
     private float _nextCloudTick;
+
+    /// <summary>
+    /// Server only. A reaction resolved, after its effects. The upgrades of the two players who took
+    /// part listen to it (#161: Viento a favor, Relevo, Asistencia).
+    /// </summary>
+    public event Action<ReactionInfo> Resolved;
 
     private void Awake()
     {
@@ -94,6 +101,9 @@ public class ReactionService : MonoBehaviour
 
         foreach (Health link in _chain)
             link.TryTakeDamage(definition.ChainDamage, detonator, DamageKind.Reaction);
+
+        // Last, as the catalog orders it (A.5.2): the upgrades react to a reaction that already happened.
+        Resolved?.Invoke(reaction);
     }
 
     // With no radius, only the target. Otherwise every living enemy inside, the target included.

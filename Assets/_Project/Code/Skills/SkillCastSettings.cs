@@ -22,9 +22,19 @@ public class SkillCastSettings : ScriptableObject
     [Tooltip("Only colliders on these layers can be hit, so a skill never hurts a teammate.")]
     [SerializeField] private LayerMask _targetLayers;
 
+    [Tooltip("Cooldown given back (Relevo, Asistencia) never ends a skill's cooldown earlier than this " +
+             "part of its full time after the cast. 0.6 is the catalog's floor (engine rule 1).")]
+    [SerializeField, Range(0f, 1f)] private float _minCooldownFraction = 0.6f;
+
+    [Tooltip("Seconds in the past a client's cast tick may be. Older ones count from this far back, so a " +
+             "made-up tick can't stretch the timed effects of the cast (Tempo).")]
+    [SerializeField, Min(0f)] private float _maxCastTickAge = 0.5f;
+
     public float CooldownGrace => _cooldownGrace;
     public float PositionTolerance => _positionTolerance;
     public float TargetTolerance => _targetTolerance;
     public int MaxTargets => _maxTargets;
     public LayerMask TargetLayers => _targetLayers;
+    public float MinCooldownFraction => _minCooldownFraction;
+    public float MaxCastTickAge => _maxCastTickAge;
 }

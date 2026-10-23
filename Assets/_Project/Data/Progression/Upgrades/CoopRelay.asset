@@ -30,3 +30,24 @@ MonoBehaviour:
     _minLevel: 3
     _maxLevel: 0
     _minPlayers: 2
+  _effects:
+  - rid: 1001
+  references:
+    version: 2
+    RefIds:
+    - rid: 1001
+      type: {class: OnEventBlock, ns: , asm: Assembly-CSharp}
+      data:
+        _event: 2
+        _role: 1
+        _duoOnly: 1
+        _cooldown: 2
+        _recipientCooldown: 0
+        _actions:
+        - rid: 1002
+    - rid: 1002
+      type: {class: RestoreAction, ns: , asm: Assembly-CSharp}
+      data:
+        _heal: 0
+        _cooldownRefund: 1
+        _target: 0

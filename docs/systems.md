@@ -185,7 +185,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 - `Code/Player/Movement/PlayerMovement.cs` + `PlayerMovementSettings`: mover el cuerpo.
 - `Code/Player/Elements/PlayerElement.cs` + `PlayerElements`: el elemento del jugador.
 
-**Dónde está montado.** `Prefabs/Player/Player.prefab` (capa Player). Lleva: NetworkObject, NetworkTransform, PlayerInputReader, PlayerMovement, PlayerIdentity, PlayerColorMarker, Health, PlayerAutoAttack, PlayerElement, PlayerSkills, HitFlash, PlayerDowned, PlayerDownedView, PlayerRevive, PlayerUpgrades, PlayerChoosingView y PlayerStats. Hijos: `Visual` (sprite), `SlotMarker` (punto de color), `HealthLabel`, `DownedLabel` y `ChoosingLabel`.
+**Dónde está montado.** `Prefabs/Player/Player.prefab` (capa Player). Lleva: NetworkObject, NetworkTransform, PlayerInputReader, PlayerMovement, PlayerIdentity, PlayerColorMarker, Health, PlayerAutoAttack, PlayerElement, PlayerSkills, HitFlash, PlayerDowned, PlayerDownedView, PlayerRevive, PlayerUpgrades, PlayerChoosingView, PlayerStats y PlayerUpgradeEvents. Hijos: `Visual` (sprite), `SlotMarker` (punto de color), `HealthLabel`, `DownedLabel` y `ChoosingLabel`.
 
 **Cómo funciona.**
 1. Cuando una conexión ha cargado la escena, `PlayerSpawnService` le da el primer hueco libre, crea el jugador en su punto de aparición y le pone el hueco **antes de crearlo en la red** (así el hueco llega a todos con el jugador).
@@ -268,8 +268,10 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 3. El host comprueba alcance, recarga y que cada objetivo esté de verdad cerca del círculo; aplica primero el **aura fuerte** (que puede detonar una reacción) y después el daño.
    - **Con Aura expansiva**, después el host busca él mismo enemigos en un anillo de 1 m alrededor del círculo y les pone el aura de la habilidad, hasta 8: **sin daño y sin detonar nunca** (regla 6 del motor). Sirve para marcar a un grupo sin provocar reacciones. Los busca el host con lo que él ve, porque el aura es decisión suya; el dueño no los manda. El círculo que se dibuja no cambia de tamaño.
 4. Los demás dibujan el círculo (`ObserversCast`).
+5. **El lanzamiento lleva su tick** (el reloj del host tal como lo estima el dueño). Las mejoras que escuchan lanzamientos (Tempo) cuentan desde ese tick, así que su efecto empieza y acaba en el mismo tick en el host y en el dueño. El host no acepta un tick del futuro ni de más de 0,5 s atrás.
+6. **Recarga devuelta** (Relevo, Asistencia): `RefundCooldowns` (host) quita segundos a cada recarga que esté corriendo, en el host y, con un `TargetRpc`, en el dueño; cada uno lo calcula con su reloj. Nunca deja una recarga por debajo del **60 %** de su tiempo completo desde que se lanzó (regla 1 del motor): con 7 s, como pronto a los 4,2 s.
 
-**Qué ajustar.** Cada habilidad es un asset en `Data/Skills/` (`TestBurst.asset`, `TestMark.asset`): id, nombre, icono, si usa el elemento de quien la lanza, si detona, fuerza del aura, recarga (7 s), alcance (7), daño (16 / 10), radio (1,5 / 2) y el dibujo. Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objetivos).
+**Qué ajustar.** Cada habilidad es un asset en `Data/Skills/` (`TestBurst.asset`, `TestMark.asset`): id, nombre, icono, si usa el elemento de quien la lanza, si detona, fuerza del aura, recarga (7 s), alcance (7), daño (16 / 10), radio (1,5 / 2) y el dibujo. Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objetivos), con el suelo de la recarga devuelta (*Min Cooldown Fraction*, 0,6) y la edad máxima del tick de un lanzamiento (*Max Cast Tick Age*, 0,5 s).
 
 **Cuidado con.** El id de la habilidad (`burst`, `mark`) lo usa el launcher (`ability_cast`): no lo cambies una vez publicada una build. Las habilidades que reciben los jugadores se asignan en el componente `PlayerSkills` del prefab Player (todas iguales hasta que haya personajes).
 
@@ -311,6 +313,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 3. Las nubes viven en el host y frenan cada 0,25 s a quien esté dentro.
 4. La cadena se manda como *broadcast* (no como RPC de un enemigo, porque cualquiera de la cadena puede morir antes de mandarla).
 5. Cada PC dibuja el estallido, la nube, la cadena, el temblor de cámara y el titular desde `CombatEventService`.
+6. Al terminar, `ReactionService` lanza el evento `Resolved` (solo en el host). Lo escuchan las mejoras de los dos jugadores que participaron (`PlayerUpgradeEvents`, 4.21): Viento a favor, Relevo, Asistencia.
 
 **Qué ajustar.** Cada fila es un asset en `Data/Reactions/` (daño, radios, nube, saltos, empuje, aturdimiento, colores). La lista y el bloqueo de 0,5 s, en `DefaultReactions.asset`. El temblor, en `Data/Camera/ReactionShake.asset` (0,2 solo, 0,35 en dúo).
 
@@ -532,7 +535,7 @@ Cualquier truco escribe `cheat_used` para el launcher: una partida con trucos no
 
 ### 4.20 Estadísticas del jugador
 
-**Qué hace.** Junta en un solo sitio los números de cada jugador que las mejoras pueden cambiar: vida máxima, velocidad, daño recibido, radio de recogida de orbes y daño, cadencia, alcance, balas por ataque y abanico del básico, duración de tus auras y el anillo de aura de tus habilidades.
+**Qué hace.** Junta en un solo sitio los números de cada jugador que las mejoras pueden cambiar: vida máxima, velocidad, daño recibido, radio de recogida de orbes y daño, cadencia, alcance, balas por ataque y abanico del básico, duración de tus auras, el anillo de aura y el daño de tus habilidades.
 
 **Piezas.** `Code/Player/Stats/`:
 
@@ -543,6 +546,8 @@ Cualquier truco escribe `cheat_used` para el launcher: una partida con trucos no
 | `StatBonus` | Un cambio concreto (estadística, unidad, valor y de qué mejora sale) |
 | `PlayerStats` | En el jugador: sus cambios y el valor final de cada estadística |
 | `PlayerStatSettings` + `StatLimit` | Los topes del catálogo (A.2), en `Data/Players/DefaultPlayerStats.asset` |
+| `TimedStatBonus` | Un cambio que solo dura un rato: el cambio y sus ticks de inicio y fin |
+| `TargetConditions` + `ConditionalBonus` | Cambios que solo cuentan en algunos golpes, según cómo está el objetivo (hoy: si tiene aura) |
 
 **Dónde está montado.** `PlayerStats` en el prefab Player, con *Settings* = `DefaultPlayerStats`.
 
@@ -565,6 +570,12 @@ Cualquier truco escribe `cheat_used` para el launcher: una partida con trucos no
 | Balas por ataque (base 1, máximo 4) y abanico en grados (base 0) | `PlayerAutoAttack` (la ráfaga, 4.5) | Dueño y host |
 | Duración de tus auras fuertes y débiles (base en `DefaultAuras`, máximo el doble) | `AuraHolder.TryApply` (4.7) | Host |
 | Anillo de aura de las habilidades: metros y enemigos de más (base 0) | `PlayerSkills` (4.6) | Host |
+| Daño de las habilidades (base: el de cada habilidad) | `PlayerSkills.GetDamage` | Host |
+
+6. **Cambios con condición** (Cazador de auras). Algunos cambios solo cuentan si el objetivo del golpe cumple algo. No se suman a los demás: se guardan aparte, **solo en el host** (son siempre de daño, y el daño lo decide el host), y se piden en cada golpe con `stats.Get(StatId.SkillDamage, base, condiciones)`, diciendo qué cumple ese objetivo. La condición se mira **antes** de que el golpe cambie al enemigo (regla 10 del motor): si la habilidad detona el aura, el bonus cuenta igual.
+7. **Cambios temporales** (Tempo, Viento a favor). Duran unos segundos: se guardan con el **tick** en que empiezan y el tick en que acaban, en otra lista que también recibe solo el dueño (`TimedStatBonus`). Como el host y el dueño usan el mismo reloj de ticks, los dos dejan de contarlo a la vez sin mandarse nada más. Esta lista se manda en el siguiente tick, no cada 0,1 s como la otra: dura 2 s y cada tick de retraso se notaría.
+   - **Predicción del dueño.** Si el cambio sale de algo que hace el propio dueño (lanzar una habilidad), el dueño no espera: lo aplica él mismo al momento (`PredictTimedBonus`) con el mismo tick que manda al host. Cuando llega la copia del host, la del dueño se quita y queda la del host, idéntica. Si en 1 s no llega (el host no aceptó el lanzamiento, o para el host la mejora aún estaba en su enfriamiento), se quita sola.
+   - Lo que sale de una reacción (Viento a favor) no se predice: lo decide el host y llega con el ping.
 
 **Qué ajustar.** Los topes, en `DefaultPlayerStats.asset`: un multiplicador mínimo y máximo respecto a la base (1,4 es +40 %) y un mínimo y máximo absolutos (la vida, entre 50 y 250). Una estadística sin fila no tiene tope.
 
@@ -585,11 +596,16 @@ Cualquier truco escribe `cheat_used` para el launcher: una partida con trucos no
 |---|---|
 | `EffectBlock` | La base de todos los bloques. Cada bloque sabe hacer una cosa al coger la mejora (`Acquire`) |
 | `StatModifierBlock` | Cambia una estadística para el resto de la partida |
+| `ConditionalBlock` | Una lista de cambios de estadística que solo cuentan en golpes a objetivos que cumplen una condición (*Has Aura*). Hoy solo admite cambios de estadística, y solo el daño de habilidades mira condiciones |
 | `AuraModifierBlock` | Cambia las auras que pones: cuánto duran (fuertes o débiles) y el anillo de aura alrededor de tus habilidades. También son estadísticas por dentro |
 | `AttackModifierBlock` | Cambia cómo dispara el básico: balas de más y cuánto se abren. Por dentro son dos estadísticas, así que se acumula y tiene tope como cualquier otra |
-| `OnEventBlock` | Cuando pasa algo, hace sus acciones. Hoy solo hay un evento: *Acquired* (al cogerla) |
+| `OnEventBlock` | Cuando pasa algo, hace sus acciones. Eventos: *Acquired* (al cogerla), *Skill Cast* (lanzas una habilidad) y *Reaction* (una reacción en la que participas). Para *Reaction* filtra por papel (*Role*: el aura era tuya, la detonaste tú o cualquiera de las dos) y por dúo. Tiene su enfriamiento interno (*Cooldown*) y, para dar algo al compañero, uno por compañero (*Recipient Cooldown*) |
+| `PlayerUpgradeEvents` | En el jugador. Avisa a sus mejoras de lo que pasa en la partida y guarda los enfriamientos internos de cada bloque para ese jugador (`Code/Progression/Upgrades/`) |
+| `EffectEventInfo` | Lo que pasó: el evento, su tick y, en reacciones, el papel, si fue dúo y quién es el compañero |
+| `ReactionRole`, `EffectTarget` | Las listas del papel en la reacción y de a quién va una acción (a ti o al compañero) |
+| `TimedStatAction` | Cambia una estadística unos segundos |
 | `EffectAction` | La base de las acciones: algo que pasa una vez |
-| `RestoreAction` | Cura |
+| `RestoreAction` | Cura y devuelve recarga, a ti o al compañero del dúo |
 | `ResourceAction` | Da tercios de reroll (dentro del tope de 2) |
 | `EffectEvent` | La lista de eventos |
 | `EffectContext` | Lo que recibe cada bloque: el jugador, sus estadísticas, su vida, la mejora |
@@ -599,7 +615,10 @@ En el editor: `Code/Core/Inspector/SubclassPickerAttribute.cs` y `Code/Editor/Su
 **Cómo funciona.**
 1. La lista de bloques es un campo `[SerializeReference]`: a diferencia de un campo normal, puede guardar **objetos de clases distintas** (un *Stat Modifier Block*, un *On Event Block*…). Unity no trae un botón para elegir la clase; lo añade `SubclassPickerDrawer`.
 2. Al elegir una mejora, `PlayerUpgrades` (host) crea un `EffectContext` y llama a `Acquire` de cada bloque, en orden, una vez por acumulación.
-3. Los resultados llegan a todos por lo que ya viaja: las estadísticas (al dueño), la vida, los rerolls.
+3. Los resultados llegan a todos por lo que ya viaja: las estadísticas (al dueño), la vida, los rerolls, las recargas.
+4. **Durante la partida**, `PlayerUpgradeEvents` recibe los eventos: los lanzamientos aceptados (de `PlayerSkills`) y las reacciones (de `ReactionService.Resolved`). Para cada mejora que tiene el jugador, busca sus *On Event Block* de ese evento, mira si el filtro encaja y si su enfriamiento interno ha terminado, y corre sus acciones. Una vez por evento, tenga las acumulaciones que tenga (ninguna de estas se acumula).
+   - Los enfriamientos internos se cuentan en ticks desde el tick del evento. Están guardados por jugador: el bloque es del asset y lo comparten todos.
+   - El dueño hace lo mismo con **su propio lanzamiento**, en modo predicción: solo actúan las acciones que saben predecir (`Predict`; hoy, `TimedStatAction`). Lo demás (curar, recargas) lo hace solo el host.
 
 **Las mejoras que ya funcionan:**
 
@@ -614,13 +633,21 @@ En el editor: `Code/Core/Inspector/SubclassPickerAttribute.cs` y `Code/Editor/Su
 | Doble disparo | Ataque: +1 bala, abanico 12°; daño del básico −30 % (cada bala hace 7) |
 | Auras tenaces | Aura: fuertes +1,5 s (6 → 7,5; con dos, 9) |
 | Aura expansiva | Aura: anillo de +1 m alrededor de tus habilidades, hasta 8 enemigos más |
+| Cazador de auras | Con condición *Has Aura*: daño de habilidades +15 % (Estallido 16 → 18, Marca 10 → 12) |
+| Tempo | Al lanzar una habilidad (cada 4 s como mucho): intervalo del básico −20 % durante 2 s (0,6 → 0,48 s). El dueño lo predice |
+| Viento a favor | Al detonar una reacción (cada 6 s como mucho): velocidad +25 % durante 2 s (5 → 6,25) |
+| Relevo | Cuando otro jugador detona tu aura (cada 2 s como mucho): −1 s a todas tus recargas |
+| Asistencia | Cuando detonas el aura de otro jugador: −1 s a todas sus recargas; cada compañero lo recibe de ti como mucho cada 2 s |
 
-El resto de las del Pre 3 llegan en los siguientes commits; las de personaje, con los personajes.
+Con esto funcionan las 10 genéricas del Pre 3 y las 3 de prueba. Las 6 de personaje llegan con los personajes.
 
 **Cuidado con.**
 - **Un bloque solo corre en el host.** Si un bloque necesita que el dueño note algo al instante (más velocidad, otra cadencia), tiene que llegarle por sus estadísticas, no haciendo algo en el cliente.
 - **Renombrar la clase de un bloque rompe las fichas que lo usan**: el asset guarda el nombre de la clase. Si hay que renombrar, añade `[UnityEngine.Scripting.APIUpdating.MovedFrom(false, null, null, "NombreViejo")]` a la clase.
 - Un bloque nuevo es una clase `[Serializable]` que hereda de `EffectBlock` (o de `EffectAction`), con un constructor sin parámetros: el botón del Inspector la encuentra solo.
+- **`PlayerUpgradeEvents` tiene que estar en el prefab Player**: sin él, las mejoras de evento no hacen nada (y no avisa).
+- Al reiniciar la partida, el host borra los enfriamientos internos; el dueño no borra los suyos de predicción. Si reinicias justo después de lanzar con Tempo, la primera predicción puede no salir y Tempo llegará con el ping. Es esperado.
+- Una reacción del jugador consigo mismo (solo, o pones el aura y la detonas tú) cuenta para los dos papeles, pero nunca es dúo.
 
 ---
 
@@ -689,7 +716,16 @@ Método en `LauncherEvents` (con `///` que diga los valores), llamada desde dond
 1. Una clase `[Serializable]` en `Code/Progression/Upgrades/Effects/` que hereda de `EffectBlock` (algo que la mejora es mientras la tienes) o de `EffectAction` (algo que pasa una vez, dentro de un *On Event Block*).
 2. Sus valores como `[SerializeField]` con *Tooltip*, y su efecto en `Acquire` o en `Run`, usando lo que trae el `EffectContext`. Solo el host lo ejecuta.
 3. Si cambia algo que el dueño simula (moverse, disparar), que lo haga a través de una estadística (4.20), no directamente.
+   - Si solo debe contar a veces (contra enemigos quemados, con poca vida…), no hace falta un bloque nuevo: añade la condición a `TargetConditions` (siguiente potencia de dos), haz que quien golpea la compruebe antes del golpe y úsala en un `ConditionalBlock`.
 4. Pruébalo en la ficha de una mejora: el botón del Inspector ya lo enseña.
+5. Si es una acción que el dueño debería notar al instante cuando él mismo provoca el evento, sobrescribe también `Predict` (mira `TimedStatAction`) y asegúrate de que el host la reemplaza al llegar.
+
+### 5.14 Un evento nuevo para las mejoras
+
+1. Un valor **al final** de `EffectEvent`.
+2. Donde pasa (en el host), una llamada a `PlayerUpgradeEvents` del jugador con un `EffectEventInfo` y el tick: copia `RaiseSkillCast` o `OnReactionResolved`.
+3. Si necesita filtros propios, añádelos a `OnEventBlock` y a su `Accepts`.
+4. Si el dueño lo provoca y quieres que lo note al instante, una versión `Predict…` como `PredictSkillCast`.
 
 ### 5.13 Una estadística nueva
 

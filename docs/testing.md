@@ -428,6 +428,14 @@ Arena_Test. Abre F1: la línea de estadísticas enseña las tuyas tal como las c
 | Aura expansiva | Cógela. Lanza Marca en el centro de un grupo, con enemigos justo fuera del círculo. | Los de dentro reciben daño y aura; los que están hasta 1 m fuera reciben solo el aura, sin daño. Como mucho 8 de más. |
 | Aura expansiva no detona | Pon un aura de otro elemento a un enemigo (otro jugador o `ReactionLab`) y lanza Estallido de forma que ese enemigo quede justo fuera del círculo. | No hay reacción en ese enemigo y su aura no cambia. Dentro del círculo sí detona como siempre. |
 | Aura expansiva con ping | Con 100 ms, un cliente con Aura expansiva lanza Marca. | El anillo funciona igual; sin avisos `Rejected` en el host. |
+| Cazador de auras | Cógela. Lanza Estallido sobre un perseguidor sin aura y, cuando reaparezca, sobre uno al que hayas marcado antes con el básico. | Sin aura: −16. Con aura: −18 (el texto flotante lo enseña). Si el Estallido detona una reacción, también −18: el aura contaba antes del golpe. Marca: 10 sin aura, 12 con aura. El básico no cambia. |
+| Tempo | Cógela. Mira F1 y lanza Estallido. | La cadencia pasa a `cada 0.48 s` al momento y vuelve a 0.6 a los 2 s. Si vuelves a lanzar antes de 4 s (desde el primer lanzamiento), no se repite. |
+| Tempo con ping | Con 150 ms, un cliente con Tempo lanza Estallido. | En su F1, 0.48 al instante (sin esperar al host) y vuelta a 0.6 a los 2 s; sin parpadeos. En el host, ningún `Rejected a shot … too fast`. |
+| Viento a favor | Cógela. Marca a un enemigo con otro elemento (o en `ReactionLab`) y detónalo con Estallido. | Velocidad 6.25 durante 2 s; luego 5. Otra reacción antes de 6 s no la repite. Poner el aura que otro detona no la activa. |
+| Relevo | Dos jugadores con elementos distintos. J1 coge Relevo, lanza sus dos habilidades y pone aura; J2 la detona. | Las recargas de J1 bajan 1 s al momento (en su HUD). Otra reacción antes de 2 s no le quita más. Si J1 detona su propia aura, no pasa nada. |
+| Asistencia | J2 coge Asistencia. J1 lanza, pone aura y J2 la detona. | Las recargas de J1 (no las de J2) bajan 1 s. Si J2 detona otra aura de J1 antes de 2 s, J1 no recibe más. |
+| Suelo de recarga | J1 con Relevo lanza Estallido (7 s) y J2 detona tres auras suyas seguidas, cada 2 s. | La recarga de J1 nunca termina antes de 4,2 s tras lanzar. Lanzar justo al acabar no da `Rejected … before its cooldown ended` en el host. |
+| Reiniciar con temporales | Con Tempo activo (0.48), pierde y reinicia. | F1 vuelve a 0.6 y las recargas se pueden usar. |
 | Reiniciar | Con varias mejoras, pierde y reinicia. | F1 vuelve a los valores de la primera fila. |
 | Cliente con ping | Con 100 ms, un cliente coge Cañón largo y Pies ligeros. | Lo nota al llegar la respuesta del host y sus disparos lejanos cuentan (sin `Rejected a hit` en la consola del host). |
 | Entrar tarde | Un jugador con mejoras; une a otro cliente. | El nuevo ve la vida máxima correcta del primero (`x/120`). |

@@ -36,4 +36,7 @@ public enum StatId : byte
     // damage and without detonating. Both have base 0 (#161, Aura expansiva).
     SkillAuraExtraRadius = 11,
     SkillAuraExtraTargets = 12,
+
+    // skill_damage: the damage of each hit of a skill. Its base is the skill's own (#161, Cazador de auras).
+    SkillDamage = 13,
 }

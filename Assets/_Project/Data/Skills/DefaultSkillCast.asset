@@ -19,3 +19,5 @@ MonoBehaviour:
   _targetLayers:
     serializedVersion: 2
     m_Bits: 64
+  _minCooldownFraction: 0.6
+  _maxCastTickAge: 0.5

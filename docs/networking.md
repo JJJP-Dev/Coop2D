@@ -34,6 +34,7 @@ Los clientes **proponen y enseñan**. Nunca deciden algo que afecte a los demás
 | Que tu bala toque a un enemigo | Que ese disparo existe, no se ha usado y pasa cerca del enemigo |
 | Lanzar una habilidad y ver el círculo | Alcance, recarga y que cada objetivo estaba dentro |
 | Abrir la franja de mejoras y elegir | Que la oferta sigue pendiente y la opción vale |
+| Notar Tempo al lanzar una habilidad | Que aceptó el lanzamiento y la mejora estaba lista; su copia sustituye a la tuya, y si no llega en 1 s la tuya se quita |
 
 Lo que **no** es tuyo (el daño que haces, una reacción, un orbe, subir de nivel) lo decide el host y llega con el retraso del ping.
 
@@ -120,6 +121,7 @@ El tick de FishNet es el mismo en todos los PCs. En vez de mandar un valor que c
 - `MatchClock` manda el tick de inicio; cada PC calcula los segundos con `TimeManager.TimePassed(tick)`.
 - `PlayerRevive` manda una «recta»: el progreso en un tick y la velocidad. Cada PC calcula el porcentaje, y el host solo manda algo nuevo cuando cambia la velocidad.
 - Los disparos llevan el tick en que salieron, para que los demás dibujen la bala ya adelantada.
+- Los cambios temporales de estadística (Tempo, Viento a favor) guardan el tick en que empiezan y en el que acaban. El host y el dueño dejan de contarlos en el mismo tick sin mandarse nada más. Los lanzamientos llevan su tick para que Tempo empiece justo cuando el dueño lanzó.
 
 ### 4.8 Validar en el host con margen
 
@@ -144,6 +146,10 @@ Los trucos funcionan solo si `Debug.isDebugBuild` es cierto **en el host**: aunq
 ### 4.13 Números de versión en lo que se puede quedar viejo
 
 Cuando el cliente responde a algo que puede haber cambiado mientras tanto (una oferta que se rerolleó), la respuesta lleva el número de la versión que vio. El host ignora respuestas a versiones viejas. Así un doble clic o un mensaje cruzado nunca aplica algo que el jugador ya no veía.
+
+### 4.14 Predecir lo tuyo y dejar que el host lo sustituya
+
+Para que un efecto que provocas tú se note al instante (Tempo: lanzas y disparas más rápido), tu PC lo aplica sin esperar y el host aplica **el mismo** con el **mismo tick**. Cuando llega la copia del host, la tuya se quita. Si no llega (el host no aceptó lo que hiciste), la tuya caduca sola a 1 s. Así lo peor que pasa con un rechazo es un segundo de efecto que no debía, y el host sigue siendo la verdad: valida tus disparos con su copia. Solo se predice lo que no afecta a nadie más.
 
 ## 5. Errores que ya nos han pasado
 

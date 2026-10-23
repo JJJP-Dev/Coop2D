@@ -57,6 +57,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     private PlayerSkills _skills;
     private PlayerStats _stats;
     private Health _health;
+    private PlayerUpgradeEvents _events;
     private bool _hasProjectileBasic;
 
     // Requirement kinds this build doesn't know, each warned about once.
@@ -126,6 +127,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         TryGetComponent(out _skills);
         TryGetComponent(out _stats);
         TryGetComponent(out _health);
+        TryGetComponent(out _events);
 
         // Every basic attack is a projectile until the melee basic arrives (#96).
         _hasProjectileBasic = GetComponent<PlayerAutoAttack>() != null;
@@ -191,9 +193,12 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         _stacks.Clear();
         _banished.Clear();
 
-        // What the upgrades gave goes with them (#157).
+        // What the upgrades gave goes with them (#157), and their internal cooldowns too (#161).
         if (_stats != null)
             _stats.ClearBonuses();
+
+        if (_events != null)
+            _events.ResetForNewRun();
 
         _seen.Clear();
         _offersWithoutDuo = 0;

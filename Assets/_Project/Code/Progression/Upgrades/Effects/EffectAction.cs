@@ -10,4 +10,12 @@ public abstract class EffectAction
     /// Server only.
     /// </summary>
     public abstract void Run(EffectContext context);
+
+    /// <summary>
+    /// Owner only, for events it can see coming (its own skill cast): what it shows at once, before the
+    /// host's answer arrives (#157). Most actions show nothing ahead and leave it empty.
+    /// </summary>
+    public virtual void Predict(EffectContext context)
+    {
+    }
 }
