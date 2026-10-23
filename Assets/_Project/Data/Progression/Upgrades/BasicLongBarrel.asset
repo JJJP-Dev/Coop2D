@@ -32,3 +32,21 @@ MonoBehaviour:
     _minLevel: 0
     _maxLevel: 0
     _minPlayers: 0
+  _effects:
+  - rid: 1001
+  - rid: 1002
+  references:
+    version: 2
+    RefIds:
+    - rid: 1001
+      type: {class: StatModifierBlock, ns: , asm: Assembly-CSharp}
+      data:
+        _stat: 6
+        _unit: 0
+        _value: 3
+    - rid: 1002
+      type: {class: StatModifierBlock, ns: , asm: Assembly-CSharp}
+      data:
+        _stat: 5
+        _unit: 1
+        _value: 9

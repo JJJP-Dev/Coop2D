@@ -378,19 +378,19 @@ Escena `ResolutionTest`, que no está en la build: ábrela sola y pulsa Play. En
 
 ## 21. Mejoras y ofertas (#78 y #77)
 
-Arena_Test. Para las pruebas de semilla, en `Data/Core/RunRandom.asset` pon *Fixed Seed* `3A9F01C2` y activa *Log Rolls*; vacía *Fixed Seed* al acabar. «Dar experiencia» (F1) sube niveles y «Dar reroll» (F1) da un reroll a todos. Hasta el #161 las mejoras no hacen nada: solo se comprueba qué se ofrece y qué se guarda.
+Arena_Test. Para las pruebas de semilla, en `Data/Core/RunRandom.asset` pon *Fixed Seed* `3A9F01C2` y activa *Log Rolls*; vacía *Fixed Seed* al acabar. «Dar experiencia» (F1) sube niveles y «Dar reroll» (F1) da un reroll a todos. Lo que hace cada mejora se prueba en la sección 22.
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
 | Primera oferta | Hospeda solo y sube al nivel 2. | Se abre la franja abajo, encima de la barra de habilidades, con «Nivel 2» y tres filas. Te sigues moviendo y el básico sigue disparando. |
-| Misma semilla, mismas ofertas | Con la semilla fija, solo, sube de nivel y elige siempre la 1 hasta el nivel 6. Hazlo dos veces. | Las dos veces la consola dice lo mismo: `nivel 2 (nueva): aura_lingering, mov_tailwind, stat_aura_hunter`, `nivel 3: aura_lingering, basic_twin_shot, basic_tempo`, `nivel 4: basic_long_barrel, def_vitality, mov_tailwind`, `nivel 5: stat_aura_hunter, basic_twin_shot, mov_tailwind`, `nivel 6: basic_tempo, basic_twin_shot, def_vitality`. |
+| Misma semilla, mismas ofertas | Con la semilla fija, solo, sube de nivel y elige siempre la 1 hasta el nivel 6. Hazlo dos veces. | Las dos veces la consola dice lo mismo: `nivel 2 (nueva): econ_magnet, basic_tempo, aura_lingering`, `nivel 3: econ_magnet, basic_twin_shot, def_thick_skin`, `nivel 4: mov_tailwind, basic_long_barrel, stat_aura_hunter`, `nivel 5: mov_swift, basic_twin_shot, def_thick_skin`, `nivel 6: mov_swift, aura_lingering, basic_twin_shot`. (Cambian si cambia la lista del pool: se recalculan con `offers_sim.py`.) |
 | Builds distintas | Sin semilla fija, dos partidas eligiendo lo que quieras. | Ofertas y mejoras distintas. |
 | Plaza A | Elige Auras tenaces en el nivel 2. | En el nivel 3 sale primero otra vez, con «2/2». En el 4 ya no sale. |
 | Rara garantizada | Llega al nivel 5. | La segunda fila es Doble disparo (la única rara genérica del Pre 3) si no la tienes. |
 | Épica desde el 5 | Mira las ofertas de los niveles 2 a 4. | Nunca sale Aura expansiva (épica) antes del nivel 5. En el 10 sale seguro si no la tienes. |
 | Requisitos | Sube hasta el nivel 12 eligiendo cualquier cosa. | Nunca salen Muro vivo, Llama eterna, Remolino, Corazón de marea, Sobretensión ni Bobina detonante: piden personajes y habilidades que llegan con el #162. Cuando no queda nada, sale Respiro. |
 | Cooperación | Con host y un cliente, subid al nivel 3. | Relevo y Asistencia pueden salir desde el nivel 3. Solo, nunca. |
-| Cada uno la suya | Con host y dos clientes, misma semilla, subid al nivel 2. | Cada ventana tiene su oferta. Con la semilla fija y dos jugadores, J1 ve `aura_lingering, mov_tailwind, stat_aura_hunter` y J2 `def_vitality, basic_twin_shot, mov_tailwind`. |
+| Cada uno la suya | Con host y dos clientes, misma semilla, subid al nivel 2. | Cada ventana tiene su oferta. Con la semilla fija y dos jugadores, J1 ve `econ_magnet, basic_tempo, aura_lingering` y J2 `mov_swift, basic_twin_shot, def_vitality`. |
 | Cola | Pulsa «Dar experiencia» varias veces seguidas sin elegir. | La cabecera dice «+N en cola». Al elegir, sale al instante la siguiente con su nivel. |
 | Ocultar | Con una oferta abierta, pulsa Tab. | Se oculta la franja y aparece «Mejoras: N · Tab». Tab la vuelve a abrir con las mismas cartas. |
 | Elegir con clic | Haz clic en una fila. | La elige, sin lanzar la habilidad del clic izquierdo. |
@@ -407,3 +407,22 @@ Arena_Test. Para las pruebas de semilla, en `Data/Core/RunRandom.asset` pon *Fix
 | Reiniciar | Con mejoras y ofertas en cola, pierde y reinicia. | Se cierra la franja; nadie tiene mejoras, rerolls a 0 y descartes a 1. |
 | Fin de partida | Con la franja abierta, que caigan todos. | La franja se oculta mientras está la pantalla de fin. |
 | Launcher | Elige, rerollea, descarta y salta. | En el log de quien elige: `upgrade_picked upgrade=… rarity=… level=…` y `offer_action action=reroll`, `banish upgrade=…` y `skip`. «Dar reroll» escribe `cheat_used cheat=give_reroll`. |
+
+## 22. Estadísticas y efectos de las mejoras (#157 y #161)
+
+Arena_Test. Abre F1: la línea de estadísticas enseña las tuyas tal como las calcula tu PC. Para que salga una mejora concreta, sube niveles con «Dar experiencia» y rerollea con «Dar reroll»; en solitario el pool es corto y salen pronto.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Sin mejoras, como antes | Empieza una partida. | F1: vida máx. 100, velocidad 5, básico 10 cada 0.6 s, alcance 6, daño recibido ×1, recogida 1.5. Todo se juega igual que antes. |
+| Cañón largo | Cógela. | Alcance 9 y cadencia 0.65 s. Disparas a enemigos más lejanos y la bala llega hasta ellos (en tu ventana y en las de los demás). |
+| Vitalidad | Pierde vida y cógela. | Vida máx. 120 y +20 de vida al momento; la etiqueta de vida dice `x/120` en todas las ventanas. Tres veces: 160. |
+| Pies ligeros | Cógela dos veces. | Velocidad 5.6 y luego 6.2; vida máx. 90 y 80 (si tenías más vida que el nuevo máximo, baja a él). Te mueves más rápido en tu ventana y los demás te ven igual de rápido. |
+| Piel gruesa | Cógela y deja que te golpee un perseguidor. | Daño recibido ×0.9: cada golpe de 10 quita 9. Velocidad ×0.95. |
+| Imán | Cógela. | Recogida 2.25: los orbes vuelan hacia ti desde más lejos. Solo a ti; un compañero sin Imán sigue con 1.5. |
+| Respiro | Agota el pool y elígelo herido. | +30 de vida (sin pasar del máximo) y +1/3 de reroll. Derribado no cura. |
+| Se suman | Coge Pies ligeros dos veces y Piel gruesa una. | Los porcentajes se suman: velocidad 5 × (1 + 0,24 − 0,05) = 5.95. |
+| Reiniciar | Con varias mejoras, pierde y reinicia. | F1 vuelve a los valores de la primera fila. |
+| Cliente con ping | Con 100 ms, un cliente coge Cañón largo y Pies ligeros. | Lo nota al llegar la respuesta del host y sus disparos lejanos cuentan (sin `Rejected a hit` en la consola del host). |
+| Entrar tarde | Un jugador con mejoras; une a otro cliente. | El nuevo ve la vida máxima correcta del primero (`x/120`). |
+| Editor | Abre `Data/Progression/Upgrades/DefVitality.asset`. | En *Effects* hay dos bloques: *Stat Modifier Block* (Max Health, Flat, 20) y *On Event Block* (Acquired) con un *Restore Action* de 20. El botón de cada uno abre la lista de bloques. |

@@ -55,6 +55,8 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     private PlayerIdentity _identity;
     private PlayerElement _element;
     private PlayerSkills _skills;
+    private PlayerStats _stats;
+    private Health _health;
     private bool _hasProjectileBasic;
 
     // Requirement kinds this build doesn't know, each warned about once.
@@ -122,6 +124,8 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         // Optional, so a test player without them still works: it just meets fewer requirements.
         TryGetComponent(out _element);
         TryGetComponent(out _skills);
+        TryGetComponent(out _stats);
+        TryGetComponent(out _health);
 
         // Every basic attack is a projectile until the melee basic arrives (#96).
         _hasProjectileBasic = GetComponent<PlayerAutoAttack>() != null;
@@ -186,6 +190,11 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
 
         _stacks.Clear();
         _banished.Clear();
+
+        // What the upgrades gave goes with them (#157).
+        if (_stats != null)
+            _stats.ClearBonuses();
+
         _seen.Clear();
         _offersWithoutDuo = 0;
         _earnedThirds = 0;
@@ -396,10 +405,11 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
             return true;
         }
 
-        if (upgrade == _offers.Pool.Fallback)
-            EarnRerollThirds(_offers.Settings.FallbackRerollThirds, _offers.Settings.MaxRerollThirds);
-        else
+        // Respiro isn't counted as taken: it can come again whenever nothing else is left.
+        if (upgrade != _offers.Pool.Fallback)
             AddStack(upgrade);
+
+        ApplyEffects(upgrade);
 
         GrantConfirmInvulnerability();
         TargetAnswered(Owner, OfferAnswer.Pick, upgrade.Id, _offerLevel);
@@ -437,6 +447,15 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         TargetAnswered(Owner, OfferAnswer.Banish, id, _offerLevel);
         SendOffer();
         return true;
+    }
+
+    // What the upgrade does (#161): each of its blocks, in order, once for this stack.
+    private void ApplyEffects(UpgradeDefinition upgrade)
+    {
+        EffectContext context = new(this, _stats, _health, upgrade, _offers.Settings);
+
+        foreach (EffectBlock block in upgrade.Effects)
+            block?.Acquire(context);
     }
 
     // A second without hits for having looked at the panel, at most once every 10 (#77): picking three

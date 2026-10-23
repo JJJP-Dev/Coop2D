@@ -30,3 +30,23 @@ MonoBehaviour:
     _minLevel: 0
     _maxLevel: 0
     _minPlayers: 0
+  _effects:
+  - rid: 1001
+  references:
+    version: 2
+    RefIds:
+    - rid: 1001
+      type: {class: OnEventBlock, ns: , asm: Assembly-CSharp}
+      data:
+        _event: 0
+        _actions:
+        - rid: 1002
+        - rid: 1003
+    - rid: 1002
+      type: {class: RestoreAction, ns: , asm: Assembly-CSharp}
+      data:
+        _heal: 30
+    - rid: 1003
+      type: {class: ResourceAction, ns: , asm: Assembly-CSharp}
+      data:
+        _rerollThirds: 1

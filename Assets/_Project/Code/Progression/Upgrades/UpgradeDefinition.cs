@@ -1,9 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // An upgrade as data (#78). The fields follow catalog.json in the progression catalog, which is the
 // reference: the assets are made from it, and the game never reads the JSON.
-// This is what decides whether and how often it is offered. What it does comes in #161, as a list of
-// effect blocks on this same asset; until then picking one changes nothing in the match.
+// The top part decides whether and how often it is offered (#78); Effects, what it does when taken (#161).
 [CreateAssetMenu(fileName = "Upgrade", menuName = "Coop2D/Progression/Upgrade")]
 public class UpgradeDefinition : ScriptableObject
 {
@@ -51,6 +51,11 @@ public class UpgradeDefinition : ScriptableObject
 
     [SerializeField] private UpgradeAppearIf _appearIf = new();
 
+    [Header("What it does")]
+    [Tooltip("Applied by the host when a player takes it, once per stack. Add a block with + and pick its kind " +
+             "with its button.")]
+    [SerializeReference, SubclassPicker] private List<EffectBlock> _effects = new();
+
     public string Id => _id;
     public string DisplayName => _displayName;
     public string Description => _description;
@@ -67,6 +72,7 @@ public class UpgradeDefinition : ScriptableObject
     public string[] Requires => _requires;
     public string[] Excludes => _excludes;
     public UpgradeAppearIf AppearIf => _appearIf;
+    public IReadOnlyList<EffectBlock> Effects => _effects;
 
     /// <summary>
     /// Whether this upgrade and that one can't go together, from either side.

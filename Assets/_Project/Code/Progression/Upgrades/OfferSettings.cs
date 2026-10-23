@@ -62,9 +62,6 @@ public class OfferSettings : ScriptableObject
     [Tooltip("Thirds of a reroll for skipping an offer.")]
     [SerializeField, Min(0)] private int _skipRerollThirds = 1;
 
-    [Tooltip("Thirds of a reroll for taking Respiro.")]
-    [SerializeField, Min(0)] private int _fallbackRerollThirds = 1;
-
     [Tooltip("Banishes each player starts the match with.")]
     [SerializeField, Min(0)] private int _banishes = 1;
 
@@ -89,7 +86,6 @@ public class OfferSettings : ScriptableObject
     public int MaxRerollThirds => _maxRerolls * 3;
     public int[] TimedRerollSeconds => _timedRerollSeconds;
     public int SkipRerollThirds => _skipRerollThirds;
-    public int FallbackRerollThirds => _fallbackRerollThirds;
     public int Banishes => _banishes;
     public float ConfirmInvulnerability => _confirmInvulnerability;
     public float ConfirmInvulnerabilityCooldown => _confirmInvulnerabilityCooldown;

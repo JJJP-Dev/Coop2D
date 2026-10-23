@@ -36,6 +36,8 @@ Estado: actualizada al Pre 3 (build 0.0.5 en preparación).
    - 4.17 [Cámara](#417-cámara)
    - 4.18 [Herramientas de prueba](#418-herramientas-de-prueba)
    - 4.19 [Eventos del launcher](#419-eventos-del-launcher)
+   - 4.20 [Estadísticas del jugador](#420-estadísticas-del-jugador)
+   - 4.21 [Efectos de las mejoras](#421-efectos-de-las-mejoras)
 5. [Recetas: cómo hacer cosas nuevas](#5-recetas-cómo-hacer-cosas-nuevas)
 6. [Quitar, mover y optimizar sin romper nada](#6-quitar-mover-y-optimizar-sin-romper-nada)
 7. [Cómo mantener esta guía](#7-cómo-mantener-esta-guía)
@@ -183,7 +185,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 - `Code/Player/Movement/PlayerMovement.cs` + `PlayerMovementSettings`: mover el cuerpo.
 - `Code/Player/Elements/PlayerElement.cs` + `PlayerElements`: el elemento del jugador.
 
-**Dónde está montado.** `Prefabs/Player/Player.prefab` (capa Player). Lleva: NetworkObject, NetworkTransform, PlayerInputReader, PlayerMovement, PlayerIdentity, PlayerColorMarker, Health, PlayerAutoAttack, PlayerElement, PlayerSkills, HitFlash, PlayerDowned, PlayerDownedView, PlayerRevive, PlayerUpgrades y PlayerChoosingView. Hijos: `Visual` (sprite), `SlotMarker` (punto de color), `HealthLabel`, `DownedLabel` y `ChoosingLabel`.
+**Dónde está montado.** `Prefabs/Player/Player.prefab` (capa Player). Lleva: NetworkObject, NetworkTransform, PlayerInputReader, PlayerMovement, PlayerIdentity, PlayerColorMarker, Health, PlayerAutoAttack, PlayerElement, PlayerSkills, HitFlash, PlayerDowned, PlayerDownedView, PlayerRevive, PlayerUpgrades, PlayerChoosingView y PlayerStats. Hijos: `Visual` (sprite), `SlotMarker` (punto de color), `HealthLabel`, `DownedLabel` y `ChoosingLabel`.
 
 **Cómo funciona.**
 1. Cuando una conexión ha cargado la escena, `PlayerSpawnService` le da el primer hueco libre, crea el jugador en su punto de aparición y le pone el hueco **antes de crearlo en la red** (así el hueco llega a todos con el jugador).
@@ -453,7 +455,7 @@ Interfaz: `Code/UI/InGame/UpgradeOfferPanel.cs` y `UpgradeOfferRow.cs`. Datos: `
 - Las reglas, en `DefaultOffers.asset`: opciones por oferta, tabla de rarezas, suerte, familia propia, peso de lo visto, niveles de garantía, nivel de riesgo y dúo, rerolls (tope 2, +1 a los 240 y 480 s), tercios por saltar y por Respiro, descartes e invulnerabilidad al elegir (1 s, como mucho cada 10 s).
 
 **Cuidado con.**
-- **Hoy las mejoras no hacen nada** al elegirlas (los efectos llegan con el sistema de efectos de mejora). Solo Respiro da su tercio de reroll.
+- **Lo que hace cada mejora** está en su lista de bloques de efecto (ver 4.21). Una mejora sin bloques se puede elegir pero no hace nada: así siguen las de personaje hasta que haya personajes.
 - **Los ids de las mejoras viajan por la red y los usa el launcher**: no los cambies.
 - **El orden de la lista del pool** es el orden en que el generador las recorre: cambiarlo cambia lo que da cada semilla (las partidas nuevas no se rompen, pero una semilla apuntada ya no dará lo mismo).
 - Requisitos escritos como en el catálogo (`basic:projectile`, `char:ember`, `skill:tide_wave`, `element:fire`…). Un tipo que el juego aún no conoce **nunca se cumple** (aviso en consola): es lo seguro.
@@ -519,6 +521,90 @@ Cualquier truco escribe `cheat_used` para el launcher: una partida con trucos no
 
 **Cuidado con.** Es un **contrato**: nunca renombres ni quites un evento, un campo o un id. Añadir siempre se puede. Cada evento nuevo va también en [launcher-events.md](launcher-events.md) y en la copia del repo del launcher.
 
+### 4.20 Estadísticas del jugador
+
+**Qué hace.** Junta en un solo sitio los números de cada jugador que las mejoras pueden cambiar: vida máxima, velocidad, daño recibido, radio de recogida de orbes y daño, cadencia y alcance del básico.
+
+**Piezas.** `Code/Player/Stats/`:
+
+| Pieza | Qué es |
+|---|---|
+| `StatId` | La lista de estadísticas |
+| `StatUnit` | Cómo cambia una: `Flat` suma al valor base, `Percent` multiplica |
+| `StatBonus` | Un cambio concreto (estadística, unidad, valor y de qué mejora sale) |
+| `PlayerStats` | En el jugador: sus cambios y el valor final de cada estadística |
+| `PlayerStatSettings` + `StatLimit` | Los topes del catálogo (A.2), en `Data/Players/DefaultPlayerStats.asset` |
+
+**Dónde está montado.** `PlayerStats` en el prefab Player, con *Settings* = `DefaultPlayerStats`.
+
+**Cómo funciona.**
+1. **Los valores base no se mueven de sitio.** Cada sistema sigue teniendo los suyos en su asset (velocidad en `DefaultPlayerMovement`, cadencia en `DefaultAutoAttack`, vida en `DefaultPlayerHealth`, recogida en `DefaultOrbs`). Cuando necesita el valor, se lo pide a `PlayerStats` pasándole la base: `stats.Get(StatId.BasicRange, settings.Range)`.
+2. **La cuenta** es siempre la misma: `(base + suma de Flat) × (1 + suma de Percent / 100)`, y después el tope. Los porcentajes se suman entre sí: dos +12 % y un −5 % dan +19 %.
+3. **Quién la hace:** el host (que es la verdad y valida) y el dueño del jugador (que simula su movimiento y sus disparos). Los dos usan la misma función con los mismos cambios, así que llegan al mismo número.
+4. **Qué viaja:** la lista de cambios es una `SyncList` que **solo recibe el dueño**: los demás no la necesitan. La única estadística que ven todos es la **vida máxima**, que `Health` sincroniza aparte para que todos vean `x/120`.
+5. **Quién la usa:**
+
+| Estadística | La lee | En qué PC |
+|---|---|---|
+| Vida máxima | `Health` (la pone `PlayerStats`) | Host, y llega a todos |
+| Velocidad | `PlayerMovement` | Dueño |
+| Daño recibido | `Health.TryTakeDamage` | Host |
+| Radio de recogida | `ExperienceOrbs` | Host |
+| Daño del básico | `PlayerAutoAttack.ApplyHit` | Host |
+| Cadencia del básico | `PlayerAutoAttack` (cuándo dispara y el presupuesto de disparos del host) | Dueño y host |
+| Alcance del básico | `PlayerAutoAttack` (a quién apunta y hasta dónde vuela la bala) | Dueño y host |
+
+**Qué ajustar.** Los topes, en `DefaultPlayerStats.asset`: un multiplicador mínimo y máximo respecto a la base (1,4 es +40 %) y un mínimo y máximo absolutos (la vida, entre 50 y 250). Una estadística sin fila no tiene tope.
+
+**Cuidado con.**
+- **Más alcance = la bala vuela más.** Si no, con Cañón largo apuntarías a enemigos a los que la bala no llega. La bala dura más en proporción (`Reach`), y el host comprueba los impactos con esa misma distancia.
+- **Ganar vida máxima no cura**; perderla sí recorta la vida actual. Por eso Vitalidad lleva aparte su cura de 20.
+- `StatId` y `StatUnit` se guardan como números en los assets y viajan por la red: añade al final, no renumeres.
+- Los cambios se borran al reiniciar la partida (`PlayerUpgrades.ResetForNewRun` llama a `ClearBonuses`).
+- F1 enseña tus estadísticas tal como las calcula tu PC: si no cambian al coger una mejora, el fallo está antes de que lleguen al dueño.
+
+### 4.21 Efectos de las mejoras
+
+**Qué hace.** Hace que cada mejora haga lo que dice, solo con datos: la ficha lleva una lista de **bloques**, y el host los aplica cuando un jugador la coge.
+
+**Piezas.** `Code/Progression/Upgrades/Effects/`:
+
+| Pieza | Qué es |
+|---|---|
+| `EffectBlock` | La base de todos los bloques. Cada bloque sabe hacer una cosa al coger la mejora (`Acquire`) |
+| `StatModifierBlock` | Cambia una estadística para el resto de la partida |
+| `OnEventBlock` | Cuando pasa algo, hace sus acciones. Hoy solo hay un evento: *Acquired* (al cogerla) |
+| `EffectAction` | La base de las acciones: algo que pasa una vez |
+| `RestoreAction` | Cura |
+| `ResourceAction` | Da tercios de reroll (dentro del tope de 2) |
+| `EffectEvent` | La lista de eventos |
+| `EffectContext` | Lo que recibe cada bloque: el jugador, sus estadísticas, su vida, la mejora |
+
+En el editor: `Code/Core/Inspector/SubclassPickerAttribute.cs` y `Code/Editor/SubclassPickerDrawer.cs`, el botón para elegir el tipo de cada bloque.
+
+**Cómo funciona.**
+1. La lista de bloques es un campo `[SerializeReference]`: a diferencia de un campo normal, puede guardar **objetos de clases distintas** (un *Stat Modifier Block*, un *On Event Block*…). Unity no trae un botón para elegir la clase; lo añade `SubclassPickerDrawer`.
+2. Al elegir una mejora, `PlayerUpgrades` (host) crea un `EffectContext` y llama a `Acquire` de cada bloque, en orden, una vez por acumulación.
+3. Los resultados llegan a todos por lo que ya viaja: las estadísticas (al dueño), la vida, los rerolls.
+
+**Las mejoras que ya funcionan:**
+
+| Mejora | Bloques |
+|---|---|
+| Cañón largo | Alcance +3 (Flat), cadencia +9 % (Percent) |
+| Vitalidad | Vida máxima +20; al cogerla, cura 20 |
+| Respiro | Al cogerla, cura 30 y +1/3 de reroll |
+| Imán | Recogida +50 % |
+| Pies ligeros | Velocidad +12 %, vida máxima −10 |
+| Piel gruesa | Daño recibido −10 %, velocidad −5 % |
+
+El resto de las del Pre 3 llegan en los siguientes commits; las de personaje, con los personajes.
+
+**Cuidado con.**
+- **Un bloque solo corre en el host.** Si un bloque necesita que el dueño note algo al instante (más velocidad, otra cadencia), tiene que llegarle por sus estadísticas, no haciendo algo en el cliente.
+- **Renombrar la clase de un bloque rompe las fichas que lo usan**: el asset guarda el nombre de la clase. Si hay que renombrar, añade `[UnityEngine.Scripting.APIUpdating.MovedFrom(false, null, null, "NombreViejo")]` a la clase.
+- Un bloque nuevo es una clase `[Serializable]` que hereda de `EffectBlock` (o de `EffectAction`), con un constructor sin parámetros: el botón del Inspector la encuentra solo.
+
 ---
 
 ## 5. Recetas: cómo hacer cosas nuevas
@@ -551,7 +637,7 @@ Edita su asset de `Data/Reactions/`. Para una pareja nueva, crea otro *Reaction 
 1. *Create › Coop2D › Progression › Upgrade* en `Data/Progression/Upgrades/`, con los datos del catálogo (`catalog.json` es la referencia). El nombre del archivo, en PascalCase del id (`DefVitality` para `def_vitality`).
 2. Añádela al final de la lista de `DefaultUpgradePool.asset` (al final, para no cambiar lo que dan las semillas ya apuntadas).
 3. Añade su id a la tabla `upgrade` de launcher-events.md.
-4. Su efecto: cuando exista el sistema de efectos, se le añaden bloques en la misma ficha.
+4. Su efecto: en *Effects* de la ficha, pulsa **+** y elige el tipo de bloque con su botón (ver 4.21). Si es una estadística, un *Stat Modifier Block* con la estadística, la unidad y el valor del catálogo. Si los bloques que hay no bastan, hace falta un bloque nuevo (receta 5.12).
 
 ### 5.6 Un truco nuevo en F1
 
@@ -580,6 +666,20 @@ Ver 4.2. Solo si de verdad vive toda la sesión (entre partidas); si es de la pa
 ### 5.11 Un evento nuevo del launcher
 
 Método en `LauncherEvents` (con `///` que diga los valores), llamada desde donde pasa el hecho (casi siempre en el PC del jugador al que le pasa), fila en launcher-events.md y aviso para copiarlo al launcher.
+
+### 5.12 Un bloque de efecto nuevo
+
+1. Una clase `[Serializable]` en `Code/Progression/Upgrades/Effects/` que hereda de `EffectBlock` (algo que la mejora es mientras la tienes) o de `EffectAction` (algo que pasa una vez, dentro de un *On Event Block*).
+2. Sus valores como `[SerializeField]` con *Tooltip*, y su efecto en `Acquire` o en `Run`, usando lo que trae el `EffectContext`. Solo el host lo ejecuta.
+3. Si cambia algo que el dueño simula (moverse, disparar), que lo haga a través de una estadística (4.20), no directamente.
+4. Pruébalo en la ficha de una mejora: el botón del Inspector ya lo enseña.
+
+### 5.13 Una estadística nueva
+
+1. Un valor nuevo **al final** de `StatId`.
+2. El sistema que la usa pide `stats.Get(StatId.Nueva, base)` donde hoy lee su valor base, en el PC que toque (host, dueño o los dos; mira la tabla de 4.20).
+3. Si tiene tope en el catálogo, su fila en `DefaultPlayerStats.asset`.
+4. Si la tienen que ver los demás jugadores (como la vida máxima), hace falta sincronizarla aparte.
 
 ## 6. Quitar, mover y optimizar sin romper nada
 
