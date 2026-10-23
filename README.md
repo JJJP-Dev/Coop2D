@@ -52,6 +52,13 @@ Assets/
     <TuNombre>/ tus escenas de prueba; nunca entran en las builds
 ```
 
+## Documentación
+
+- [Guía de sistemas](docs/systems.md): qué hace cada sistema, con qué piezas, cómo funciona y cómo ampliarlo. Empieza por aquí para entender o cambiar el juego.
+- [La red](docs/networking.md): cómo usamos FishNet, los patrones del proyecto y los errores que ya nos han pasado.
+- [Lista de pruebas](docs/testing.md): cómo comprobar cada sistema antes de subirlo.
+- [Eventos del launcher](docs/launcher-events.md): el contrato con Palito Launcher.
+
 ## Convenciones
 
 ### Idioma
