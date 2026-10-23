@@ -106,15 +106,15 @@ Desde el #51 los perseguidores hacen daño al tocar. En las pruebas de persecuci
 
 ## 8. Elementos y auras
 
-Con el host y dos clientes. Hasta que lleguen los personajes (#162), cada jugador juega el elemento de su hueco: J1 fuego, J2 agua, J3 electricidad y J4 fuego.
+Con el host y dos clientes. Hasta la sala de espera (#173), el personaje sale del hueco y con él el elemento: J1 Brasa (fuego), J2 Marea (agua), J3 Voltio (electricidad) y J4 Brasa (fuego).
 
 Para las pruebas del muñeco, desmarca el componente `WaveSpawner` de `Arena_Test` y sube *Max Health* de `TrainingDummyHealth` a 500, para que no muera a cada momento. Al terminar, vuelve a marcar el spawner y deja la vida en 50.
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
-| Elemento por hueco | Hospeda y une a dos clientes. | Cada ventana recibe un solo toast con su elemento: «Tu elemento: Fuego» en el host, «Agua» y «Electricidad» en los clientes. |
-| Cambiar de elemento | En un cliente, pulsa F6 tres veces, esperando a cada toast. | Su elemento pasa a Electricidad, Fuego y Agua, con un toast por pulsación. Las demás ventanas no reciben ninguno. |
-| Volver a entrar | Ese cliente sale y vuelve a entrar. | Recibe otra vez el elemento de su hueco, no el que tenía. |
+| Elemento por personaje | Hospeda y une a dos clientes. | Cada ventana recibe un solo toast con su personaje y su elemento: «Juegas con Brasa · Fuego» en el host, «Juegas con Marea · Agua» y «Juegas con Voltio · Electricidad» en los clientes. |
+| Cambiar de elemento | En un cliente, pulsa F6 tres veces, esperando a cada toast. | Su elemento pasa a Electricidad, Fuego y Agua, con un toast «Tu elemento: …» por pulsación. Las demás ventanas no reciben ninguno. |
+| Volver a entrar | Ese cliente sale y vuelve a entrar. | Recibe otra vez el elemento de su personaje, no el que tenía. |
 | Aura del básico | J1 dispara al muñeco y luego se aleja. | Sobre el muñeco sale «Fuego (débil) · J1», igual en todas las ventanas y con J1 en su color. Unos 2 s después de su último disparo, desaparece. |
 | El básico no tapa auras | J1 dispara al muñeco y se aleja. Justo después, J2 se acerca y dispara. | El aura sigue siendo «Fuego · J1» aunque J2 le dé. Cuando caduca, la siguiente bala de J2 la cambia a «Agua (débil) · J2». |
 | Refresco y autoría | Con F6, pon a J2 en fuego. J1 y J2 disparan a la vez al muñeco. | El aura sigue siendo de fuego y no caduca. El «J» va cambiando al último que la refresca. |
@@ -388,7 +388,7 @@ Arena_Test. Para las pruebas de semilla, en `Data/Core/RunRandom.asset` pon *Fix
 | Plaza A | Elige Auras tenaces en el nivel 2. | En el nivel 3 sale primero otra vez, con «2/2». En el 4 ya no sale. |
 | Rara garantizada | Llega al nivel 5. | La segunda fila es Doble disparo (la única rara genérica del Pre 3) si no la tienes. |
 | Épica desde el 5 | Mira las ofertas de los niveles 2 a 4. | Nunca sale Aura expansiva (épica) antes del nivel 5. En el 10 sale seguro si no la tienes. |
-| Requisitos | Sube hasta el nivel 12 eligiendo cualquier cosa. | Nunca salen Muro vivo, Llama eterna, Remolino, Corazón de marea, Sobretensión ni Bobina detonante: piden personajes y habilidades que llegan con el #162. Cuando no queda nada, sale Respiro. |
+| Requisitos | Sube hasta el nivel 12 eligiendo cualquier cosa. | Nunca salen Muro vivo, Llama eterna, Remolino, Corazón de marea, Sobretensión ni Bobina detonante: aún no tienen efecto (llegan con el #162), y una mejora sin efecto no sale. Cuando no queda nada, sale Respiro. |
 | Cooperación | Con host y un cliente, subid al nivel 3. | Relevo y Asistencia pueden salir desde el nivel 3. Solo, nunca. |
 | Cada uno la suya | Con host y dos clientes, misma semilla, subid al nivel 2. | Cada ventana tiene su oferta. Con la semilla fija y dos jugadores, J1 ve `econ_magnet, basic_tempo, aura_lingering` y J2 `mov_swift, basic_twin_shot, def_vitality`. |
 | Cola | Pulsa «Dar experiencia» varias veces seguidas sin elegir. | La cabecera dice «+N en cola». Al elegir, sale al instante la siguiente con su nivel. |
@@ -440,3 +440,17 @@ Arena_Test. Abre F1: la línea de estadísticas enseña las tuyas tal como las c
 | Cliente con ping | Con 100 ms, un cliente coge Cañón largo y Pies ligeros. | Lo nota al llegar la respuesta del host y sus disparos lejanos cuentan (sin `Rejected a hit` en la consola del host). |
 | Entrar tarde | Un jugador con mejoras; une a otro cliente. | El nuevo ve la vida máxima correcta del primero (`x/120`). |
 | Editor | Abre `Data/Progression/Upgrades/DefVitality.asset`. | En *Effects* hay dos bloques: *Stat Modifier Block* (Max Health, Flat, 20) y *On Event Block* (Acquired) con un *Restore Action* de 20. El botón de cada uno abre la lista de bloques. |
+
+## 23. Personajes (#162)
+
+Arena_Test, con el host y tres clientes. Hasta la sala de espera (#173) el personaje sale del hueco, y hasta que lleguen los kits todos tienen Estallido y Marca.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Personaje por hueco | Hospeda y une a tres clientes. | J1 Brasa (fuego), J2 Marea (agua), J3 Voltio (electricidad) y J4 Brasa (fuego): lo dice el toast de cada ventana. Disparos, auras y círculos salen del color de ese elemento en todas las ventanas. |
+| Habilidades del personaje | En cada ventana, mira la barra de habilidades y lanza las dos. | Estallido en el clic izquierdo, Marca en el derecho y la Q vacía, como antes. Sin avisos en la consola del host. |
+| Entrar tarde | Con la partida empezada, une a otro cliente con 100 ms de latencia. | Recibe el personaje de su hueco y ve a los demás con el elemento correcto desde el principio. |
+| Volver al hueco | J2 sale y vuelve a entrar. | Vuelve a ser Marea. |
+| Datos | En `Data/Players/PlayerCharacters.asset`, pon Voltio en el hueco 0 (*By Slot*, elemento 0) y hospeda. Devuélvelo a Brasa. | El host juega Voltio, con electricidad. |
+| Mejoras de personaje | Sube hasta el nivel 12 con cada personaje. | No sale ninguna de las 6 de personaje (no tienen efecto todavía). Con la semilla `3A9F01C2`, las ofertas son las mismas que en la sección 21. |
+| Reiniciar | Pierde y reinicia. | Cada uno sigue con su personaje y su elemento. |

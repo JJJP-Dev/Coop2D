@@ -99,6 +99,10 @@ public class PlayerSpawnService : MonoBehaviour
 
         player.GetComponent<PlayerIdentity>().SetSlot(slot);
 
+        // Its character, from the slot until the lobby lets players choose (#162, #173).
+        if (player.TryGetComponent(out PlayerCharacter character))
+            character.SetFromSlot(slot);
+
         // Joining a match that is already lost: downed like the rest, until the host restarts (#52).
         MatchFlow flow = MatchFlow.Current;
         if (flow != null && flow.ShouldSpawnDowned(slot) && player.TryGetComponent(out Health health))

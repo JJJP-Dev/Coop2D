@@ -586,6 +586,7 @@ GameObject:
   - component: {fileID: 8686361786807899680}
   - component: {fileID: 6956505655605494103}
   - component: {fileID: 8225269336632064063}
+  - component: {fileID: 8437015001066074458}
   - component: {fileID: 5902089312904148016}
   - component: {fileID: 3034973482832093673}
   - component: {fileID: 8570078963972895824}
@@ -839,6 +840,22 @@ MonoBehaviour:
   _componentIndexCache: 255
   _addedNetworkObject: {fileID: 3332554340608108226}
   _networkObjectCache: {fileID: 0}
+--- !u!114 &8437015001066074458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4950291352465746428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc54f09f13754fa583d4b517b0a11baf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCharacter
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 3332554340608108226}
+  _networkObjectCache: {fileID: 0}
+  _characters: {fileID: 11400000, guid: c5691d188e0e4875a2a1ff67b8d5fbf7, type: 2}
 --- !u!114 &5902089312904148016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -903,7 +920,6 @@ MonoBehaviour:
   _componentIndexCache: 255
   _addedNetworkObject: {fileID: 3332554340608108226}
   _networkObjectCache: {fileID: 0}
-  _slotElements: {fileID: 11400000, guid: aaa0c46198d5283419f67255d0b19ea1, type: 2}
   _library: {fileID: 11400000, guid: 5fa0be1f25473d3449807b8a2f378e6f, type: 2}
 --- !u!114 &4484037113358846217
 MonoBehaviour:
@@ -920,10 +936,6 @@ MonoBehaviour:
   _componentIndexCache: 255
   _addedNetworkObject: {fileID: 3332554340608108226}
   _networkObjectCache: {fileID: 0}
-  _skills:
-  - {fileID: 11400000, guid: 5f7fcdf2db3152c4e99348e3f155108d, type: 2}
-  - {fileID: 11400000, guid: d4b84e33c2276c8469ba6b14d3b9d33f, type: 2}
-  - {fileID: 0}
   _castSettings: {fileID: 11400000, guid: 594ecbe671e2beb429becdeabc77e0ca, type: 2}
   _elements: {fileID: 11400000, guid: 5fa0be1f25473d3449807b8a2f378e6f, type: 2}
 --- !u!114 &5074802504927878542

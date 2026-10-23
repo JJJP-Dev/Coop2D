@@ -7,19 +7,19 @@ using UnityEngine.EventSystems;
 
 // The player's skills. The owner aims and casts at once, with what it sees on its screen.
 // The host checks the cast and applies its effects, and the other clients draw it.
+// Which skills: the starting ones of the player's character (#162). The character arrives with the
+// player's spawn, so every PC reads the same ones without sending them.
 [RequireComponent(typeof(PlayerElement))]
+[RequireComponent(typeof(PlayerCharacter))]
 public class PlayerSkills : NetworkBehaviour
 {
     public const int SlotCount = 3;
-
-    [Tooltip("Slot 1 (left click), slot 2 (right click) and slot 3 (Q). " +
-             "Until characters exist (#162), every player has the same ones.")]
-    [SerializeField] private SkillDefinition[] _skills = new SkillDefinition[SlotCount];
 
     [SerializeField] private SkillCastSettings _castSettings;
     [SerializeField] private ElementLibrary _elements;
 
     private PlayerElement _element;
+    private PlayerCharacter _character;
     private PlayerDowned _downed;
     private PlayerStats _stats;
     private PlayerUpgradeEvents _events;
@@ -41,6 +41,11 @@ public class PlayerSkills : NetworkBehaviour
     private void Awake()
     {
         _element = GetComponent<PlayerElement>();
+        _character = GetComponent<PlayerCharacter>();
+
+        // RequireComponent only adds it to new objects: a prefab made before #162 needs it added by hand.
+        if (_character == null)
+            Debug.LogError("[PlayerSkills] The player has no PlayerCharacter: it has no skills.", this);
 
         // Optional: without it the player can never be downed (#51).
         TryGetComponent(out _downed);
@@ -108,8 +113,13 @@ public class PlayerSkills : NetworkBehaviour
     /// </summary>
     public SkillDefinition GetSkill(AttackSlot slot)
     {
-        int index = ToIndex(slot);
-        return index >= 0 && index < _skills.Length ? _skills[index] : null;
+        return GetSkillAt(ToIndex(slot));
+    }
+
+    private SkillDefinition GetSkillAt(int index)
+    {
+        CharacterDefinition character = _character != null ? _character.Definition : null;
+        return character != null ? character.GetStartingSkill(index) : null;
     }
 
     /// <summary>
@@ -384,7 +394,7 @@ public class PlayerSkills : NetworkBehaviour
         for (int i = 0; i < SlotCount; i++)
         {
             // Only cooldowns that are running: a ready skill stays as it is.
-            SkillDefinition skill = i < _skills.Length ? _skills[i] : null;
+            SkillDefinition skill = GetSkillAt(i);
             if (skill == null || _serverReadyTimes[i] <= now)
                 continue;
 
@@ -411,7 +421,7 @@ public class PlayerSkills : NetworkBehaviour
         float minFraction = _castSettings != null ? _castSettings.MinCooldownFraction : 0.6f;
         for (int i = 0; i < SlotCount; i++)
         {
-            SkillDefinition skill = i < _skills.Length ? _skills[i] : null;
+            SkillDefinition skill = GetSkillAt(i);
             if (skill == null || _readyTimes[i] <= Time.time)
                 continue;
 
@@ -445,11 +455,5 @@ public class PlayerSkills : NetworkBehaviour
     private static int ToIndex(AttackSlot slot)
     {
         return (int)slot - (int)AttackSlot.Skill1;
-    }
-
-    private void OnValidate()
-    {
-        if (_skills.Length != SlotCount)
-            Debug.LogWarning($"[PlayerSkills] Expected {SlotCount} skill slots, found {_skills.Length}.", this);
     }
 }

@@ -3,16 +3,16 @@ using FishNet.Object.Synchronizing;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// The element this player plays. The host sets it from the player's slot.
-[RequireComponent(typeof(PlayerIdentity))]
+// The element this player plays. The host sets it from the player's character (#162).
+// F6 changes it in development builds, to test reactions without another player.
+[RequireComponent(typeof(PlayerCharacter))]
 public class PlayerElement : NetworkBehaviour
 {
-    [SerializeField] private PlayerElements _slotElements;
     [SerializeField] private ElementLibrary _library;
 
     private readonly SyncVar<ElementType> _element = new();
 
-    private PlayerIdentity _identity;
+    private PlayerCharacter _character;
     private InputService _inputService;
 
     // The last element shown to the owner, so each change is announced once.
@@ -22,20 +22,24 @@ public class PlayerElement : NetworkBehaviour
 
     private void Awake()
     {
-        _identity = GetComponent<PlayerIdentity>();
+        _character = GetComponent<PlayerCharacter>();
         _element.OnChange += OnElementChanged;
 
-        if (_slotElements == null || _library == null)
-            Debug.LogError("[PlayerElement] Slot elements or element library are not assigned.", this);
+        if (_library == null)
+            Debug.LogError("[PlayerElement] Element library is not assigned.", this);
+
+        // RequireComponent only adds it to new objects: a prefab made before #162 needs it added by hand.
+        if (_character == null)
+            Debug.LogError("[PlayerElement] The player has no PlayerCharacter: it gets no element.", this);
     }
 
     public override void OnStartServer()
     {
         base.OnStartServer();
 
-        // The slot is set before Spawn, and a value set here still travels inside the spawn message.
-        if (_slotElements != null)
-            _element.Value = _slotElements.GetElement(_identity.Slot);
+        // The character is set before Spawn, and a value set here still travels inside the spawn message.
+        CharacterDefinition character = _character != null ? _character.Definition : null;
+        _element.Value = character != null ? character.Element : ElementType.None;
     }
 
     public override void OnStartClient()
@@ -47,7 +51,7 @@ public class PlayerElement : NetworkBehaviour
 
         Announce();
 
-        // A test key for editor and development builds, until characters exist (#162).
+        // A test key for editor and development builds: the character stays, only the element changes.
         if (Debug.isDebugBuild && GameServices.Instance != null)
         {
             _inputService = GameServices.Instance.InputService;
@@ -105,15 +109,22 @@ public class PlayerElement : NetworkBehaviour
         if (_element.Value == _announced || _library == null || GameServices.Instance == null)
             return;
 
-        // Later changes come from the test key. The first one, from the slot, is written by
+        // Later changes come from the test key. The first one, from the character, is written by
         // LauncherEventReporter right after match_joined, so it falls inside the match.
-        if (_announced != ElementType.None)
+        bool first = _announced == ElementType.None;
+        if (!first)
             LauncherEvents.ElementSet(_element.Value, "debug_key");
 
         _announced = _element.Value;
 
         ElementDefinition element = _library.Get(_element.Value);
         string name = element != null ? element.DisplayName : _element.Value.ToString();
-        GameServices.Instance.ToastService.Show($"Tu elemento: {name}", ToastType.Info);
+
+        // The first toast says who you play; the ones from the test key, only the element.
+        CharacterDefinition character = _character != null ? _character.Definition : null;
+        string text = first && character != null
+            ? $"Juegas con {character.DisplayName} · {name}"
+            : $"Tu elemento: {name}";
+        GameServices.Instance.ToastService.Show(text, ToastType.Info);
     }
 }

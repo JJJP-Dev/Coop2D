@@ -378,12 +378,18 @@ public class OfferGenerator
     }
 
     // The filters of C.1: requirements, exclusions, appearIf, stacks, banishes, upgrades only one player
-    // can have and at most one risk upgrade per offer. options is null when checking one on its own.
+    // can have and at most one risk upgrade per offer, and none without effects. options is null when
+    // checking one on its own.
     // Not yet: the cap of each stat (#157) and «what you can't use», which comes with the reaction
     // upgrades (#89).
     private bool IsOfferable(OfferContext context, UpgradeDefinition upgrade, List<OfferOption> options)
     {
         if (upgrade == null || string.IsNullOrEmpty(upgrade.Id) || upgrade == _pool.Fallback)
+            return false;
+
+        // An upgrade with no effect blocks would do nothing if taken (#162): the character ones wait
+        // for their blocks. It's checked before any draw, so a seed offers what it did before.
+        if (upgrade.Effects == null || upgrade.Effects.Count == 0)
             return false;
 
         IUpgradeHolder holder = context.Holder;

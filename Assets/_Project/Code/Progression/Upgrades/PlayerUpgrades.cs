@@ -54,6 +54,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
 
     private PlayerIdentity _identity;
     private PlayerElement _element;
+    private PlayerCharacter _character;
     private PlayerSkills _skills;
     private PlayerStats _stats;
     private Health _health;
@@ -124,6 +125,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
 
         // Optional, so a test player without them still works: it just meets fewer requirements.
         TryGetComponent(out _element);
+        TryGetComponent(out _character);
         TryGetComponent(out _skills);
         TryGetComponent(out _stats);
         TryGetComponent(out _health);
@@ -603,8 +605,8 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
 
     /// <summary>
     /// Server only. Whether this player meets one requirement of an upgrade, written as in the catalog:
-    /// kind:value, or the id of another upgrade they must have. Characters arrive with #162, so for now
-    /// char: never holds, and the skills are the test ones, so skill: only holds for those.
+    /// kind:value, or the id of another upgrade they must have. char: is the player's character (#162);
+    /// the skills are still the test ones until the kits arrive, so skill: only holds for those.
     /// </summary>
     public bool MeetsRequirement(string requirement)
     {
@@ -624,13 +626,13 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
                 return value == "projectile" && _hasProjectileBasic;
 
             case "char":
-                return false;
+                return _character != null && _character.Id == value;
 
             case "skill":
                 return HasSkill(value);
 
-            // Until characters exist, the basic attack and the skills that take the caster's element
-            // all use the player's element.
+            // The basic attack and the skills that take the caster's element all use the player's
+            // element: the character's, or the one F6 set.
             case "element":
             case "basicElement":
                 return TryParseElement(value, out ElementType element) && PlayerElementIs(element);

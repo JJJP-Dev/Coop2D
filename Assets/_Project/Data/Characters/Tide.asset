@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 853a50b4f749480dae6af02a949a6205, type: 3}
+  m_Name: Tide
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
+  _id: tide
+  _displayName: Marea
+  _element: 2
+  _startingSkills:
+  - {fileID: 11400000, guid: 5f7fcdf2db3152c4e99348e3f155108d, type: 2}
+  - {fileID: 11400000, guid: d4b84e33c2276c8469ba6b14d3b9d33f, type: 2}
+  - {fileID: 0}

@@ -176,22 +176,25 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 
 ### 4.3 Jugadores
 
-**Qué hace.** Cada conexión recibe un personaje con un hueco (J1-J4), un color, un elemento, y lo mueve su dueño.
+**Qué hace.** Cada conexión recibe un jugador con un hueco (J1-J4), un color y un **personaje** (Brasa, Marea o Voltio), que decide su elemento y sus habilidades. Lo mueve su dueño.
 
 **Piezas.**
 - `Code/Player/Spawning/PlayerSpawnService.cs` y `PlayerSpawnPoints.cs`: crear el jugador y dónde.
 - `Code/Player/Identity/`: `PlayerIdentity` (el hueco, 0-3), `PlayerSlots` (reparte huecos libres), `PlayerRegistry`, `LocalPlayerService`, `PlayerColorMarker` + `PlayerColors` (el color del hueco).
 - `Code/Player/Input/PlayerInputReader.cs`: lee el movimiento, solo en el PC dueño.
 - `Code/Player/Movement/PlayerMovement.cs` + `PlayerMovementSettings`: mover el cuerpo.
-- `Code/Player/Elements/PlayerElement.cs` + `PlayerElements`: el elemento del jugador.
+- `Code/Player/Characters/`: `CharacterDefinition` (la ficha de un personaje: id, nombre, elemento y habilidades de inicio), `PlayerCharacters` (todos los personajes y el de cada hueco) y `PlayerCharacter` (en el jugador: cuál juega).
+- `Code/Player/Elements/PlayerElement.cs`: el elemento del jugador, que sale de su personaje.
 
-**Dónde está montado.** `Prefabs/Player/Player.prefab` (capa Player). Lleva: NetworkObject, NetworkTransform, PlayerInputReader, PlayerMovement, PlayerIdentity, PlayerColorMarker, Health, PlayerAutoAttack, PlayerElement, PlayerSkills, HitFlash, PlayerDowned, PlayerDownedView, PlayerRevive, PlayerUpgrades, PlayerChoosingView, PlayerStats y PlayerUpgradeEvents. Hijos: `Visual` (sprite), `SlotMarker` (punto de color), `HealthLabel`, `DownedLabel` y `ChoosingLabel`.
+**Dónde está montado.** `Prefabs/Player/Player.prefab` (capa Player). Lleva: NetworkObject, NetworkTransform, PlayerInputReader, PlayerMovement, PlayerIdentity, PlayerCharacter, PlayerColorMarker, Health, PlayerAutoAttack, PlayerElement, PlayerSkills, HitFlash, PlayerDowned, PlayerDownedView, PlayerRevive, PlayerUpgrades, PlayerChoosingView, PlayerStats y PlayerUpgradeEvents. Hijos: `Visual` (sprite), `SlotMarker` (punto de color), `HealthLabel`, `DownedLabel` y `ChoosingLabel`.
 
 **Cómo funciona.**
 1. Cuando una conexión ha cargado la escena, `PlayerSpawnService` le da el primer hueco libre, crea el jugador en su punto de aparición y le pone el hueco **antes de crearlo en la red** (así el hueco llega a todos con el jugador).
 2. El jugador es el **primer objeto** de su conexión (`connection.FirstObject`): muchos sistemas del host buscan a los jugadores así.
 3. Su dueño lo mueve en su propio PC (sin esperar al host) y `NetworkTransform` copia la posición a los demás. Es «autoritativo del cliente»: por eso, para teletransportarlo, el host le pide al dueño que lo haga (`PlayerMovement.PlaceAt`).
-4. El elemento sale del hueco: J1 fuego, J2 agua, J3 electricidad, J4 fuego (`Data/Players/PlayerElements.asset`), hasta que haya personajes.
+4. **El personaje** sale del hueco hasta que haya sala de espera para elegirlo (#173): J1 Brasa, J2 Marea, J3 Voltio, J4 Brasa (`Data/Players/PlayerCharacters.asset`). `PlayerSpawnService` lo pone junto al hueco, **antes de crear el jugador en la red**, así que llega a todos con el jugador. Solo viaja su id (`ember`); cada PC busca la ficha en el mismo asset.
+5. **El elemento** sale del personaje: Brasa fuego, Marea agua, Voltio electricidad. F6 lo cambia en desarrollo (el personaje no cambia).
+6. **Las habilidades** son las de inicio del personaje (4.6).
 
 **Qué ajustar.**
 
@@ -199,9 +202,12 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 |---|---|---|
 | Velocidad, aceleración, frenada | `Data/Characters/DefaultPlayerMovement.asset` | 5 · 50 · 60 |
 | Color de cada hueco | `Data/Players/PlayerColors.asset` | rojo, azul, verde, amarillo |
-| Elemento de cada hueco | `Data/Players/PlayerElements.asset` | fuego, agua, electricidad, fuego |
+| Personaje de cada hueco, y la lista de personajes | `Data/Players/PlayerCharacters.asset` | Brasa, Marea, Voltio, Brasa |
+| Nombre, elemento y habilidades de inicio de cada personaje | `Data/Characters/Ember.asset`, `Tide.asset`, `Volt.asset` | Brasa fuego, Marea agua, Voltio electricidad; todos con Estallido y Marca hasta que lleguen sus kits |
 
 **Cuidado con.** Máximo 4 jugadores (`PlayerSlots.MaxPlayers`); el quinto se desconecta. Los puntos de aparición están en `PlayerSpawnPoints` de cada escena: sin ellos, todos aparecen en el origen.
+- **Un personaje que no está en la lista *Characters* de `PlayerCharacters` no se puede jugar**: los demás PCs reciben su id y no encontrarían su ficha. El asset avisa en consola si das a un hueco uno que no está.
+- El id del personaje (`ember`, `tide`, `volt`) lo usan los requisitos de las mejoras (`char:ember`) y el launcher: no lo cambies.
 
 ### 4.4 Vida, daño y eventos de combate
 
@@ -273,7 +279,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 
 **Qué ajustar.** Cada habilidad es un asset en `Data/Skills/` (`TestBurst.asset`, `TestMark.asset`): id, nombre, icono, si usa el elemento de quien la lanza, si detona, fuerza del aura, recarga (7 s), alcance (7), daño (16 / 10), radio (1,5 / 2) y el dibujo. Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objetivos), con el suelo de la recarga devuelta (*Min Cooldown Fraction*, 0,6) y la edad máxima del tick de un lanzamiento (*Max Cast Tick Age*, 0,5 s).
 
-**Cuidado con.** El id de la habilidad (`burst`, `mark`) lo usa el launcher (`ability_cast`): no lo cambies una vez publicada una build. Las habilidades que reciben los jugadores se asignan en el componente `PlayerSkills` del prefab Player (todas iguales hasta que haya personajes).
+**Cuidado con.** El id de la habilidad (`burst`, `mark`) lo usa el launcher (`ability_cast`): no lo cambies una vez publicada una build. Las habilidades de cada jugador son las *Starting Skills* de la ficha de su personaje (`Data/Characters/`). Hasta que lleguen los kits (#162), los tres tienen Estallido y Marca. Como el personaje llega con el jugador, cada PC sabe sus habilidades sin que se manden.
 
 ### 4.7 Elementos y auras
 
@@ -467,10 +473,10 @@ Interfaz: `Code/UI/InGame/UpgradeOfferPanel.cs` y `UpgradeOfferRow.cs`. Datos: `
 - Las reglas, en `DefaultOffers.asset`: opciones por oferta, tabla de rarezas, suerte, familia propia, peso de lo visto, niveles de garantía, nivel de riesgo y dúo, rerolls (tope 2, +1 a los 240 y 480 s), tercios por saltar y por Respiro, descartes e invulnerabilidad al elegir (1 s, como mucho cada 10 s).
 
 **Cuidado con.**
-- **Lo que hace cada mejora** está en su lista de bloques de efecto (ver 4.21). Una mejora sin bloques se puede elegir pero no hace nada: así siguen las de personaje hasta que haya personajes.
+- **Lo que hace cada mejora** está en su lista de bloques de efecto (ver 4.21). **Una mejora sin bloques no sale en las ofertas**: no haría nada. Así están las 6 de personaje hasta que lleguen sus bloques con el #162. El filtro mira solo la ficha, antes de cualquier tirada, así que no cambia lo que da una semilla.
 - **Los ids de las mejoras viajan por la red y los usa el launcher**: no los cambies.
 - **El orden de la lista del pool** es el orden en que el generador las recorre: cambiarlo cambia lo que da cada semilla (las partidas nuevas no se rompen, pero una semilla apuntada ya no dará lo mismo).
-- Requisitos escritos como en el catálogo (`basic:projectile`, `char:ember`, `skill:tide_wave`, `element:fire`…). Un tipo que el juego aún no conoce **nunca se cumple** (aviso en consola): es lo seguro.
+- Requisitos escritos como en el catálogo (`basic:projectile`, `char:ember`, `skill:tide_wave`, `element:fire`…). `char:` se cumple con el personaje del jugador (4.3). Un tipo que el juego aún no conoce **nunca se cumple** (aviso en consola): es lo seguro.
 - Los pesos se pasan a enteros (×100) a propósito: con floats, dos PCs podrían redondear distinto y la semilla dejaría de repetir.
 
 ### 4.16 Interfaz
@@ -720,13 +726,6 @@ Método en `LauncherEvents` (con `///` que diga los valores), llamada desde dond
 4. Pruébalo en la ficha de una mejora: el botón del Inspector ya lo enseña.
 5. Si es una acción que el dueño debería notar al instante cuando él mismo provoca el evento, sobrescribe también `Predict` (mira `TimedStatAction`) y asegúrate de que el host la reemplaza al llegar.
 
-### 5.14 Un evento nuevo para las mejoras
-
-1. Un valor **al final** de `EffectEvent`.
-2. Donde pasa (en el host), una llamada a `PlayerUpgradeEvents` del jugador con un `EffectEventInfo` y el tick: copia `RaiseSkillCast` o `OnReactionResolved`.
-3. Si necesita filtros propios, añádelos a `OnEventBlock` y a su `Accepts`.
-4. Si el dueño lo provoca y quieres que lo note al instante, una versión `Predict…` como `PredictSkillCast`.
-
 ### 5.13 Una estadística nueva
 
 1. Un valor nuevo **al final** de `StatId`.
@@ -734,13 +733,27 @@ Método en `LauncherEvents` (con `///` que diga los valores), llamada desde dond
 3. Si tiene tope en el catálogo, su fila en `DefaultPlayerStats.asset`.
 4. Si la tienen que ver los demás jugadores (como la vida máxima), hace falta sincronizarla aparte.
 
+### 5.14 Un evento nuevo para las mejoras
+
+1. Un valor **al final** de `EffectEvent`.
+2. Donde pasa (en el host), una llamada a `PlayerUpgradeEvents` del jugador con un `EffectEventInfo` y el tick: copia `RaiseSkillCast` o `OnReactionResolved`.
+3. Si necesita filtros propios, añádelos a `OnEventBlock` y a su `Accepts`.
+4. Si el dueño lo provoca y quieres que lo note al instante, una versión `Predict…` como `PredictSkillCast`.
+
+### 5.15 Un personaje nuevo
+
+1. *Create › Coop2D › Player › Character Definition* en `Data/Characters/`, con un **id nuevo en snake_case** (el del catálogo: `blade` para Filo), su nombre, su elemento y sus habilidades de inicio.
+2. Añádelo a la lista *Characters* de `Data/Players/PlayerCharacters.asset`. Para probarlo, ponlo en un hueco de *By Slot*.
+3. Sus mejoras propias llevan su id en *Character* y `char:<id>` en *Requires*.
+4. Añade su id a la tabla `character` de launcher-events.md.
+
 ## 6. Quitar, mover y optimizar sin romper nada
 
 **Cosas que no se pueden cambiar a la ligera** (rompen partidas guardadas, el launcher o las semillas):
 
 | Qué | Por qué |
 |---|---|
-| Ids de enemigos, habilidades, reacciones, mejoras, trucos | Los usa el launcher y, en las mejoras, viajan por la red |
+| Ids de personajes, enemigos, habilidades, reacciones, mejoras, trucos | Los usa el launcher y, en los personajes y las mejoras, viajan por la red y los piden los requisitos |
 | Números de los enums que guardan los assets o viajan (`ElementType`, `UpgradeRarity`, `MatchPhase`…) | Añade siempre al final; cambiar el orden cambia lo que significa cada asset |
 | Números de `RandomStream` y el orden de la lista del pool de mejoras | Cambian lo que da cada semilla |
 | Nombres de campos `[SerializeField]` | Unity pierde el valor guardado. Si renombras, añade `[FormerlySerializedAs("_nombreViejo")]` |
