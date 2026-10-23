@@ -3429,7 +3429,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f22db8b9ec1d514c938aeb05b297272, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelCanvasScaler
-  _fallbackReferenceResolution: {x: 480, y: 270}
+  _fallbackReferenceResolution: {x: 640, y: 360}
 --- !u!1 &669765394
 GameObject:
   m_ObjectHideFlags: 0
@@ -4855,7 +4855,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 8.4375
+  orthographic size: 10.28125
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -4976,9 +4976,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.PixelPerfectCamera
   m_ComponentVersion: 1
   m_AssetsPPU: 16
-  m_RefResolutionX: 480
-  m_RefResolutionY: 270
-  m_CropFrame: 0
+  m_RefResolutionX: 640
+  m_RefResolutionY: 360
+  m_CropFrame: 3
   m_GridSnapping: 0
   m_FilterMode: 0
   m_UpscaleRT: 0

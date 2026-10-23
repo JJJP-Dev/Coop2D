@@ -12,7 +12,7 @@ using UnityEngine.UI;
 public class PixelCanvasScaler : MonoBehaviour
 {
     [Tooltip("Only for scenes without a Pixel Perfect Camera on the main camera. Keep it equal to the camera's.")]
-    [SerializeField] private Vector2Int _fallbackReferenceResolution = new(480, 270);
+    [SerializeField] private Vector2Int _fallbackReferenceResolution = new(640, 360);
 
     private Canvas _canvas;
     private CanvasScaler _scaler;

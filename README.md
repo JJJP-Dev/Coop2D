@@ -68,7 +68,9 @@ Assets/
 ### Arte
 
 - Los archivos siguen el formato `type_name_variant`, en minúsculas: `chr_mage_idle.aseprite`, `enm_slime_walk.aseprite`, `ico_fire.aseprite`, `tile_floor_stone.aseprite`.
-- Tiles de 16×16. Personajes de 16×16 o 16×24. Jefes de 32×32 o 48×48.
+- **Resolución base 640×360** con recorte (#42, 22 oct 2026): escala entera exacta a 1080p (×3), 1440p (×4) y 4K (×6), y todos ven lo mismo, con bandas negras donde no cabe. La ventana por defecto es de 1280×720.
+- **Todo a 16 PPU sobre una rejilla de 16.** Los tiles miden 16×16; lo que se mueve por el mundo se dibuja **1,5 veces más grande** para que se lea bien a 640×360: personajes de 24×36 (antes 16×24), enemigos normales de 24×24, jefes de 48×48 o 72×72, proyectiles, orbes e iconos de aura de 12×12. Se dibujan a ese tamaño, nunca escalando el objeto en Unity: un objeto escalado ×1,5 tiene píxeles desiguales.
+- La interfaz sigue en su tamaño: iconos de 16×16 y la fuente de 5×7.
 - Los desplazamientos de hijos con sprite van en múltiplos de 0.0625 (1 píxel a 16 PPU); otros valores hacen vibrar el sprite con la Pixel Perfect Camera.
 - Solo colores de la paleta común, guardada en `Art/Palette`.
 - Se dibuja a tamaño real y sin antialiasing. Mismo tamaño de lienzo en todas las animaciones de un personaje, con el pivot en los pies.

@@ -2690,7 +2690,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f22db8b9ec1d514c938aeb05b297272, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelCanvasScaler
-  _fallbackReferenceResolution: {x: 480, y: 270}
+  _fallbackReferenceResolution: {x: 640, y: 360}
 --- !u!1 &697138331
 GameObject:
   m_ObjectHideFlags: 0
@@ -3897,9 +3897,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.PixelPerfectCamera
   m_ComponentVersion: 1
   m_AssetsPPU: 16
-  m_RefResolutionX: 480
-  m_RefResolutionY: 270
-  m_CropFrame: 0
+  m_RefResolutionX: 640
+  m_RefResolutionY: 360
+  m_CropFrame: 3
   m_GridSnapping: 0
   m_FilterMode: 0
   m_UpscaleRT: 0
@@ -6951,7 +6951,9 @@ MonoBehaviour:
   _invulnerableButton: {fileID: 1673692305}
   _damageAllButton: {fileID: 1954781134}
   _healAllButton: {fileID: 106108672}
+  _giveXpButton: {fileID: 0}
   _seedLabel: {fileID: 1665309551}
+  _reviveLabel: {fileID: 0}
 --- !u!1 &1989316805
 GameObject:
   m_ObjectHideFlags: 0

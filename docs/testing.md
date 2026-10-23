@@ -5,6 +5,7 @@ Pruebas que repetimos antes de cada pull request que toque la red, los jugadores
 ## Preparación
 
 - **En el editor:** abre **solo** `Bootstrap` y pulsa Play, para arrancar igual que la build. Para varios jugadores, activa los Players 2-4 en *Window > Multiplayer > Multiplayer Play Mode*.
+- **Vista Game:** la resolución base es 640×360 con recorte (#42). Pon la vista *Game* en 1920×1080 o 1280×720: con *Free Aspect* verás bandas negras si no es múltiplo exacto.
 - **Con la build:** abre dos copias. Una hospeda y la otra se une a `127.0.0.1`.
 - **Consola:** en el editor, la pestaña *Console*. En la build, la tecla `º` (a la izquierda del 1) abre la consola del juego.
 - **Con latencia:** en `Bootstrap`, en el *TransportManager* del NetworkManager, activa *Latency Simulator* con *Latency* 100. Da unos 200 ms de ida y vuelta, que se ven con F3. Desactívalo antes del commit.
