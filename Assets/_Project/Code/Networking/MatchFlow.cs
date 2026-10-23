@@ -121,6 +121,15 @@ public class MatchFlow : NetworkBehaviour
     }
 
     /// <summary>
+    /// Server only. Whether the player joining in this slot should arrive downed: in a match that is
+    /// over, a new player standing up would be chased by the enemies under the game over panel (#52).
+    /// </summary>
+    public bool ShouldSpawnDowned(int slot)
+    {
+        return IsServerInitialized && _phase.Value == MatchPhase.Over;
+    }
+
+    /// <summary>
     /// Server only. Starts the match again for everyone, with a new seed. Only once it's over.
     /// </summary>
     public void RestartMatch()

@@ -114,6 +114,22 @@ public class Health : NetworkBehaviour
     }
 
     /// <summary>
+    /// Server only, before Spawn. It appears at 0 health: a player who joins a match that is already
+    /// over arrives downed, like everyone else (#52). Set before spawning, so the 0 travels with the spawn
+    /// and nobody sees it fall.
+    /// </summary>
+    public void SpawnDowned()
+    {
+        if (IsSpawned)
+        {
+            Debug.LogWarning("[Health] SpawnDowned only works before the object is spawned.", this);
+            return;
+        }
+
+        _current.Value = 0;
+    }
+
+    /// <summary>
     /// Server only. Gets a downed player up (#51) with this much health, and ignores hits for a few
     /// seconds so the enemies around it can't drop it again at once. Does nothing unless it's at 0.
     /// </summary>

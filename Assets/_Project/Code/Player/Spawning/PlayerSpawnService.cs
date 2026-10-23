@@ -98,6 +98,12 @@ public class PlayerSpawnService : MonoBehaviour
         }
 
         player.GetComponent<PlayerIdentity>().SetSlot(slot);
+
+        // Joining a match that is already lost: downed like the rest, until the host restarts (#52).
+        MatchFlow flow = MatchFlow.Current;
+        if (flow != null && flow.ShouldSpawnDowned(slot) && player.TryGetComponent(out Health health))
+            health.SpawnDowned();
+
         _networkManager.ServerManager.Spawn(player, conn, scene);
     }
 
