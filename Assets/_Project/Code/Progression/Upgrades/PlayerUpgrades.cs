@@ -9,7 +9,7 @@ using UnityEngine;
 // travel to every client, because the group's HUD will show them; the rest is the host's alone.
 // On the player prefab, next to PlayerSkills.
 [RequireComponent(typeof(PlayerIdentity))]
-public class PlayerUpgrades : NetworkBehaviour
+public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
 {
     // Upgrade id and how many times this player took it. Ids and not indexes: they read the same in
     // a log, and a new upgrade in the pool can't shift the others.
@@ -26,6 +26,7 @@ public class PlayerUpgrades : NetworkBehaviour
     private int _spentThirds;
     private readonly HashSet<string> _banished = new();
     private readonly HashSet<string> _seen = new();
+    private int _offersWithoutDuo;
 
     private PlayerIdentity _identity;
     private PlayerElement _element;
@@ -48,6 +49,16 @@ public class PlayerUpgrades : NetworkBehaviour
     public int RerollThirdsOver => _rerollThirds.Value % 3;
 
     public int BanishesLeft => _banishesLeft.Value;
+
+    /// <summary>
+    /// rarity_luck, which moves weight from common to rare and epic. 0 until player stats exist (#157).
+    /// </summary>
+    public int Luck => 0;
+
+    /// <summary>
+    /// Server only. Offers in a row that could have had a duo and didn't (catalog C.4).
+    /// </summary>
+    public int OffersWithoutDuo => _offersWithoutDuo;
 
     /// <summary>
     /// Every client, host included. The upgrades this player has, by id, and how many times.
@@ -88,6 +99,7 @@ public class PlayerUpgrades : NetworkBehaviour
         _stacks.Clear();
         _banished.Clear();
         _seen.Clear();
+        _offersWithoutDuo = 0;
         _earnedThirds = 0;
         _spentThirds = 0;
         _rerollThirds.Value = 0;
@@ -177,6 +189,18 @@ public class PlayerUpgrades : NetworkBehaviour
             if (!string.IsNullOrEmpty(id))
                 _seen.Add(id);
         }
+    }
+
+    /// <summary>
+    /// Server only. Counts an offer for the duo guarantee: after a few in a row that could have had a duo
+    /// and didn't, the next one brings one.
+    /// </summary>
+    public void CountOffer(bool couldHaveDuo, bool hadDuo)
+    {
+        if (hadDuo)
+            _offersWithoutDuo = 0;
+        else if (couldHaveDuo)
+            _offersWithoutDuo++;
     }
 
     /// <summary>
