@@ -11,6 +11,8 @@ using UnityEngine.EventSystems;
 // player's spawn, so every PC reads the same ones without sending them.
 // Where they hit: a circle, a line or a cone (SkillArea). The owner sends where it stood and where it
 // aimed, and the host rebuilds the same area from those two points to check the targets.
+// Projectiles (#162) work like the basic attack: the owner flies its own and reports what it hits or
+// where it bursts; the host remembers each accepted launch (SkillShotRecord) to check those reports.
 [RequireComponent(typeof(PlayerElement))]
 [RequireComponent(typeof(PlayerCharacter))]
 public class PlayerSkills : NetworkBehaviour
@@ -22,6 +24,10 @@ public class PlayerSkills : NetworkBehaviour
 
     // A circle's aim point is clamped to its range on the owner; this only absorbs rounding.
     private const float AimSlack = 0.05f;
+
+    // Extra seconds a projectile waits for its reports after it could have landed. The reports travel
+    // with the same delay as the launch, so this only covers jitter and frozen frames (as PlayerAutoAttack).
+    private const double ReportGrace = 1.0;
 
     [SerializeField] private SkillCastSettings _castSettings;
     [SerializeField] private ElementLibrary _elements;
@@ -45,6 +51,11 @@ public class PlayerSkills : NetworkBehaviour
     private readonly double[] _serverCastTimes = new double[SlotCount];
     private readonly HashSet<Health> _appliedTargets = new();
     private readonly List<Collider2D> _ringCandidates = new();
+    private readonly Dictionary<ushort, SkillShotRecord> _pendingShots = new();
+    private readonly List<ushort> _expiredShotIds = new();
+
+    // Owner side: the id of the next projectile, so its reports name it.
+    private ushort _nextCastId;
 
     private void Awake()
     {
@@ -80,6 +91,7 @@ public class PlayerSkills : NetworkBehaviour
         // Pooled players come back with the cooldowns of their previous life.
         Array.Clear(_serverReadyTimes, 0, _serverReadyTimes.Length);
         Array.Clear(_serverCastTimes, 0, _serverCastTimes.Length);
+        _pendingShots.Clear();
     }
 
     public override void OnStartClient()
@@ -166,22 +178,29 @@ public class PlayerSkills : NetworkBehaviour
         _readyTimes[index] = Time.time + skill.Cooldown;
         LauncherEvents.AbilityCast(skill.Id, skill.GetElement(_element.Current));
 
-        SkillArea area = SkillArea.For(skill, origin, point);
-        FindTargets(area);
-        ShowCast(skill, area);
-
         // The tick goes with the cast, so a timed effect it gives (Tempo) starts and ends on the same
         // tick on the host and here (#157).
         uint tick = TimeManager.Tick;
 
-        // The host's own player runs the server's checks right here.
-        if (IsServerInitialized)
+        if (skill.IsProjectile)
         {
-            CastOnServer(slot, origin, point, _targets, tick);
-            return;
+            LaunchOwn(slot, skill, origin, point, tick);
+        }
+        else
+        {
+            SkillArea area = SkillArea.For(skill, origin, point);
+            FindTargets(area);
+            ShowCast(skill, area);
+
+            // The host's own player runs the server's checks right here.
+            if (IsServerInitialized)
+                CastOnServer(slot, origin, point, _targets, tick);
+            else
+                ServerCast(slot, origin, point, _targets, tick);
         }
 
-        ServerCast(slot, origin, point, _targets, tick);
+        if (IsServerInitialized)
+            return;
 
         // Lo tuyo, al instante: the owner shows the effects of its own cast without waiting (#157).
         if (_events != null)
@@ -249,49 +268,8 @@ public class PlayerSkills : NetworkBehaviour
 
     private void CastOnServer(AttackSlot slot, Vector2 origin, Vector2 point, List<Health> targets, uint tick)
     {
-        SkillDefinition skill = GetSkill(slot);
-        int index = ToIndex(slot);
-
-        if (skill == null || _castSettings == null)
-        {
-            Debug.LogWarning($"[PlayerSkills] Rejected a cast from client {OwnerId}: slot {slot} has no skill.", this);
+        if (!TryAcceptCast(slot, origin, point, false, out SkillDefinition skill))
             return;
-        }
-
-        // A cast sent just before the player went down still arrives. It's honest, so there's no warning,
-        // but the host has the last word on who is downed (#51).
-        if (_downed != null && _downed.IsDowned)
-            return;
-
-        // The host sees this player slightly in the past, so where it says it stood gets some slack.
-        float offset = Vector2.Distance(transform.position, origin);
-        if (offset > _castSettings.PositionTolerance)
-        {
-            Debug.LogWarning($"[PlayerSkills] Rejected {skill.Id} from client {OwnerId}: cast from {offset:0.00} units away from where the host sees it.", this);
-            return;
-        }
-
-        // The owner clamps a circle to its range and puts lines and cones at full length, so the aim point
-        // has to agree with that, from the origin it sent (#162).
-        float distance = Vector2.Distance(origin, point);
-        bool aimFits = skill.IsAimedByDirection
-            ? distance >= MinAimDistance
-            : distance <= skill.CastRange + AimSlack;
-        if (!aimFits)
-        {
-            Debug.LogWarning($"[PlayerSkills] Rejected {skill.Id} from client {OwnerId}: aimed {distance:0.00} units away, which its shape doesn't allow.", this);
-            return;
-        }
-
-        double now = Time.realtimeSinceStartupAsDouble;
-        if (now < _serverReadyTimes[index] - _castSettings.CooldownGrace)
-        {
-            Debug.LogWarning($"[PlayerSkills] Rejected {skill.Id} from client {OwnerId}: cast before its cooldown ended.", this);
-            return;
-        }
-
-        _serverCastTimes[index] = now;
-        _serverReadyTimes[index] = now + skill.Cooldown;
 
         SkillArea area = SkillArea.For(skill, origin, point);
         ApplyToTargets(skill, slot, area, targets);
@@ -306,6 +284,56 @@ public class PlayerSkills : NetworkBehaviour
             ShowCast(skill, area);
 
         ObserversCast(slot, origin, point);
+    }
+
+    // The checks every cast goes through on the host, and its cooldown. False, with a warning when it
+    // isn't honest, if the cast doesn't count.
+    private bool TryAcceptCast(AttackSlot slot, Vector2 origin, Vector2 point, bool projectile, out SkillDefinition skill)
+    {
+        skill = GetSkill(slot);
+        int index = ToIndex(slot);
+
+        if (skill == null || _castSettings == null || skill.IsProjectile != projectile)
+        {
+            Debug.LogWarning($"[PlayerSkills] Rejected a cast from client {OwnerId}: slot {slot} has no skill of that kind.", this);
+            return false;
+        }
+
+        // A cast sent just before the player went down still arrives. It's honest, so there's no warning,
+        // but the host has the last word on who is downed (#51).
+        if (_downed != null && _downed.IsDowned)
+            return false;
+
+        // The host sees this player slightly in the past, so where it says it stood gets some slack.
+        float offset = Vector2.Distance(transform.position, origin);
+        if (offset > _castSettings.PositionTolerance)
+        {
+            Debug.LogWarning($"[PlayerSkills] Rejected {skill.Id} from client {OwnerId}: cast from {offset:0.00} units away from where the host sees it.", this);
+            return false;
+        }
+
+        // The owner clamps a circle to its range and puts lines and cones at full length, so the aim point
+        // has to agree with that, from the origin it sent (#162).
+        float distance = Vector2.Distance(origin, point);
+        bool aimFits = skill.IsAimedByDirection
+            ? distance >= MinAimDistance
+            : distance <= skill.CastRange + AimSlack;
+        if (!aimFits)
+        {
+            Debug.LogWarning($"[PlayerSkills] Rejected {skill.Id} from client {OwnerId}: aimed {distance:0.00} units away, which its shape doesn't allow.", this);
+            return false;
+        }
+
+        double now = Time.realtimeSinceStartupAsDouble;
+        if (now < _serverReadyTimes[index] - _castSettings.CooldownGrace)
+        {
+            Debug.LogWarning($"[PlayerSkills] Rejected {skill.Id} from client {OwnerId}: cast before its cooldown ended.", this);
+            return false;
+        }
+
+        _serverCastTimes[index] = now;
+        _serverReadyTimes[index] = now + skill.Cooldown;
+        return true;
     }
 
     private void ApplyToTargets(SkillDefinition skill, AttackSlot slot, SkillArea area, List<Health> targets)
@@ -330,12 +358,8 @@ public class PlayerSkills : NetworkBehaviour
             if (target == null || target.IsDead || !_appliedTargets.Add(target))
                 continue;
 
-            // Only enemies, so a wrong list can never hurt a teammate.
-            if (!target.TryGetComponent(out Collider2D body) || (_castSettings.TargetLayers.value & (1 << body.gameObject.layer)) == 0)
-            {
-                Debug.LogWarning($"[PlayerSkills] Rejected a target from client {OwnerId}: {target.name} has no collider on the target layers.", this);
+            if (!TryGetEnemyBody(target, out Collider2D body))
                 continue;
-            }
 
             // Measured to the edge of the body, so its size barely matters. The enemy kept moving while the
             // cast was on its way, so it may be a little outside by now.
@@ -346,23 +370,28 @@ public class PlayerSkills : NetworkBehaviour
                 continue;
             }
 
-            // Read before the aura goes on: a detonation consumes it, and Cazador de auras still counts
-            // (catalog engine rule 10).
-            bool hasAura = target.TryGetComponent(out AuraHolder aura) && aura.HasAura;
-
-            // The aura goes before the damage, so a killing blow still detonates.
-            if (aura != null)
-                aura.TryApply(element, skill.AuraStrength, NetworkObject, slot, skill.CanDetonate);
-
             applied++;
-
-            // The reaction it just detonated may have killed it, and a dead enemy is already despawned.
-            if (!target.IsDead)
-                target.TryTakeDamage(GetDamage(skill, hasAura), NetworkObject, DamageKind.Skill, element);
-
-            if (!target.IsDead)
-                Push(skill, area, target);
+            HitTarget(skill, slot, area, target, element);
         }
+    }
+
+    // What a skill does to one enemy it hits, once the host has checked it: aura, damage and push.
+    private void HitTarget(SkillDefinition skill, AttackSlot slot, SkillArea area, Health target, ElementType element)
+    {
+        // Read before the aura goes on: a detonation consumes it, and Cazador de auras still counts
+        // (catalog engine rule 10).
+        bool hasAura = target.TryGetComponent(out AuraHolder aura) && aura.HasAura;
+
+        // The aura goes before the damage, so a killing blow still detonates.
+        if (aura != null)
+            aura.TryApply(element, skill.AuraStrength, NetworkObject, slot, skill.CanDetonate);
+
+        // The reaction it just detonated may have killed it, and a dead enemy is already despawned.
+        if (!target.IsDead)
+            target.TryTakeDamage(GetDamage(skill, hasAura), NetworkObject, DamageKind.Skill, element);
+
+        if (!target.IsDead)
+            Push(skill, area, target);
     }
 
     // Ola (#162): straight away from where the caster stood. Only enemies with EnemyStatus can be moved,
@@ -377,6 +406,16 @@ public class PlayerSkills : NetworkBehaviour
             away = area.Direction;
 
         status.ApplyPush(away, skill.Knockback, skill.KnockbackDuration);
+    }
+
+    // Only enemies, so a wrong report can never hurt a teammate.
+    private bool TryGetEnemyBody(Health target, out Collider2D body)
+    {
+        if (target.TryGetComponent(out body) && (_castSettings.TargetLayers.value & (1 << body.gameObject.layer)) != 0)
+            return true;
+
+        Debug.LogWarning($"[PlayerSkills] Rejected a target from client {OwnerId}: {target.name} has no collider on the target layers.", this);
+        return false;
     }
 
     // The skill's damage with the player's upgrades (#161). Conditional bonuses need to know the target.
@@ -425,6 +464,255 @@ public class PlayerSkills : NetworkBehaviour
 
             marked++;
         }
+    }
+
+    // --- Projectiles (#162) ---
+
+    // Owner side: our own projectile flies at once, and the host hears of the launch first. Its hits (Rayo)
+    // or its burst (Llamarada, Burbuja) are reported as they happen, on the same reliable channel, so the
+    // host always knows the launch before any report.
+    private void LaunchOwn(AttackSlot slot, SkillDefinition skill, Vector2 origin, Vector2 point, uint tick)
+    {
+        ushort castId = _nextCastId;
+        _nextCastId = unchecked((ushort)(_nextCastId + 1));
+
+        if (IsServerInitialized)
+            LaunchOnServer(slot, origin, point, castId, tick);
+        else
+            ServerLaunch(slot, origin, point, castId, tick);
+
+        SkillProjectile projectile = SpawnProjectile(skill, origin);
+        if (projectile == null)
+            return;
+
+        if (skill.Bursts)
+        {
+            projectile.Launch(point - origin, skill.ProjectileSpeed, skill.Length, skill.ProjectileRadius, 1,
+                              _castSettings.TargetLayers, GetSkillColor(skill), 0f,
+                              onStop: (stopPoint, hit) => ReportBurst(castId, skill, stopPoint, hit));
+        }
+        else
+        {
+            projectile.Launch(point - origin, skill.ProjectileSpeed, skill.Length, skill.ProjectileRadius,
+                              1 + skill.Pierce, _castSettings.TargetLayers, GetSkillColor(skill), 0f,
+                              onHit: hit => ReportProjectileHit(castId, hit));
+        }
+    }
+
+    // On the caster's PC, each enemy its own projectile hits directly.
+    private void ReportProjectileHit(ushort castId, Collider2D hit)
+    {
+        // The projectile can outlive its caster.
+        if (this == null || !IsSpawned)
+            return;
+
+        Health target = hit.GetComponentInParent<Health>();
+        if (target == null || target.IsDead)
+            return;
+
+        if (IsServerInitialized)
+            ApplyProjectileHit(castId, target);
+        else
+            ServerProjectileHit(castId, target);
+    }
+
+    // On the caster's PC, where its own projectile stopped: it bursts there, finds what the circle touches
+    // on this screen and draws it at once, as an instant skill does.
+    private void ReportBurst(ushort castId, SkillDefinition skill, Vector2 point, Collider2D hit)
+    {
+        if (this == null || !IsSpawned)
+            return;
+
+        // It reached the end of its range without touching anyone, and this skill only bursts on contact.
+        if (hit == null && !skill.BurstAtEnd)
+            return;
+
+        SkillArea area = SkillArea.Circle(point, skill.ImpactRadius);
+        FindTargets(area);
+        ShowCast(skill, area);
+
+        // The enemy it touched is the one Burbuja traps.
+        Health touched = hit != null ? hit.GetComponentInParent<Health>() : null;
+
+        if (IsServerInitialized)
+            ApplyBurst(castId, point, _targets, touched);
+        else
+            ServerBurst(castId, point, _targets, touched);
+    }
+
+    [ServerRpc]
+    private void ServerLaunch(AttackSlot slot, Vector2 origin, Vector2 point, ushort castId, uint tick)
+    {
+        LaunchOnServer(slot, origin, point, castId, tick);
+    }
+
+    private void LaunchOnServer(AttackSlot slot, Vector2 origin, Vector2 point, ushort castId, uint tick)
+    {
+        if (!TryAcceptCast(slot, origin, point, true, out SkillDefinition skill))
+            return;
+
+        ForgetExpiredShots();
+
+        // Remembered until it could no longer land, plus the time its reports take to arrive.
+        SkillArea path = SkillArea.For(skill, origin, point);
+        double expiresAt = Time.realtimeSinceStartupAsDouble + skill.FlightTime + ReportGrace;
+        _pendingShots[castId] = new SkillShotRecord(slot, skill, path, expiresAt, skill.Bursts ? 1 : 1 + skill.Pierce);
+
+        if (_events != null)
+            _events.RaiseSkillCast(ClampCastTick(tick));
+
+        // The caster already flies its own; the host's copy of a client's projectile is only the picture.
+        if (!IsOwner)
+            LaunchCopy(skill, origin, point, (float)TimeManager.TimePassed(tick));
+
+        ObserversLaunch(slot, origin, point, tick);
+    }
+
+    // Copies start late by the time the launch took to arrive, and catch up with the caster's.
+    [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
+    private void ObserversLaunch(AttackSlot slot, Vector2 origin, Vector2 point, uint tick)
+    {
+        SkillDefinition skill = GetSkill(slot);
+        if (skill != null && skill.IsProjectile)
+            LaunchCopy(skill, origin, point, (float)TimeManager.TimePassed(tick));
+    }
+
+    private void LaunchCopy(SkillDefinition skill, Vector2 origin, Vector2 point, float timePassed)
+    {
+        SkillProjectile projectile = SpawnProjectile(skill, origin);
+        if (projectile == null)
+            return;
+
+        int hits = skill.Bursts ? 1 : 1 + skill.Pierce;
+        projectile.Launch(point - origin, skill.ProjectileSpeed, skill.Length, skill.ProjectileRadius, hits,
+                          _castSettings.TargetLayers, GetSkillColor(skill), timePassed);
+    }
+
+    // A target that no longer exists arrives as null.
+    [ServerRpc]
+    private void ServerProjectileHit(ushort castId, Health target)
+    {
+        ApplyProjectileHit(castId, target);
+    }
+
+    private void ApplyProjectileHit(ushort castId, Health target)
+    {
+        // The projectile can outlive its caster.
+        if (!IsServerInitialized || !TryGetShot(castId, false, out SkillShotRecord shot))
+            return;
+
+        // Someone else may have killed it while the report was on its way, and each enemy is hit once.
+        if (target == null || target.IsDead || shot.Hit.Contains(target) || !TryGetEnemyBody(target, out Collider2D body))
+            return;
+
+        float distance = shot.Path.DistanceOutside(body);
+        if (distance > _castSettings.TargetTolerance)
+        {
+            Debug.LogWarning($"[PlayerSkills] Rejected a hit of {shot.Skill.Id} from client {OwnerId} on {target.name}: {distance:0.00} units from its path.", this);
+            return;
+        }
+
+        shot.Hit.Add(target);
+        shot.HitsLeft--;
+        if (shot.HitsLeft <= 0)
+            _pendingShots.Remove(castId);
+
+        HitTarget(shot.Skill, shot.Slot, shot.Path, target, shot.Skill.GetElement(_element.Current));
+    }
+
+    [ServerRpc]
+    private void ServerBurst(ushort castId, Vector2 point, List<Health> targets, Health touched)
+    {
+        ApplyBurst(castId, point, targets, touched);
+    }
+
+    private void ApplyBurst(ushort castId, Vector2 point, List<Health> targets, Health touched)
+    {
+        if (!IsServerInitialized || !TryGetShot(castId, true, out SkillShotRecord shot))
+            return;
+
+        // One burst per launch.
+        _pendingShots.Remove(castId);
+
+        // It can only burst somewhere on its path.
+        float distance = shot.Path.DistanceOutside(point);
+        if (distance > _castSettings.TargetTolerance)
+        {
+            Debug.LogWarning($"[PlayerSkills] Rejected the burst of {shot.Skill.Id} from client {OwnerId}: {distance:0.00} units from its path.", this);
+            return;
+        }
+
+        SkillArea area = SkillArea.Circle(point, shot.Skill.ImpactRadius);
+        ApplyToTargets(shot.Skill, shot.Slot, area, targets);
+        Trap(shot.Skill, area, touched);
+        ApplyToRing(shot.Skill, shot.Slot, area);
+
+        // The caster already drew it, so the host only draws a client's burst.
+        if (!IsOwner)
+            ShowCast(shot.Skill, area);
+
+        ObserversBurst(shot.Slot, point);
+    }
+
+    // Burbuja: the enemy it touched can't move or attack for a while. It's the stun of the reactions, so
+    // EnemyStatus already stops its movement and its contact attack. Dummies have no EnemyStatus.
+    private void Trap(SkillDefinition skill, SkillArea area, Health touched)
+    {
+        if (skill.TrapDuration <= 0f || touched == null || touched.IsDead || !TryGetEnemyBody(touched, out Collider2D body))
+            return;
+
+        if (area.DistanceOutside(body) > _castSettings.TargetTolerance)
+            return;
+
+        if (touched.TryGetComponent(out EnemyStatus status))
+            status.ApplyStun(skill.TrapDuration);
+    }
+
+    [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
+    private void ObserversBurst(AttackSlot slot, Vector2 point)
+    {
+        SkillDefinition skill = GetSkill(slot);
+        if (skill != null && skill.Bursts)
+            ShowCast(skill, SkillArea.Circle(point, skill.ImpactRadius));
+    }
+
+    // Unknown (never accepted, already used up or forgotten) or too old: the report doesn't count.
+    private bool TryGetShot(ushort castId, bool bursts, out SkillShotRecord shot)
+    {
+        if (_pendingShots.TryGetValue(castId, out shot) && Time.realtimeSinceStartupAsDouble <= shot.ExpiresAt &&
+            shot.Skill.Bursts == bursts)
+            return true;
+
+        Debug.LogWarning($"[PlayerSkills] Rejected a projectile report from client {OwnerId}: launch {castId} is unknown, used or too old.", this);
+        shot = null;
+        return false;
+    }
+
+    // Projectiles that land on nothing never report, so they are dropped once they can no longer.
+    private void ForgetExpiredShots()
+    {
+        double now = Time.realtimeSinceStartupAsDouble;
+        foreach (KeyValuePair<ushort, SkillShotRecord> pair in _pendingShots)
+        {
+            if (now > pair.Value.ExpiresAt)
+                _expiredShotIds.Add(pair.Key);
+        }
+
+        foreach (ushort castId in _expiredShotIds)
+            _pendingShots.Remove(castId);
+
+        _expiredShotIds.Clear();
+    }
+
+    private SkillProjectile SpawnProjectile(SkillDefinition skill, Vector2 origin)
+    {
+        if (skill.ProjectilePrefab == null)
+        {
+            Debug.LogError($"[PlayerSkills] {skill.Id} is a projectile without a Projectile Prefab.", skill);
+            return null;
+        }
+
+        return Instantiate(skill.ProjectilePrefab, origin, Quaternion.identity);
     }
 
     // A client's tick is its estimate of the host's clock. It can't be in the future, and at most
@@ -506,11 +794,15 @@ public class PlayerSkills : NetworkBehaviour
         if (skill.Visual == null)
             return;
 
-        ElementDefinition element = _elements != null ? _elements.Get(skill.GetElement(_element.Current)) : null;
-        Color color = element != null ? element.Color : Color.white;
-
         SkillShapeVisual visual = Instantiate(skill.Visual, area.Origin, Quaternion.identity);
-        visual.Show(area, color);
+        visual.Show(area, GetSkillColor(skill));
+    }
+
+    // The colour of the skill's element: a skill of another element shows that one, not the caster's.
+    private Color GetSkillColor(SkillDefinition skill)
+    {
+        ElementDefinition element = _elements != null ? _elements.Get(skill.GetElement(_element.Current)) : null;
+        return element != null ? element.Color : Color.white;
     }
 
     // Skill1 is slot 0. The basic attack has no slot here.

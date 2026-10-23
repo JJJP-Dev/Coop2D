@@ -32,6 +32,7 @@ Los clientes **proponen y enseñan**. Nunca deciden algo que afecte a los demás
 | Moverte | No (tu movimiento se copia a los demás tal cual) |
 | Disparar el básico y ver tu bala (o tus balas, con Doble disparo) | Que no disparas más rápido de lo permitido, ni desde lejos, ni con más balas de las que tienes |
 | Que tu bala toque a un enemigo | Que ese disparo existe, no se ha usado y pasa cerca del enemigo |
+| Lanzar una habilidad con proyectil y ver cómo vuela y estalla | Que el lanzamiento vale (como arriba), que lo que golpea o donde estalla está en el recorrido que él guardó, y cada objetivo, como en un círculo |
 | Lanzar una habilidad y ver su zona (círculo, línea o cono) | Que lanzaste desde cerca de donde él te ve, el alcance, la recarga y que cada objetivo tocaba la zona, que él arma con tu origen y tu punto |
 | Abrir la franja de mejoras y elegir | Que la oferta sigue pendiente y la opción vale |
 | Notar Tempo al lanzar una habilidad | Que aceptó el lanzamiento y la mejora estaba lista; su copia sustituye a la tuya, y si no llega en 1 s la tuya se quita |

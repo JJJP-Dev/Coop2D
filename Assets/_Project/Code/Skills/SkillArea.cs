@@ -49,9 +49,19 @@ public readonly struct SkillArea
         if (skill.Shape == SkillShape.Circle)
             return new SkillArea(SkillShape.Circle, origin, aim, direction, skill.Radius, 0f, 0f, 0f);
 
+        // A projectile's area is its path: a band as wide as the projectile, as long as it flies.
+        float halfWidth = skill.Shape == SkillShape.Projectile ? skill.ProjectileRadius : skill.Width * 0.5f;
         Vector2 end = origin + direction * skill.Length;
-        return new SkillArea(skill.Shape, origin, end, direction, 0f, skill.Length, skill.Width * 0.5f,
+        return new SkillArea(skill.Shape, origin, end, direction, 0f, skill.Length, halfWidth,
                              skill.Angle * 0.5f * Mathf.Deg2Rad);
+    }
+
+    /// <summary>
+    /// A circle of that radius around center, for where a projectile bursts (#162).
+    /// </summary>
+    public static SkillArea Circle(Vector2 center, float radius)
+    {
+        return new SkillArea(SkillShape.Circle, center, center, Vector2.right, radius, 0f, 0f, 0f);
     }
 
     /// <summary>
@@ -59,14 +69,14 @@ public readonly struct SkillArea
     /// </summary>
     public Vector2 BoundsCenter => Shape switch
     {
-        SkillShape.Line => Origin + Direction * (Length * 0.5f),
+        SkillShape.Line or SkillShape.Projectile => Origin + Direction * (Length * 0.5f),
         SkillShape.Cone => Origin,
         _ => Point,
     };
 
     public float BoundsRadius => Shape switch
     {
-        SkillShape.Line => Mathf.Sqrt(Length * Length * 0.25f + HalfWidth * HalfWidth),
+        SkillShape.Line or SkillShape.Projectile => Mathf.Sqrt(Length * Length * 0.25f + HalfWidth * HalfWidth),
         SkillShape.Cone => Length,
         _ => Radius,
     };
@@ -79,6 +89,7 @@ public readonly struct SkillArea
         switch (Shape)
         {
             case SkillShape.Line:
+            case SkillShape.Projectile:
             {
                 Vector2 side = new Vector2(-Direction.y, Direction.x);
                 Vector2 local = p - Origin;

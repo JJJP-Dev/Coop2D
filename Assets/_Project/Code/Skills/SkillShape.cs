@@ -9,4 +9,8 @@ public enum SkillShape
 
     // A wedge from the caster towards the cursor: Ola.
     Cone,
+
+    // Something that flies from the caster towards the cursor and hits on the way: Llamarada, Burbuja,
+    // Rayo. Its path is a line as wide as the projectile; where it bursts, a circle.
+    Projectile,
 }

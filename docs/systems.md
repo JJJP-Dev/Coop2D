@@ -264,7 +264,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 
 ### 4.6 Habilidades
 
-**Qué hace.** Tres huecos de habilidad: clic izquierdo, clic derecho y Q. Ahora, todos los personajes llevan las dos de prueba, **Estallido** (clic izquierdo, detona reacciones) y **Marca** (clic derecho, solo marca), y en la Q una de su kit: **Llovizna** Brasa, **Ola** Marea y **Cortocircuito** Voltio. **Chispa** (de Marea) ya existe, pero no está en ningún hueco hasta que las habilidades se consigan con las ofertas (#162).
+**Qué hace.** Tres huecos de habilidad: clic izquierdo, clic derecho y Q. Ahora, todos los personajes llevan las dos de prueba, **Estallido** (clic izquierdo, detona reacciones) y **Marca** (clic derecho, solo marca), y en la Q una de su kit: **Llovizna** Brasa, **Ola** Marea y **Cortocircuito** Voltio. **Llamarada** (Brasa), **Burbuja prisión** y **Chispa** (Marea) y **Rayo** (Voltio) ya existen, pero no están en ningún hueco hasta que las habilidades se consigan con las ofertas (#162): para probarlas, ponlas en *Starting Skills* de la ficha del personaje.
 
 **Formas** (`SkillShape`):
 
@@ -273,8 +273,9 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 | *Circle* | Donde apuntas, como mucho a su alcance (*Cast Range*) | Estallido, Marca, Llovizna, Cortocircuito |
 | *Line* | Desde ti hacia el cursor, siempre a todo su largo; golpea a todos los que toca | Chispa (5 × 0,5 m) |
 | *Cone* | Desde ti hacia el cursor; una cuña de *Length* de radio y *Angle* grados de abertura | Ola (3 m, 60°) |
+| *Projectile* | Vuela desde ti hacia el cursor hasta *Length*. Golpea directamente (*Impact Radius* 0) a 1 + *Pierce* enemigos, o estalla en un círculo de *Impact Radius* al tocar el primero (y al final de su recorrido, con *Burst At End*) | Rayo (directo, atraviesa a 1), Llamarada (estalla 1,5 m), Burbuja (estalla 1,5 m y atrapa) |
 
-**Piezas.** `Code/Skills/PlayerSkills.cs`, `SkillDefinition`, `SkillShape`, `SkillArea` (la zona de un lanzamiento ya colocada, con sus cuentas), `SkillCastSettings`, `SkillShapeVisual` (el dibujo provisional) y `Prefabs/Skills/SkillShapeVisual.prefab`; en el HUD, `Code/UI/InGame/SkillSlotView.cs`.
+**Piezas.** `Code/Skills/PlayerSkills.cs`, `SkillDefinition`, `SkillShape`, `SkillArea` (la zona de un lanzamiento ya colocada, con sus cuentas), `SkillCastSettings`, `SkillShapeVisual` (el dibujo provisional) y `Prefabs/Skills/SkillShapeVisual.prefab`; para los proyectiles, `SkillProjectile` (lo que vuela) con `Prefabs/Skills/SkillProjectile.prefab` y `SkillShotRecord` (lo que recuerda el host de cada uno); en el HUD, `Code/UI/InGame/SkillSlotView.cs`.
 
 **Cómo funciona.**
 1. El dueño pulsa. El juego toma **desde dónde** lanza (su posición) y **hacia dónde** (el cursor; un círculo se queda a su alcance, una línea o un cono solo usan la dirección) y arma la zona (`SkillArea`). Busca los enemigos que la tocan **en su pantalla** y la dibuja al momento.
@@ -282,6 +283,13 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 3. El host comprueba que el origen está cerca de donde él ve al jugador (*Position Tolerance*), que el punto cuadra con la forma, la recarga, y **arma la misma zona con esos dos puntos**. Cada objetivo tiene que tocarla, con un margen (*Target Tolerance*) porque los enemigos se mueven mientras llega el mensaje. Aplica primero el **aura fuerte** (que puede detonar una reacción), después el daño y, si la habilidad empuja (Ola, 0,5 casillas), el empuje, siempre alejándolo de donde estaba el lanzador. Los muñecos no se mueven.
    - **Con Aura expansiva**, después el host busca él mismo enemigos hasta 1 m por fuera de la zona, sea cual sea su forma, y les pone el aura de la habilidad, hasta 8: **sin daño y sin detonar nunca** (regla 6 del motor). Sirve para marcar a un grupo sin provocar reacciones. Los busca el host con lo que él ve, porque el aura es decisión suya; el dueño no los manda. La zona que se dibuja no cambia de tamaño.
 4. Los demás dibujan la zona (`ObserversCast`) con el origen que mandó el lanzador: una línea sale de donde estaba al lanzarla, aunque en otra pantalla se le vea un poco atrás.
+
+**Proyectiles** (Llamarada, Burbuja, Rayo). Funcionan como el ataque básico (4.5), «lo tuyo, al instante»:
+1. El dueño lanza: su proyectil sale al momento en su pantalla y manda al host desde dónde y hacia dónde, con un número de lanzamiento (`ServerLaunch`).
+2. El host hace las mismas comprobaciones que con una habilidad instantánea (origen, recarga) y **recuerda el lanzamiento** (`SkillShotRecord`): su recorrido como una banda del ancho del proyectil, cuántos enemigos puede golpear y hasta cuándo puede llegar un aviso (lo que tarda en volar + 1 s). Avisa a los demás para que dibujen su copia, adelantada por el tiempo que tardó el mensaje (`ObserversLaunch`). Tempo cuenta desde aquí.
+3. **Si golpea directo** (Rayo): cada enemigo que toca el proyectil del dueño se avisa (`ServerProjectileHit`). El host comprueba que el lanzamiento existe, que le quedan golpes y que el enemigo está cerca del recorrido, y le aplica aura, daño y empuje. Cada enemigo, una vez.
+4. **Si estalla** (Llamarada, Burbuja): donde se para, el dueño arma un círculo, busca los enemigos que toca **en su pantalla**, lo dibuja y lo avisa una sola vez (`ServerBurst`), con el enemigo que lo paró. El host comprueba que el punto está en el recorrido y valida cada objetivo como en un círculo normal. Burbuja **atrapa** al enemigo que tocó: lo aturde 1,5 s, el mismo aturdimiento de Sobrecarga (no se mueve ni pega). Los demás dibujan el estallido con `ObserversBurst`.
+5. Las copias de los demás PCs solo son el dibujo: chocan con lo que ven, pero no deciden nada.
 5. **El lanzamiento lleva su tick** (el reloj del host tal como lo estima el dueño). Las mejoras que escuchan lanzamientos (Tempo) cuentan desde ese tick, así que su efecto empieza y acaba en el mismo tick en el host y en el dueño. El host no acepta un tick del futuro ni de más de 0,5 s atrás.
 6. **Recarga devuelta** (Relevo, Asistencia): `RefundCooldowns` (host) quita segundos a cada recarga que esté corriendo, en el host y, con un `TargetRpc`, en el dueño; cada uno lo calcula con su reloj. Nunca deja una recarga por debajo del **60 %** de su tiempo completo desde que se lanzó (regla 1 del motor): con 7 s, como pronto a los 4,2 s.
 
@@ -295,11 +303,16 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 | Cortocircuito | `VoltShort` | fuego | círculo 1,5, a 7 | 16 | 7 s | sí |
 | Chispa | `TideSpark` | electricidad | línea 5 × 0,5 | 15 | 7 s | sí |
 | Ola | `TideWave` | agua | cono 3 m, 60°; empuja 0,5 | 20 | 6 s | sí |
+| Llamarada | `EmberFlare` | fuego | proyectil 14 m/s hasta 7, estalla 1,5 | 30 | 5 s | sí |
+| Burbuja prisión | `TideBubble` | agua | proyectil 12 m/s hasta 8, estalla 1,5 (moja) y atrapa 1,5 s al que toca | 10 | 9 s | no |
+| Rayo | `VoltBolt` | electricidad | proyectil 16 m/s hasta 9, atraviesa a 1 (golpea a 2) | 22 | 4 s | sí |
 
 Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objetivos), con el suelo de la recarga devuelta (*Min Cooldown Fraction*, 0,6) y la edad máxima del tick de un lanzamiento (*Max Cast Tick Age*, 0,5 s).
 
 **Cuidado con.**
 - `SkillShape` se guarda como número en los assets: formas nuevas, **al final**.
+- **Proyectiles:** Aura expansiva funciona con los que estallan (anillo alrededor del círculo), no con los de golpe directo (Rayo). Burbuja también estalla al final de su recorrido si no toca a nadie (*Burst At End*): moja la zona, pero no atrapa a nadie. Un proyectil no lo para una pared: solo choca con la capa Enemy, como el básico.
+- Si el dueño se desconecta con un proyectil en el aire, su copia ya no avisa de nada: no hace daño.
 - Un cono de más de 180° no es una cuña: las cuentas de `SkillArea` lo dan por hecho (el Inspector no deja pasar de 180).
 - El dibujo (`SkillShapeVisual`) es solo eso: construye una malla con la misma `SkillArea`, así que siempre enseña la zona real. Llegará el arte de verdad con las familias de efecto del catálogo (E.5).
 - El id de la habilidad (`burst`, `mark`, `tide_wave`…) lo usa el launcher (`ability_cast`): no lo cambies una vez publicada una build.
@@ -705,7 +718,9 @@ Abre `Data/Enemies/Waves/ArenaTestWaves.asset` y añade una fila (segundo de ini
 3. Para jugarla, ponla en un hueco de *Starting Skills* de la ficha de un personaje (`Data/Characters/`).
 4. Añade su id a la tabla `ability` de launcher-events.md.
 
-Si necesita otra cosa (un proyectil que vuela, algo que se queda en el suelo, un retraso), es código: un caso nuevo en `SkillShape` y en `SkillArea`, o un sistema aparte para lo que dura (#158).
+Para un proyectil: *Shape* = Projectile, su velocidad, radio, *Impact Radius* (0 = golpe directo), *Pierce*, *Burst At End*, *Trap Duration* y *Projectile Prefab* = `Prefabs/Skills/SkillProjectile.prefab`.
+
+Si necesita otra cosa (algo que se queda en el suelo, un retraso como Meteorito), es código: un caso nuevo en `SkillShape` y en `SkillArea`, o un sistema aparte para lo que dura (#158).
 
 ### 5.4 Cambiar una reacción
 
