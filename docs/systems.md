@@ -266,6 +266,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 1. El dueño pulsa, el juego calcula el punto apuntado (como mucho a su alcance), busca los enemigos del círculo **en su pantalla** y lo dibuja al momento.
 2. Manda al host el hueco, el punto y la lista de objetivos (`ServerCast`).
 3. El host comprueba alcance, recarga y que cada objetivo esté de verdad cerca del círculo; aplica primero el **aura fuerte** (que puede detonar una reacción) y después el daño.
+   - **Con Aura expansiva**, después el host busca él mismo enemigos en un anillo de 1 m alrededor del círculo y les pone el aura de la habilidad, hasta 8: **sin daño y sin detonar nunca** (regla 6 del motor). Sirve para marcar a un grupo sin provocar reacciones. Los busca el host con lo que él ve, porque el aura es decisión suya; el dueño no los manda. El círculo que se dibuja no cambia de tamaño.
 4. Los demás dibujan el círculo (`ObserversCast`).
 
 **Qué ajustar.** Cada habilidad es un asset en `Data/Skills/` (`TestBurst.asset`, `TestMark.asset`): id, nombre, icono, si usa el elemento de quien la lanza, si detona, fuerza del aura, recarga (7 s), alcance (7), daño (16 / 10), radio (1,5 / 2) y el dibujo. Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objetivos).
@@ -283,6 +284,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 2. Sin aura → se pone. Mismo elemento → se refresca (nunca se acorta) y pasa a ser de quien la refresca.
 3. Otro elemento → solo si puede detonar, no está en el bloqueo de 0,5 s tras otra reacción y la tabla tiene esa pareja: **reacción** (se borra el aura y se avisa a todos).
 4. El aura (elemento, fuerza, dueño) son SyncVars: todos la ven.
+5. **Cuánto dura** sale de `DefaultAuras.asset`, más las mejoras de quien la aplica: `AuraHolder` le pide al `PlayerStats` de ese jugador `StrongAuraDuration` o `WeakAuraDuration` (4.20). Con Auras tenaces una fuerte dura 7,5 s; como mucho, el doble de la base (12 s). Solo el host lo calcula: la duración no viaja, los clientes solo ven si el aura está o no.
 
 **Qué ajustar.** `Data/Elements/DefaultAuras.asset`: débil 3,5 s, fuerte 6 s, enfriamiento 1 s. Colores y nombres en `Data/Elements/Fire|Water|Electric.asset`.
 
@@ -530,7 +532,7 @@ Cualquier truco escribe `cheat_used` para el launcher: una partida con trucos no
 
 ### 4.20 Estadísticas del jugador
 
-**Qué hace.** Junta en un solo sitio los números de cada jugador que las mejoras pueden cambiar: vida máxima, velocidad, daño recibido, radio de recogida de orbes y daño, cadencia, alcance, balas por ataque y abanico del básico.
+**Qué hace.** Junta en un solo sitio los números de cada jugador que las mejoras pueden cambiar: vida máxima, velocidad, daño recibido, radio de recogida de orbes y daño, cadencia, alcance, balas por ataque y abanico del básico, duración de tus auras y el anillo de aura de tus habilidades.
 
 **Piezas.** `Code/Player/Stats/`:
 
@@ -561,6 +563,8 @@ Cualquier truco escribe `cheat_used` para el launcher: una partida con trucos no
 | Cadencia del básico | `PlayerAutoAttack` (cuándo dispara y el presupuesto de disparos del host) | Dueño y host |
 | Alcance del básico | `PlayerAutoAttack` (a quién apunta y hasta dónde vuela la bala) | Dueño y host |
 | Balas por ataque (base 1, máximo 4) y abanico en grados (base 0) | `PlayerAutoAttack` (la ráfaga, 4.5) | Dueño y host |
+| Duración de tus auras fuertes y débiles (base en `DefaultAuras`, máximo el doble) | `AuraHolder.TryApply` (4.7) | Host |
+| Anillo de aura de las habilidades: metros y enemigos de más (base 0) | `PlayerSkills` (4.6) | Host |
 
 **Qué ajustar.** Los topes, en `DefaultPlayerStats.asset`: un multiplicador mínimo y máximo respecto a la base (1,4 es +40 %) y un mínimo y máximo absolutos (la vida, entre 50 y 250). Una estadística sin fila no tiene tope.
 
@@ -581,6 +585,7 @@ Cualquier truco escribe `cheat_used` para el launcher: una partida con trucos no
 |---|---|
 | `EffectBlock` | La base de todos los bloques. Cada bloque sabe hacer una cosa al coger la mejora (`Acquire`) |
 | `StatModifierBlock` | Cambia una estadística para el resto de la partida |
+| `AuraModifierBlock` | Cambia las auras que pones: cuánto duran (fuertes o débiles) y el anillo de aura alrededor de tus habilidades. También son estadísticas por dentro |
 | `AttackModifierBlock` | Cambia cómo dispara el básico: balas de más y cuánto se abren. Por dentro son dos estadísticas, así que se acumula y tiene tope como cualquier otra |
 | `OnEventBlock` | Cuando pasa algo, hace sus acciones. Hoy solo hay un evento: *Acquired* (al cogerla) |
 | `EffectAction` | La base de las acciones: algo que pasa una vez |
@@ -607,6 +612,8 @@ En el editor: `Code/Core/Inspector/SubclassPickerAttribute.cs` y `Code/Editor/Su
 | Pies ligeros | Velocidad +12 %, vida máxima −10 |
 | Piel gruesa | Daño recibido −10 %, velocidad −5 % |
 | Doble disparo | Ataque: +1 bala, abanico 12°; daño del básico −30 % (cada bala hace 7) |
+| Auras tenaces | Aura: fuertes +1,5 s (6 → 7,5; con dos, 9) |
+| Aura expansiva | Aura: anillo de +1 m alrededor de tus habilidades, hasta 8 enemigos más |
 
 El resto de las del Pre 3 llegan en los siguientes commits; las de personaje, con los personajes.
 

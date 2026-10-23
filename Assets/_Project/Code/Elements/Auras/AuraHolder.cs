@@ -90,7 +90,7 @@ public class AuraHolder : NetworkBehaviour
         if (HasAura && _element.Value != element)
             return TryReact(element, source, canDetonate, now) ? AuraApplyResult.Reacted : AuraApplyResult.Ignored;
 
-        float duration = _settings.GetDuration(strength);
+        float duration = GetDuration(strength, source);
         AuraApplyResult result;
 
         if (!HasAura)
@@ -116,6 +116,19 @@ public class AuraHolder : NetworkBehaviour
         _owner.Value = source;
         _nextApplyTimes[key] = now + _settings.ApplyCooldown;
         return result;
+    }
+
+    // The base from AuraSettings, with the upgrades of the player who applies it (#161, Auras tenaces).
+    // The host has every player's stats, and auras are only decided on the host.
+    private float GetDuration(AuraStrength strength, NetworkObject source)
+    {
+        float duration = _settings.GetDuration(strength);
+
+        if (source == null || !source.TryGetComponent(out PlayerStats stats))
+            return duration;
+
+        StatId stat = strength == AuraStrength.Strong ? StatId.StrongAuraDuration : StatId.WeakAuraDuration;
+        return stats.Get(stat, duration);
     }
 
     // Another element is already here. Only a skill that can detonate consumes it, outside the

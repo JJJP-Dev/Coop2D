@@ -48,3 +48,13 @@ MonoBehaviour:
     _maxMultiplier: 0
     _min: 0
     _max: 4
+  - _stat: 9
+    _minMultiplier: 0
+    _maxMultiplier: 2
+    _min: 0
+    _max: 0
+  - _stat: 10
+    _minMultiplier: 0
+    _maxMultiplier: 2
+    _min: 0
+    _max: 0

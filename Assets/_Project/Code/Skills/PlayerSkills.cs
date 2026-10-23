@@ -20,6 +20,7 @@ public class PlayerSkills : NetworkBehaviour
 
     private PlayerElement _element;
     private PlayerDowned _downed;
+    private PlayerStats _stats;
     private InputService _input;
     private ContactFilter2D _targetFilter;
 
@@ -31,6 +32,7 @@ public class PlayerSkills : NetworkBehaviour
     // Server side, in real time: casts arrive at the pace of the client's clock, not the host's frames.
     private readonly double[] _serverReadyTimes = new double[SlotCount];
     private readonly HashSet<Health> _appliedTargets = new();
+    private readonly List<Collider2D> _ringCandidates = new();
 
     private void Awake()
     {
@@ -38,6 +40,9 @@ public class PlayerSkills : NetworkBehaviour
 
         // Optional: without it the player can never be downed (#51).
         TryGetComponent(out _downed);
+
+        // Optional: without it no upgrade changes the skills (#161).
+        TryGetComponent(out _stats);
 
         if (_castSettings == null || _elements == null)
         {
@@ -220,6 +225,7 @@ public class PlayerSkills : NetworkBehaviour
 
         _serverReadyTimes[index] = now + skill.Cooldown;
         ApplyToTargets(skill, slot, point, targets);
+        ApplyToRing(skill, slot, point);
 
         // The caster already drew it, so the host only draws a client's cast.
         if (!IsOwner)
@@ -230,14 +236,14 @@ public class PlayerSkills : NetworkBehaviour
 
     private void ApplyToTargets(SkillDefinition skill, AttackSlot slot, Vector2 point, List<Health> targets)
     {
+        _appliedTargets.Clear();
+
         if (targets == null)
             return;
 
         ElementType element = skill.GetElement(_element.Current);
         float reach = skill.Radius + _castSettings.TargetTolerance;
         int applied = 0;
-
-        _appliedTargets.Clear();
 
         foreach (Health target in targets)
         {
@@ -275,6 +281,41 @@ public class PlayerSkills : NetworkBehaviour
             // The reaction it just detonated may have killed it, and a dead enemy is already despawned.
             if (!target.IsDead)
                 target.TryTakeDamage(skill.Damage, NetworkObject, DamageKind.Skill, element);
+        }
+    }
+
+    // Aura expansiva (#161): the skill's aura also lands on enemies just around its circle, without damage
+    // and never detonating (catalog engine rule 6), so it marks a crowd without setting off reactions.
+    // Only the host looks for them, with what it sees: like the auras themselves, it's the host's decision.
+    // The targets of the circle are already in _appliedTargets, so nobody gets it twice.
+    private void ApplyToRing(SkillDefinition skill, AttackSlot slot, Vector2 point)
+    {
+        ElementType element = skill.GetElement(_element.Current);
+        if (_stats == null || element == ElementType.None)
+            return;
+
+        float extraRadius = _stats.Get(StatId.SkillAuraExtraRadius, 0f);
+        int extraTargets = Mathf.RoundToInt(_stats.Get(StatId.SkillAuraExtraTargets, 0f));
+        if (extraRadius <= 0f || extraTargets <= 0)
+            return;
+
+        float ringRadius = skill.Radius + extraRadius;
+        Physics2D.OverlapCircle(point, ringRadius, _targetFilter, _ringCandidates);
+
+        int marked = 0;
+        foreach (Collider2D candidate in _ringCandidates)
+        {
+            if (marked >= extraTargets)
+                break;
+
+            Health target = candidate.GetComponentInParent<Health>();
+            if (target == null || target.IsDead || !_appliedTargets.Add(target))
+                continue;
+
+            if (target.TryGetComponent(out AuraHolder aura))
+                aura.TryApply(element, skill.AuraStrength, NetworkObject, slot, canDetonate: false);
+
+            marked++;
         }
     }
 

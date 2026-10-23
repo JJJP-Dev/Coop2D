@@ -424,6 +424,10 @@ Arena_Test. Abre F1: la línea de estadísticas enseña las tuyas tal como las c
 | Se suman | Coge Pies ligeros dos veces y Piel gruesa una. | Los porcentajes se suman: velocidad 5 × (1 + 0,24 − 0,05) = 5.95. |
 | Doble disparo | Cógela (sale como rara garantizada en el nivel 5). Deja que se acerquen varios perseguidores. | F1: `Básico 7 ×2`. Cada ataque suelta dos balas abiertas en V estrecha. Si las dos tocan al mismo enemigo, solo una le quita vida (7, no 14); con dos enemigos juntos, cada uno recibe la suya. Los demás jugadores ven las dos balas. |
 | Doble disparo con ping | Con 100 ms, un cliente coge Doble disparo y dispara a un grupo. | En el host, cada enemigo baja 7 por ráfaga como mucho; sin `Rejected a shot` ni `Rejected a hit` (salvo, quizá, uno justo al cogerla). |
+| Auras tenaces | Antes de cogerla, lanza Marca (clic derecho) sobre un perseguidor y cuenta cuánto dura su aura. Cógela y repite. | Antes 6 s; después 7,5 s. Con las dos acumulaciones, 9 s. El aura del básico (débil) sigue durando 3,5 s. Con dos jugadores, solo duran más las auras de quien la tiene. |
+| Aura expansiva | Cógela. Lanza Marca en el centro de un grupo, con enemigos justo fuera del círculo. | Los de dentro reciben daño y aura; los que están hasta 1 m fuera reciben solo el aura, sin daño. Como mucho 8 de más. |
+| Aura expansiva no detona | Pon un aura de otro elemento a un enemigo (otro jugador o `ReactionLab`) y lanza Estallido de forma que ese enemigo quede justo fuera del círculo. | No hay reacción en ese enemigo y su aura no cambia. Dentro del círculo sí detona como siempre. |
+| Aura expansiva con ping | Con 100 ms, un cliente con Aura expansiva lanza Marca. | El anillo funciona igual; sin avisos `Rejected` en el host. |
 | Reiniciar | Con varias mejoras, pierde y reinicia. | F1 vuelve a los valores de la primera fila. |
 | Cliente con ping | Con 100 ms, un cliente coge Cañón largo y Pies ligeros. | Lo nota al llegar la respuesta del host y sus disparos lejanos cuentan (sin `Rejected a hit` en la consola del host). |
 | Entrar tarde | Un jugador con mejoras; une a otro cliente. | El nuevo ve la vida máxima correcta del primero (`x/120`). |

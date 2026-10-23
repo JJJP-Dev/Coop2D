@@ -26,4 +26,14 @@ public enum StatId : byte
     // The degrees those projectiles fan out across. Its base is 0. Not in the catalog's list: it's how
     // AttackModifier says how wide a volley is.
     BasicSpread = 8,
+
+    // aura_duration: seconds the auras this player applies last, one stat for each strength. Their bases
+    // are in AuraSettings (#161, Auras tenaces).
+    StrongAuraDuration = 9,
+    WeakAuraDuration = 10,
+
+    // How far around a skill's circle its aura also reaches, and on how many more enemies, without
+    // damage and without detonating. Both have base 0 (#161, Aura expansiva).
+    SkillAuraExtraRadius = 11,
+    SkillAuraExtraTargets = 12,
 }

@@ -30,3 +30,15 @@ MonoBehaviour:
     _minLevel: 0
     _maxLevel: 0
     _minPlayers: 0
+  _effects:
+  - rid: 1001
+  references:
+    version: 2
+    RefIds:
+    - rid: 1001
+      type: {class: AuraModifierBlock, ns: , asm: Assembly-CSharp}
+      data:
+        _strength: 1
+        _durationAdd: 0
+        _skillExtraRadius: 1
+        _skillExtraTargets: 8

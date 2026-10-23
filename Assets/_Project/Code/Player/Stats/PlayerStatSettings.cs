@@ -17,6 +17,8 @@ public class PlayerStatSettings : ScriptableObject
         new(StatId.BasicInterval, 0.6f, 0f),
         new(StatId.BasicRange, 0f, 1.5f),
         new(StatId.BasicProjectiles, 0f, 0f, 0f, 4f),
+        new(StatId.StrongAuraDuration, 0f, 2f),
+        new(StatId.WeakAuraDuration, 0f, 2f),
     };
 
     /// <summary>
