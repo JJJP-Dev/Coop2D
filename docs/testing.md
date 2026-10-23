@@ -414,7 +414,7 @@ Arena_Test. Abre F1: la línea de estadísticas enseña las tuyas tal como las c
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
-| Sin mejoras, como antes | Empieza una partida. | F1: vida máx. 100, velocidad 5, básico 10 cada 0.6 s, alcance 6, daño recibido ×1, recogida 1.5. Todo se juega igual que antes. |
+| Sin mejoras, como antes | Empieza una partida. | F1: vida máx. 100, velocidad 5, básico 10 ×1 cada 0.6 s, alcance 6, daño recibido ×1, recogida 1.5. Todo se juega igual que antes. |
 | Cañón largo | Cógela. | Alcance 9 y cadencia 0.65 s. Disparas a enemigos más lejanos y la bala llega hasta ellos (en tu ventana y en las de los demás). |
 | Vitalidad | Pierde vida y cógela. | Vida máx. 120 y +20 de vida al momento; la etiqueta de vida dice `x/120` en todas las ventanas. Tres veces: 160. |
 | Pies ligeros | Cógela dos veces. | Velocidad 5.6 y luego 6.2; vida máx. 90 y 80 (si tenías más vida que el nuevo máximo, baja a él). Te mueves más rápido en tu ventana y los demás te ven igual de rápido. |
@@ -422,6 +422,8 @@ Arena_Test. Abre F1: la línea de estadísticas enseña las tuyas tal como las c
 | Imán | Cógela. | Recogida 2.25: los orbes vuelan hacia ti desde más lejos. Solo a ti; un compañero sin Imán sigue con 1.5. |
 | Respiro | Agota el pool y elígelo herido. | +30 de vida (sin pasar del máximo) y +1/3 de reroll. Derribado no cura. |
 | Se suman | Coge Pies ligeros dos veces y Piel gruesa una. | Los porcentajes se suman: velocidad 5 × (1 + 0,24 − 0,05) = 5.95. |
+| Doble disparo | Cógela (sale como rara garantizada en el nivel 5). Deja que se acerquen varios perseguidores. | F1: `Básico 7 ×2`. Cada ataque suelta dos balas abiertas en V estrecha. Si las dos tocan al mismo enemigo, solo una le quita vida (7, no 14); con dos enemigos juntos, cada uno recibe la suya. Los demás jugadores ven las dos balas. |
+| Doble disparo con ping | Con 100 ms, un cliente coge Doble disparo y dispara a un grupo. | En el host, cada enemigo baja 7 por ráfaga como mucho; sin `Rejected a shot` ni `Rejected a hit` (salvo, quizá, uno justo al cogerla). |
 | Reiniciar | Con varias mejoras, pierde y reinicia. | F1 vuelve a los valores de la primera fila. |
 | Cliente con ping | Con 100 ms, un cliente coge Cañón largo y Pies ligeros. | Lo nota al llegar la respuesta del host y sus disparos lejanos cuentan (sin `Rejected a hit` en la consola del host). |
 | Entrar tarde | Un jugador con mejoras; une a otro cliente. | El nuevo ve la vida máxima correcta del primero (`x/120`). |

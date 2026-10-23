@@ -19,4 +19,11 @@ public enum StatId : byte
     BasicDamage = 4,
     BasicInterval = 5,
     BasicRange = 6,
+
+    // basic_projectiles: projectiles per basic attack. Its base is 1 (#161, Doble disparo).
+    BasicProjectiles = 7,
+
+    // The degrees those projectiles fan out across. Its base is 0. Not in the catalog's list: it's how
+    // AttackModifier says how wide a volley is.
+    BasicSpread = 8,
 }

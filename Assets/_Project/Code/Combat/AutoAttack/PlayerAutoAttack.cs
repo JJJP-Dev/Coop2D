@@ -112,29 +112,40 @@ public class PlayerAutoAttack : NetworkBehaviour
         return Vector2.Lerp(position, intercept, _settings.LeadFactor);
     }
 
+    // A volley is every projectile of one attack: one without upgrades, two with Doble disparo (#161).
+    // Each projectile is a shot with its own id, so each one reports its own hit.
     private void Fire(Vector2 origin, Vector2 direction)
     {
         uint tick = TimeManager.Tick;
-        ushort shotId = _nextShotId++;
+        int count = Projectiles;
+        ushort firstShotId = _nextShotId;
+        _nextShotId = unchecked((ushort)(_nextShotId + count));
 
         if (IsServerInitialized)
         {
             // The host's own player: the server's copy is the one the host sees.
-            FireOnServer(origin, direction, tick, shotId);
+            FireOnServer(origin, direction, tick, firstShotId, count);
             return;
         }
 
-        ServerFire(origin, direction, tick, shotId);
-        SpawnProjectile(origin).Launch(direction, 0f, hit => ReportHit(shotId, hit), Reach);
+        ServerFire(origin, direction, tick, firstShotId, (byte)count);
+
+        float spread = Spread;
+        float reach = Reach;
+        for (int i = 0; i < count; i++)
+        {
+            ushort shotId = unchecked((ushort)(firstShotId + i));
+            SpawnProjectile(origin).Launch(GetVolleyDirection(direction, i, count, spread), 0f, hit => ReportHit(shotId, hit), reach);
+        }
     }
 
     [ServerRpc]
-    private void ServerFire(Vector2 origin, Vector2 direction, uint tick, ushort shotId)
+    private void ServerFire(Vector2 origin, Vector2 direction, uint tick, ushort firstShotId, byte count)
     {
-        FireOnServer(origin, direction, tick, shotId);
+        FireOnServer(origin, direction, tick, firstShotId, count);
     }
 
-    private void FireOnServer(Vector2 origin, Vector2 direction, uint tick, ushort shotId)
+    private void FireOnServer(Vector2 origin, Vector2 direction, uint tick, ushort firstShotId, int count)
     {
         // A shot sent just before the player went down still arrives. It's honest, so there's no warning,
         // but the host has the last word on who is downed (#51). Shots already flying still hit.
@@ -156,30 +167,56 @@ public class PlayerAutoAttack : NetworkBehaviour
         if ((origin - expectedOrigin).sqrMagnitude > tolerance * tolerance)
             origin = expectedOrigin;
 
-        // The host's own numbers: the reach it checks the hit against is the one it shows (#157).
+        // The host's own numbers (#157). At most as many projectiles as the host says the player has:
+        // asking for more never gets them, and asking for fewer (an upgrade still on its way) is fine.
+        int projectiles = Mathf.Clamp(count, 1, Projectiles);
+        float spread = Spread;
         float reach = Reach;
-        RememberShot(shotId, origin, direction, reach);
-
         float timePassed = (float)TimeManager.TimePassed(tick);
-        Projectile projectile = SpawnProjectile(origin);
 
-        // The host's own projectile applies its hits. A client reports its own,
-        // so the host's copy of a client's shot is only the picture.
-        if (IsOwner)
-            projectile.Launch(direction, timePassed, hit => ApplyHit(shotId, hit.GetComponentInParent<Health>()), reach);
-        else
-            projectile.Launch(direction, timePassed, null, reach);
+        // One enemy is hit once per volley: Doble disparo spreads auras, it doesn't double the damage
+        // on a single target (catalog engine rule 6).
+        HashSet<Health> volleyHits = projectiles > 1 ? new HashSet<Health>() : null;
 
-        ObserversFire(origin, direction, tick, reach);
+        for (int i = 0; i < projectiles; i++)
+        {
+            ushort shotId = unchecked((ushort)(firstShotId + i));
+            Vector2 shotDirection = GetVolleyDirection(direction, i, projectiles, spread);
+            RememberShot(shotId, origin, shotDirection, reach, volleyHits);
+
+            Projectile projectile = SpawnProjectile(origin);
+
+            // The host's own projectile applies its hits. A client reports its own,
+            // so the host's copy of a client's shot is only the picture.
+            if (IsOwner)
+                projectile.Launch(shotDirection, timePassed, hit => ApplyHit(shotId, hit.GetComponentInParent<Health>()), reach);
+            else
+                projectile.Launch(shotDirection, timePassed, null, reach);
+        }
+
+        ObserversFire(origin, direction, tick, reach, (byte)projectiles, spread);
     }
 
-    // The shooter and the host already show their own copies. The reach travels because the other
-    // clients don't have this player's stats (#157).
+    // The shooter and the host already show their own copies. Reach, count and spread travel because the
+    // other clients don't have this player's stats (#157).
     [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
-    private void ObserversFire(Vector2 origin, Vector2 direction, uint tick, float reach)
+    private void ObserversFire(Vector2 origin, Vector2 direction, uint tick, float reach, byte count, float spread)
     {
         float timePassed = (float)TimeManager.TimePassed(tick);
-        SpawnProjectile(origin).Launch(direction, timePassed, null, reach);
+
+        for (int i = 0; i < count; i++)
+            SpawnProjectile(origin).Launch(GetVolleyDirection(direction, i, count, spread), timePassed, null, reach);
+    }
+
+    // The projectiles of a volley fan out evenly across the spread, centred on the aim: with two and 12°,
+    // one at −6° and one at +6°.
+    private static Vector2 GetVolleyDirection(Vector2 direction, int index, int count, float spread)
+    {
+        if (count <= 1 || spread <= 0f)
+            return direction;
+
+        float angle = -spread * 0.5f + spread * index / (count - 1);
+        return Quaternion.Euler(0f, 0f, angle) * direction;
     }
 
     // On the shooter's client, when its own projectile hits something.
@@ -234,6 +271,11 @@ public class PlayerAutoAttack : NetworkBehaviour
             return;
         }
 
+        // Another projectile of the same volley already hit it. Honest, so no warning. Checked after the
+        // other checks, so a rejected report never uses up the enemy for its sibling.
+        if (shot.VolleyHits != null && !shot.VolleyHits.Add(target))
+            return;
+
         ElementType element = _element != null ? _element.Current : ElementType.None;
         target.TryTakeDamage(Damage, NetworkObject, DamageKind.Basic, element);
 
@@ -243,7 +285,7 @@ public class PlayerAutoAttack : NetworkBehaviour
             aura.TryApply(element, AuraStrength.Weak, NetworkObject, AttackSlot.Basic, canDetonate: false);
     }
 
-    private void RememberShot(ushort shotId, Vector2 origin, Vector2 direction, float reach)
+    private void RememberShot(ushort shotId, Vector2 origin, Vector2 direction, float reach, HashSet<Health> volleyHits)
     {
         ForgetExpiredShots();
 
@@ -251,7 +293,7 @@ public class PlayerAutoAttack : NetworkBehaviour
         float lifetime = projectile.Lifetime * reach;
         Vector2 end = origin + direction * (projectile.Speed * lifetime);
         float expiresAt = Time.time + lifetime + HitReportGrace;
-        _pendingShots[shotId] = new ShotRecord(origin, end, expiresAt);
+        _pendingShots[shotId] = new ShotRecord(origin, end, expiresAt, volleyHits);
     }
 
     // Shots that miss never get a report, so they are dropped once they can no longer hit.
@@ -311,6 +353,16 @@ public class PlayerAutoAttack : NetworkBehaviour
     /// On the owner and on the host: the damage of each hit. Only the host's counts.
     /// </summary>
     public int Damage => _stats != null ? Mathf.Max(1, Mathf.RoundToInt(_stats.Get(StatId.BasicDamage, _settings.Damage))) : _settings.Damage;
+
+    /// <summary>
+    /// On the owner and on the host: projectiles per attack, from 1 (#161).
+    /// </summary>
+    public int Projectiles => _stats != null ? Mathf.Max(1, Mathf.RoundToInt(_stats.Get(StatId.BasicProjectiles, 1f))) : 1;
+
+    /// <summary>
+    /// On the owner and on the host: degrees the projectiles of an attack fan out across.
+    /// </summary>
+    public float Spread => _stats != null ? _stats.Get(StatId.BasicSpread, 0f) : 0f;
 
     // How much farther than its base the shot flies, so it reaches the enemies its range lets it aim at.
     private float Reach => _settings.Range > 0f ? Mathf.Max(1f, Range / _settings.Range) : 1f;

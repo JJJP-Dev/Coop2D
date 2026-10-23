@@ -245,9 +245,16 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 3. El host avisa a los demás para que dibujen la bala (`ObserversFire`), adelantada por el tiempo que tardó en llegar.
 4. Cuando la bala del dueño toca algo, el dueño lo avisa (`ServerHit`). El host comprueba que ese disparo existe, que no se ha usado ya y que el enemigo está cerca de su trayectoria. Si cuadra, aplica el daño y el aura.
 
+**Ráfagas (Doble disparo).** Un ataque puede soltar varias balas a la vez, abiertas en abanico alrededor de la dirección de apuntado (con 2 balas y 12°: una a −6° y otra a +6°). Cuántas y cuánto se abren son estadísticas (`BasicProjectiles` y `BasicSpread`, 4.20).
+- Cada bala de la ráfaga es un disparo con su propio número (`shotId` seguidos), así que cada una avisa de su propio impacto.
+- El dueño manda **un solo** `ServerFire` con cuántas balas son, y gasta **un solo** disparo del presupuesto: la ráfaga cuenta como un ataque.
+- El host acepta como mucho las balas que él cree que tiene el jugador. Si el cliente pide más, no las consigue.
+- **Un enemigo recibe un solo golpe por ráfaga** (regla 6 del motor, en el catálogo). Las balas de una ráfaga comparten en el host una lista de enemigos ya golpeados (`ShotRecord.VolleyHits`); el segundo golpe al mismo enemigo se ignora en silencio. Así Doble disparo sirve para repartir auras entre dos enemigos, no para doblar el daño a uno.
+
 **Qué ajustar.** `Data/Characters/DefaultAutoAttack.asset`: cadencia 0,6 s, alcance 6, daño 10, cuánto se adelanta (*Lead Factor*), y las tolerancias de validación. `Data/Characters/BasicProjectile.asset`: velocidad 10, radio, vida de la bala 0,8 s.
 
 **Cuidado con.** Las tolerancias existen por el ping: con 200 ms, el host ve al jugador «en el pasado». Si las bajas mucho, los clientes con ping verán golpes que no cuentan. Solo se golpea lo que está en la capa **Enemy**, para no dañar nunca a un compañero.
+- El host siempre se entera antes que el dueño de un cambio de balas (las mejoras las aplica él). Al coger Doble disparo, el cliente dispara una bala durante lo que tarda en llegarle: no pasa nada. Al reiniciar la partida es al revés: durante ese instante el cliente aún suelta dos y la segunda no cuenta (`Rejected a hit … unknown` en el host). Es esperado y pasa una sola vez.
 
 ### 4.6 Habilidades
 
@@ -523,7 +530,7 @@ Cualquier truco escribe `cheat_used` para el launcher: una partida con trucos no
 
 ### 4.20 Estadísticas del jugador
 
-**Qué hace.** Junta en un solo sitio los números de cada jugador que las mejoras pueden cambiar: vida máxima, velocidad, daño recibido, radio de recogida de orbes y daño, cadencia y alcance del básico.
+**Qué hace.** Junta en un solo sitio los números de cada jugador que las mejoras pueden cambiar: vida máxima, velocidad, daño recibido, radio de recogida de orbes y daño, cadencia, alcance, balas por ataque y abanico del básico.
 
 **Piezas.** `Code/Player/Stats/`:
 
@@ -553,6 +560,7 @@ Cualquier truco escribe `cheat_used` para el launcher: una partida con trucos no
 | Daño del básico | `PlayerAutoAttack.ApplyHit` | Host |
 | Cadencia del básico | `PlayerAutoAttack` (cuándo dispara y el presupuesto de disparos del host) | Dueño y host |
 | Alcance del básico | `PlayerAutoAttack` (a quién apunta y hasta dónde vuela la bala) | Dueño y host |
+| Balas por ataque (base 1, máximo 4) y abanico en grados (base 0) | `PlayerAutoAttack` (la ráfaga, 4.5) | Dueño y host |
 
 **Qué ajustar.** Los topes, en `DefaultPlayerStats.asset`: un multiplicador mínimo y máximo respecto a la base (1,4 es +40 %) y un mínimo y máximo absolutos (la vida, entre 50 y 250). Una estadística sin fila no tiene tope.
 
@@ -573,6 +581,7 @@ Cualquier truco escribe `cheat_used` para el launcher: una partida con trucos no
 |---|---|
 | `EffectBlock` | La base de todos los bloques. Cada bloque sabe hacer una cosa al coger la mejora (`Acquire`) |
 | `StatModifierBlock` | Cambia una estadística para el resto de la partida |
+| `AttackModifierBlock` | Cambia cómo dispara el básico: balas de más y cuánto se abren. Por dentro son dos estadísticas, así que se acumula y tiene tope como cualquier otra |
 | `OnEventBlock` | Cuando pasa algo, hace sus acciones. Hoy solo hay un evento: *Acquired* (al cogerla) |
 | `EffectAction` | La base de las acciones: algo que pasa una vez |
 | `RestoreAction` | Cura |
@@ -597,6 +606,7 @@ En el editor: `Code/Core/Inspector/SubclassPickerAttribute.cs` y `Code/Editor/Su
 | Imán | Recogida +50 % |
 | Pies ligeros | Velocidad +12 %, vida máxima −10 |
 | Piel gruesa | Daño recibido −10 %, velocidad −5 % |
+| Doble disparo | Ataque: +1 bala, abanico 12°; daño del básico −30 % (cada bala hace 7) |
 
 El resto de las del Pre 3 llegan en los siguientes commits; las de personaje, con los personajes.
 

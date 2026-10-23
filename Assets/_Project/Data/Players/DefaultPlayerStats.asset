@@ -43,3 +43,8 @@ MonoBehaviour:
     _maxMultiplier: 1.5
     _min: 0
     _max: 0
+  - _stat: 7
+    _minMultiplier: 0
+    _maxMultiplier: 0
+    _min: 0
+    _max: 4

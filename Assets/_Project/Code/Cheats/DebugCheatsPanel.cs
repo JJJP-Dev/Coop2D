@@ -180,7 +180,7 @@ public class DebugCheatsPanel : MonoBehaviour
 
         _statsLabel.text =
             $"Vida máx. {health.Max} · Velocidad {Format(movement.MaxSpeed)}\n" +
-            $"Básico {attack.Damage} cada {Format(attack.Interval)} s · alcance {Format(attack.Range)}\n" +
+            $"Básico {attack.Damage} ×{attack.Projectiles} cada {Format(attack.Interval)} s · alcance {Format(attack.Range)}\n" +
             $"Daño recibido ×{Format(stats.Get(StatId.DamageTaken, 1f))} · Recogida {pickup}";
     }
 

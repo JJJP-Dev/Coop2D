@@ -16,6 +16,7 @@ public class PlayerStatSettings : ScriptableObject
         new(StatId.PickupRadius, 0f, 2.5f),
         new(StatId.BasicInterval, 0.6f, 0f),
         new(StatId.BasicRange, 0f, 1.5f),
+        new(StatId.BasicProjectiles, 0f, 0f, 0f, 4f),
     };
 
     /// <summary>

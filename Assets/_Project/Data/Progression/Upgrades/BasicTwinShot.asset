@@ -33,3 +33,20 @@ MonoBehaviour:
     _minLevel: 2
     _maxLevel: 0
     _minPlayers: 0
+  _effects:
+  - rid: 1001
+  - rid: 1002
+  references:
+    version: 2
+    RefIds:
+    - rid: 1001
+      type: {class: AttackModifierBlock, ns: , asm: Assembly-CSharp}
+      data:
+        _projectilesAdd: 1
+        _spreadDegrees: 12
+    - rid: 1002
+      type: {class: StatModifierBlock, ns: , asm: Assembly-CSharp}
+      data:
+        _stat: 4
+        _unit: 1
+        _value: -30
