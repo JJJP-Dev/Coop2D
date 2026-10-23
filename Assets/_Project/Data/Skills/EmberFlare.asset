@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 193ccb8f7f0fea348a50fe929a1b8cf8, type: 3}
+  m_Name: EmberFlare
+  m_EditorClassIdentifier: Assembly-CSharp::SkillDefinition
+  _id: ember_flare
+  _displayName: Llamarada
+  _icon: {fileID: 0}
+  _usesCasterElement: 0
+  _element: 1
+  _canDetonate: 1
+  _auraStrength: 1
+  _cooldown: 5
+  _castRange: 7
+  _shape: 3
+  _radius: 1.5
+  _length: 7
+  _width: 0.5
+  _angle: 60
+  _projectileSpeed: 14
+  _projectileRadius: 0.2
+  _impactRadius: 1.5
+  _pierce: 0
+  _burstAtEnd: 1
+  _trapDuration: 0
+  _projectilePrefab: {fileID: 2348152440398012223, guid: 44c02f9ac2f346d4be8ae61080051bb6, type: 3}
+  _damage: 30
+  _knockback: 0
+  _knockbackDuration: 0.15
+  _visual: {fileID: 5301884050686939402, guid: 70d7fecba95a40b9aa94e3da0195caab, type: 3}

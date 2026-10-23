@@ -475,3 +475,24 @@ Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). Para Ch
 | Cazador de auras con cono | Con Cazador de auras, lanza Ola sobre un enemigo con aura y otro sin ella. | 23 al que tenía aura (20 + 15 %) y 20 al otro. |
 | Lo ven todos | Lanza cada habilidad desde un cliente. | Su zona sale en todas las ventanas, del color del elemento de la habilidad (no del jugador): Llovizna azul también en Brasa. |
 | Estallido y Marca igual que antes | Repite «Lanzar», «Alcance» y «Varios objetivos» de la sección 9. | Igual que antes. El círculo se dibuja ahora como una forma lisa del color del elemento, del mismo tamaño. |
+
+## 25. Habilidades con proyectil (#162)
+
+Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). Estas habilidades aún no están en ningún hueco: antes de dar Play, pon en el tercer hueco de *Starting Skills* `EmberFlare` en `Data/Characters/Ember.asset`, `TideBubble` en `Tide.asset` y `VoltBolt` en `Volt.asset`. Al terminar, devuélvelos a `EmberDrizzle`, `TideWave` y `VoltShort`. Haz cada prueba en local y otra vez con 100 ms de latencia.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Llamarada | J1 lanza Q hacia un perseguidor. | Sale una bola naranja que vuela rápido hacia el cursor. Al tocar al perseguidor estalla en un círculo de 1,5: los que toca reciben 30 y aura de fuego fuerte. |
+| Llamarada al vacío | J1 lanza Q hacia donde no hay nadie. | La bola vuela 7 casillas y estalla allí. |
+| Llamarada detona | J2 marca con agua un grupo (Marca) y J1 lanza Llamarada encima. | Reacción `vapor_water_fire` dúo en cada perseguidor del círculo. |
+| Burbuja | J2 lanza Q hacia un perseguidor de un grupo. | Una burbuja azul más lenta. Al tocar al primero estalla: los de 1,5 alrededor reciben 10 y aura de agua; el primero se queda quieto 1,5 s y no pega. |
+| Burbuja no detona | J1 marca con fuego un grupo y J2 lanza Burbuja encima. | No hay reacción: el aura de fuego se queda (como Marca). |
+| Burbuja al vacío | J2 lanza Q hacia donde no hay nadie. | Vuela 8 casillas y estalla allí, sin atrapar a nadie. |
+| Rayo | J3 lanza Q hacia una fila de perseguidores. | Un proyectil amarillo muy rápido golpea al primero y al segundo (22 cada uno, aura eléctrica) y desaparece. El tercero no recibe nada. |
+| Rayo detona | J2 marca con agua y J3 lanza Rayo encima. | Reacción `electrocution_water_electric` dúo, con su cadena. |
+| Lo ven todos | Cada uno lanza la suya. | En las demás ventanas el proyectil sale de quien lo lanza, ya avanzado si hay ping, y el estallido se dibuja donde explotó para el host. |
+| Con ping | Con 100 ms, cada cliente lanza la suya hacia perseguidores en movimiento. | Los golpes y estallidos cuentan; en el host, ningún `Rejected`. |
+| Recarga | Lanza Rayo varias veces seguidas. | Uno cada 4 s; Llamarada cada 5 s; Burbuja cada 9 s. |
+| Sale el lanzador | Un cliente lanza Burbuja y sale antes de que estalle. | Sin errores en ninguna ventana. |
+| Aura expansiva | Con Aura expansiva, lanza Llamarada a un grupo y Rayo a otro. | Con Llamarada, los de hasta 1 m fuera del círculo reciben solo el aura. Con Rayo no hay anillo. |
+| Tempo | Con Tempo, lanza Rayo. | La cadencia del básico pasa a 0.48 al momento, como con las demás habilidades. |
