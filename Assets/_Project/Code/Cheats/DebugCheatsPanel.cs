@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -38,12 +39,16 @@ public class DebugCheatsPanel : MonoBehaviour
     [Tooltip("Optional. Shows the group's revives left out of its total (#79).")]
     [SerializeField] private TMP_Text _reviveLabel;
 
+    [Tooltip("Optional. Shows your player's stats as your own PC works them out (#157), to see an upgrade change them.")]
+    [SerializeField] private TMP_Text _statsLabel;
+
     private InputService _inputService;
     private TMP_Text _invulnerableLabel;
     private bool? _shownInvulnerable;
     private string _shownSeed;
     private int _shownRemaining = -1;
     private int _shownTotal = -1;
+    private float _nextStatsUpdate;
 
     private void Awake()
     {
@@ -108,6 +113,7 @@ public class DebugCheatsPanel : MonoBehaviour
 
         UpdateSeedLabel();
         UpdateReviveLabel();
+        UpdateStatsLabel();
 
         PlayerIdentity player = GameServices.Instance.LocalPlayerService.Current;
         bool invulnerable = player != null && player.TryGetComponent(out Health health) && health.IsInvulnerable;
@@ -148,6 +154,39 @@ public class DebugCheatsPanel : MonoBehaviour
         _shownRemaining = remaining;
         _shownTotal = total;
         _reviveLabel.text = charges != null ? $"Reanimaciones: {remaining}/{total}" : "Reanimaciones: sin límite";
+    }
+
+    // A few times a second is enough to watch them change, and it doesn't rebuild the text every frame.
+    private void UpdateStatsLabel()
+    {
+        if (_statsLabel == null || Time.unscaledTime < _nextStatsUpdate)
+            return;
+
+        _nextStatsUpdate = Time.unscaledTime + 0.25f;
+
+        PlayerIdentity player = GameServices.Instance.LocalPlayerService.Current;
+        if (player == null || !player.TryGetComponent(out PlayerStats stats) ||
+            !player.TryGetComponent(out Health health) || !player.TryGetComponent(out PlayerMovement movement) ||
+            !player.TryGetComponent(out PlayerAutoAttack attack))
+        {
+            _statsLabel.text = "Estadísticas: -";
+            return;
+        }
+
+        ExperienceOrbs orbs = ExperienceOrbs.Current;
+        string pickup = orbs != null && orbs.Settings != null
+            ? Format(stats.Get(StatId.PickupRadius, orbs.Settings.PickupRadius))
+            : "-";
+
+        _statsLabel.text =
+            $"Vida máx. {health.Max} · Velocidad {Format(movement.MaxSpeed)}\n" +
+            $"Básico {attack.Damage} cada {Format(attack.Interval)} s · alcance {Format(attack.Range)}\n" +
+            $"Daño recibido ×{Format(stats.Get(StatId.DamageTaken, 1f))} · Recogida {pickup}";
+    }
+
+    private static string Format(float value)
+    {
+        return value.ToString("0.##", CultureInfo.InvariantCulture);
     }
 
     private void OnToggle(InputAction.CallbackContext context)

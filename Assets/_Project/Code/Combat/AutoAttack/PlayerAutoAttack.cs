@@ -19,6 +19,9 @@ public class PlayerAutoAttack : NetworkBehaviour
     private PlayerElement _element;
     private PlayerDowned _downed;
 
+    // Optional: without it the basic attack uses its settings as they are (#157).
+    private PlayerStats _stats;
+
     // Owner side.
     private float _nextAttackTime;
     private ushort _nextShotId;
@@ -36,6 +39,7 @@ public class PlayerAutoAttack : NetworkBehaviour
 
         // Optional: without it the player can never be downed (#51).
         TryGetComponent(out _downed);
+        TryGetComponent(out _stats);
 
         if (_settings == null || _settings.ProjectilePrefab == null)
         {
@@ -62,7 +66,7 @@ public class PlayerAutoAttack : NetworkBehaviour
         base.OnStartClient();
 
         if (IsOwner && _settings != null)
-            _nextAttackTime = Time.time + _settings.AttackInterval;
+            _nextAttackTime = Time.time + Interval;
     }
 
     private void Update()
@@ -88,7 +92,7 @@ public class PlayerAutoAttack : NetworkBehaviour
         if (!TryFindNearestTarget(origin, out Collider2D target))
             return;
 
-        _nextAttackTime = Time.time + _settings.AttackInterval;
+        _nextAttackTime = Time.time + Interval;
         Fire(origin, (GetAimPoint(origin, target) - origin).normalized);
     }
 
@@ -121,7 +125,7 @@ public class PlayerAutoAttack : NetworkBehaviour
         }
 
         ServerFire(origin, direction, tick, shotId);
-        SpawnProjectile(origin).Launch(direction, 0f, hit => ReportHit(shotId, hit));
+        SpawnProjectile(origin).Launch(direction, 0f, hit => ReportHit(shotId, hit), Reach);
     }
 
     [ServerRpc]
@@ -152,7 +156,9 @@ public class PlayerAutoAttack : NetworkBehaviour
         if ((origin - expectedOrigin).sqrMagnitude > tolerance * tolerance)
             origin = expectedOrigin;
 
-        RememberShot(shotId, origin, direction);
+        // The host's own numbers: the reach it checks the hit against is the one it shows (#157).
+        float reach = Reach;
+        RememberShot(shotId, origin, direction, reach);
 
         float timePassed = (float)TimeManager.TimePassed(tick);
         Projectile projectile = SpawnProjectile(origin);
@@ -160,19 +166,20 @@ public class PlayerAutoAttack : NetworkBehaviour
         // The host's own projectile applies its hits. A client reports its own,
         // so the host's copy of a client's shot is only the picture.
         if (IsOwner)
-            projectile.Launch(direction, timePassed, hit => ApplyHit(shotId, hit.GetComponentInParent<Health>()));
+            projectile.Launch(direction, timePassed, hit => ApplyHit(shotId, hit.GetComponentInParent<Health>()), reach);
         else
-            projectile.Launch(direction, timePassed);
+            projectile.Launch(direction, timePassed, null, reach);
 
-        ObserversFire(origin, direction, tick);
+        ObserversFire(origin, direction, tick, reach);
     }
 
-    // The shooter and the host already show their own copies.
+    // The shooter and the host already show their own copies. The reach travels because the other
+    // clients don't have this player's stats (#157).
     [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
-    private void ObserversFire(Vector2 origin, Vector2 direction, uint tick)
+    private void ObserversFire(Vector2 origin, Vector2 direction, uint tick, float reach)
     {
         float timePassed = (float)TimeManager.TimePassed(tick);
-        SpawnProjectile(origin).Launch(direction, timePassed);
+        SpawnProjectile(origin).Launch(direction, timePassed, null, reach);
     }
 
     // On the shooter's client, when its own projectile hits something.
@@ -228,7 +235,7 @@ public class PlayerAutoAttack : NetworkBehaviour
         }
 
         ElementType element = _element != null ? _element.Current : ElementType.None;
-        target.TryTakeDamage(_settings.Damage, NetworkObject, DamageKind.Basic, element);
+        target.TryTakeDamage(Damage, NetworkObject, DamageKind.Basic, element);
 
         // The basic attack only marks: a weak aura of the shooter's element, never a reaction.
         // A killing hit has despawned the enemy already, so it gets no aura.
@@ -236,13 +243,14 @@ public class PlayerAutoAttack : NetworkBehaviour
             aura.TryApply(element, AuraStrength.Weak, NetworkObject, AttackSlot.Basic, canDetonate: false);
     }
 
-    private void RememberShot(ushort shotId, Vector2 origin, Vector2 direction)
+    private void RememberShot(ushort shotId, Vector2 origin, Vector2 direction, float reach)
     {
         ForgetExpiredShots();
 
         ProjectileSettings projectile = _settings.ProjectilePrefab.Settings;
-        Vector2 end = origin + direction * (projectile.Speed * projectile.Lifetime);
-        float expiresAt = Time.time + projectile.Lifetime + HitReportGrace;
+        float lifetime = projectile.Lifetime * reach;
+        Vector2 end = origin + direction * (projectile.Speed * lifetime);
+        float expiresAt = Time.time + lifetime + HitReportGrace;
         _pendingShots[shotId] = new ShotRecord(origin, end, expiresAt);
     }
 
@@ -277,7 +285,7 @@ public class PlayerAutoAttack : NetworkBehaviour
     private bool TrySpendShot()
     {
         double now = Time.realtimeSinceStartupAsDouble;
-        _shotBudget = Mathf.Min(MaxShotBudget, _shotBudget + (float)(now - _lastBudgetTime) / _settings.AttackInterval);
+        _shotBudget = Mathf.Min(MaxShotBudget, _shotBudget + (float)(now - _lastBudgetTime) / Interval);
         _lastBudgetTime = now;
 
         if (_shotBudget < 1f)
@@ -286,6 +294,26 @@ public class PlayerAutoAttack : NetworkBehaviour
         _shotBudget -= 1f;
         return true;
     }
+
+    // The basic attack's stats (#157). Each one asks with its own base, which stays in AutoAttackSettings.
+
+    /// <summary>
+    /// On the owner and on the host: seconds between shots, with the player's upgrades.
+    /// </summary>
+    public float Interval => _stats != null ? _stats.Get(StatId.BasicInterval, _settings.AttackInterval) : _settings.AttackInterval;
+
+    /// <summary>
+    /// On the owner and on the host: how far it targets enemies, in units.
+    /// </summary>
+    public float Range => _stats != null ? _stats.Get(StatId.BasicRange, _settings.Range) : _settings.Range;
+
+    /// <summary>
+    /// On the owner and on the host: the damage of each hit. Only the host's counts.
+    /// </summary>
+    public int Damage => _stats != null ? Mathf.Max(1, Mathf.RoundToInt(_stats.Get(StatId.BasicDamage, _settings.Damage))) : _settings.Damage;
+
+    // How much farther than its base the shot flies, so it reaches the enemies its range lets it aim at.
+    private float Reach => _settings.Range > 0f ? Mathf.Max(1f, Range / _settings.Range) : 1f;
 
     private Vector2 GetFireOrigin()
     {
@@ -302,7 +330,7 @@ public class PlayerAutoAttack : NetworkBehaviour
         target = null;
         float nearestSqrDistance = float.MaxValue;
 
-        Physics2D.OverlapCircle(origin, _settings.Range, _targetFilter, _candidates);
+        Physics2D.OverlapCircle(origin, Range, _targetFilter, _candidates);
 
         foreach (Collider2D candidate in _candidates)
         {

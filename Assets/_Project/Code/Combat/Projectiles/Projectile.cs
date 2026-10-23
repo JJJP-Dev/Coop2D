@@ -25,13 +25,15 @@ public class Projectile : MonoBehaviour
 
     /// <summary>
     /// onHit receives the first collider it hits. Leave it null for a copy that is only the picture.
+    /// reach multiplies how far it flies: the basic attack passes its range against the base one, so a
+    /// longer range (#157) doesn't fire at enemies the shot can't reach.
     /// </summary>
-    public void Launch(Vector2 direction, float timePassed, Action<Collider2D> onHit = null)
+    public void Launch(Vector2 direction, float timePassed, Action<Collider2D> onHit = null, float reach = 1f)
     {
         _direction = direction.normalized;
         _catchUpTime = Mathf.Min(timePassed, MaxCatchUpTime);
         _onHit = onHit;
-        _remainingLifetime = _settings != null ? _settings.Lifetime : 0f;
+        _remainingLifetime = _settings != null ? _settings.Lifetime * Mathf.Max(0.1f, reach) : 0f;
     }
 
     private void Update()

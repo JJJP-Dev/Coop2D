@@ -132,17 +132,15 @@ public class ExperienceOrbs : NetworkBehaviour
             _orbs.Clear();
     }
 
-    // Each orb goes to the nearest standing player within reach. Downed players don't pick up:
+    // Each orb goes to the nearest standing player within their reach. Downed players don't pick up:
     // they can't move to them either.
     private void PickUpOrbs()
     {
-        float radiusSqr = _settings.PickupRadius * _settings.PickupRadius;
-
         // Backwards, so removing one doesn't skip the next.
         for (int i = _orbs.Count - 1; i >= 0; i--)
         {
             ExperienceOrb orb = _orbs[i];
-            NetworkObject picker = FindNearestStandingPlayer(orb.Position, radiusSqr);
+            NetworkObject picker = FindNearestStandingPlayer(orb.Position);
             if (picker == null)
                 continue;
 
@@ -187,7 +185,8 @@ public class ExperienceOrbs : NetworkBehaviour
         return nearest;
     }
 
-    private NetworkObject FindNearestStandingPlayer(Vector2 position, float radiusSqr)
+    // Each player has their own reach: Imán makes it bigger (#157).
+    private NetworkObject FindNearestStandingPlayer(Vector2 position)
     {
         NetworkObject nearest = null;
         float nearestSqrDistance = float.MaxValue;
@@ -199,8 +198,12 @@ public class ExperienceOrbs : NetworkBehaviour
             if (player == null || !player.TryGetComponent(out Health health) || health.IsDead)
                 continue;
 
+            float radius = player.TryGetComponent(out PlayerStats stats)
+                ? stats.Get(StatId.PickupRadius, _settings.PickupRadius)
+                : _settings.PickupRadius;
+
             float sqrDistance = ((Vector2)player.transform.position - position).sqrMagnitude;
-            if (sqrDistance <= radiusSqr && sqrDistance < nearestSqrDistance)
+            if (sqrDistance <= radius * radius && sqrDistance < nearestSqrDistance)
             {
                 nearestSqrDistance = sqrDistance;
                 nearest = player;

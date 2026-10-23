@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e448e3de0f74161ad1a3c1388531ef3, type: 3}
+  m_Name: DefaultPlayerStats
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStatSettings
+  _limits:
+  - _stat: 0
+    _minMultiplier: 0
+    _maxMultiplier: 0
+    _min: 50
+    _max: 250
+  - _stat: 1
+    _minMultiplier: 0
+    _maxMultiplier: 1.4
+    _min: 0
+    _max: 0
+  - _stat: 2
+    _minMultiplier: 0.6
+    _maxMultiplier: 0
+    _min: 0
+    _max: 0
+  - _stat: 3
+    _minMultiplier: 0
+    _maxMultiplier: 2.5
+    _min: 0
+    _max: 0
+  - _stat: 5
+    _minMultiplier: 0.6
+    _maxMultiplier: 0
+    _min: 0
+    _max: 0
+  - _stat: 6
+    _minMultiplier: 0
+    _maxMultiplier: 1.5
+    _min: 0
+    _max: 0

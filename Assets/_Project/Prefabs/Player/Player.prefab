@@ -597,6 +597,7 @@ GameObject:
   - component: {fileID: 4992590136018386484}
   - component: {fileID: 9179136649709530141}
   - component: {fileID: 1604297359816126803}
+  - component: {fileID: 3391208299126440683}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -1013,6 +1014,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerChoosingView
   _upgrades: {fileID: 9179136649709530141}
   _label: {fileID: 5590987553635794663}
+--- !u!114 &3391208299126440683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4950291352465746428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 221de2c550b949928a71b7a97d9a4370, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 3332554340608108226}
+  _networkObjectCache: {fileID: 0}
+  _settings: {fileID: 11400000, guid: dcace44cd13f4de1b653ab337ca746c4, type: 2}
 --- !u!1 &5171306280570818574
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,6 +10,12 @@ public class Health : NetworkBehaviour
     private readonly SyncVar<int> _current = new();
     private readonly SyncVar<bool> _invulnerable = new();
 
+    // The maximum travels too: a player's upgrades change it (#157), and everyone shows their health.
+    private readonly SyncVar<int> _max = new();
+
+    // Players only: their stats change the maximum and the damage they take (#157).
+    private PlayerStats _stats;
+
     private float _invulnerableUntil;
 
     /// <summary>
@@ -19,7 +25,12 @@ public class Health : NetworkBehaviour
     public float LastDamagedAt { get; private set; } = float.NegativeInfinity;
 
     public int Current => _current.Value;
-    public int Max => _settings != null ? _settings.MaxHealth : 0;
+    public int Max => _max.Value;
+
+    /// <summary>
+    /// The maximum of its settings, before any upgrade.
+    /// </summary>
+    public int BaseMax => _settings != null ? _settings.MaxHealth : 0;
     public bool IsDead => _current.Value <= 0;
 
     /// <summary>
@@ -41,6 +52,8 @@ public class Health : NetworkBehaviour
     {
         _current.OnChange += OnCurrentChanged;
         _invulnerable.OnChange += OnInvulnerableChanged;
+        _max.OnChange += OnMaxChanged;
+        TryGetComponent(out _stats);
 
         if (_settings == null)
         {
@@ -49,6 +62,7 @@ public class Health : NetworkBehaviour
         }
 
         // Set before the network starts, so it is the starting value on every side.
+        _max.Value = _settings.MaxHealth;
         _current.Value = _settings.MaxHealth;
     }
 
@@ -77,6 +91,10 @@ public class Health : NetworkBehaviour
 
         if (amount <= 0 || IsDead || _invulnerable.Value || Time.time < _invulnerableUntil)
             return false;
+
+        // A player's damage_taken (#157): Piel gruesa takes 10 % off. Never below 1, so a hit is a hit.
+        if (_stats != null)
+            amount = Mathf.Max(1, Mathf.RoundToInt(amount * _stats.Get(StatId.DamageTaken, 1f)));
 
         ApplyDamage(amount, attacker, kind, element);
         return true;
@@ -149,6 +167,44 @@ public class Health : NetworkBehaviour
     }
 
     /// <summary>
+    /// Server only. Changes the maximum (#157). The current health stays, unless it's now above the
+    /// maximum: gaining maximum health doesn't heal by itself, a Heal does (Vitalidad has both).
+    /// </summary>
+    public void SetMaxHealth(int max)
+    {
+        if (!IsServerInitialized)
+        {
+            Debug.LogWarning("[Health] Only the server can change the maximum health.", this);
+            return;
+        }
+
+        max = Mathf.Max(1, max);
+        if (_max.Value != max)
+            _max.Value = max;
+
+        if (_current.Value > max)
+            _current.Value = max;
+    }
+
+    /// <summary>
+    /// Server only. Gives back health, up to the maximum. A downed player isn't healed: only a revive
+    /// gets it up (catalog rule 0.3.5).
+    /// </summary>
+    public void Heal(int amount)
+    {
+        if (!IsServerInitialized)
+        {
+            Debug.LogWarning("[Health] Only the server can heal.", this);
+            return;
+        }
+
+        if (amount <= 0 || IsDead)
+            return;
+
+        _current.Value = Mathf.Min(Max, _current.Value + amount);
+    }
+
+    /// <summary>
     /// Server only. Ignores hits for a few seconds from now, or longer if it already did. Choosing an
     /// upgrade uses it (#77): the player looked away from the fight to pick.
     /// </summary>
@@ -214,6 +270,12 @@ public class Health : NetworkBehaviour
             return;
 
         Changed?.Invoke(this);
+    }
+
+    private void OnMaxChanged(int previous, int next, bool asServer)
+    {
+        if (!asServer)
+            Changed?.Invoke(this);
     }
 
     private void OnInvulnerableChanged(bool previous, bool next, bool asServer)
