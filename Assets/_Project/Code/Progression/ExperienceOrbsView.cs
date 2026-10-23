@@ -20,8 +20,12 @@ public class ExperienceOrbsView : MonoBehaviour
     private readonly List<Flight> _flights = new();
     private readonly Stack<SpriteRenderer> _pool = new();
 
-    // Orbs already flying that the list hasn't removed yet, so their removal doesn't hide the flight.
+    // Orbs already flying that the list hasn't removed yet, so it doesn't draw them again on the ground.
     private readonly HashSet<ushort> _picked = new();
+
+    // Reused on every change, so comparing the list allocates nothing.
+    private readonly HashSet<ushort> _inList = new();
+    private readonly List<ushort> _gone = new();
 
     private Vector3 _baseScale;
 
@@ -50,10 +54,7 @@ public class ExperienceOrbsView : MonoBehaviour
         if (_orbs == null)
             return;
 
-        _orbs.OrbAdded += OnOrbAdded;
-        _orbs.OrbChanged += OnOrbChanged;
-        _orbs.OrbRemoved += OnOrbRemoved;
-        _orbs.OrbsCleared += OnOrbsCleared;
+        _orbs.OrbsChanged += OnOrbsChanged;
         _orbs.OrbPicked += OnOrbPicked;
     }
 
@@ -62,10 +63,7 @@ public class ExperienceOrbsView : MonoBehaviour
         if (_orbs == null)
             return;
 
-        _orbs.OrbAdded -= OnOrbAdded;
-        _orbs.OrbChanged -= OnOrbChanged;
-        _orbs.OrbRemoved -= OnOrbRemoved;
-        _orbs.OrbsCleared -= OnOrbsCleared;
+        _orbs.OrbsChanged -= OnOrbsChanged;
         _orbs.OrbPicked -= OnOrbPicked;
     }
 
@@ -91,54 +89,56 @@ public class ExperienceOrbsView : MonoBehaviour
         }
     }
 
-    // Also for the orbs already there when this client arrived, which may come twice: once from the
-    // list and once from FishNet's first changes. The id keeps them as one.
-    private void OnOrbAdded(ExperienceOrb orb)
+    // Makes the orbs on screen match the list: draws the new ones, resizes the merged ones and takes
+    // away those that are gone. At most 40 orbs, only when the list changes, so it costs nothing.
+    private void OnOrbsChanged()
     {
-        if (!_onGround.TryGetValue(orb.Id, out SpriteRenderer renderer))
+        _inList.Clear();
+
+        foreach (ExperienceOrb orb in _orbs.Orbs)
         {
-            renderer = Take();
-            _onGround.Add(orb.Id, renderer);
+            _inList.Add(orb.Id);
+
+            // Already flying to whoever picked it; the list just hasn't let it go yet.
+            if (_picked.Contains(orb.Id))
+                continue;
+
+            if (!_onGround.TryGetValue(orb.Id, out SpriteRenderer renderer))
+            {
+                renderer = Take();
+                renderer.transform.position = orb.Position;
+                _onGround.Add(orb.Id, renderer);
+            }
+
+            SetSize(renderer, orb.Value);
         }
 
-        renderer.transform.position = orb.Position;
-        SetSize(renderer, orb.Value);
-    }
+        _gone.Clear();
+        foreach (ushort id in _onGround.Keys)
+        {
+            if (!_inList.Contains(id))
+                _gone.Add(id);
+        }
 
-    // A merged orb is worth more.
-    private void OnOrbChanged(ExperienceOrb orb)
-    {
-        if (_onGround.TryGetValue(orb.Id, out SpriteRenderer renderer))
-            SetSize(renderer, orb.Value);
-    }
+        foreach (ushort id in _gone)
+        {
+            Release(_onGround[id]);
+            _onGround.Remove(id);
+        }
 
-    private void OnOrbRemoved(ushort id)
-    {
-        // Already flying: the flight ends by itself.
-        if (_picked.Remove(id))
-            return;
-
-        if (_onGround.Remove(id, out SpriteRenderer renderer))
-            Release(renderer);
-    }
-
-    private void OnOrbsCleared()
-    {
-        foreach (SpriteRenderer renderer in _onGround.Values)
-            Release(renderer);
-
-        _onGround.Clear();
-        _picked.Clear();
+        // Flying orbs the list has let go no longer need to be remembered.
+        _picked.IntersectWith(_inList);
     }
 
     // The orb on the ground becomes the one that flies. If the list removed it first, a new one flies
-    // from where it was, and there is nothing left to wait for.
+    // from where it was. The host sends this before removing it, so it usually comes first.
     private void OnOrbPicked(ushort id, Vector2 position, NetworkObject picker)
     {
-        if (_onGround.Remove(id, out SpriteRenderer renderer))
-            _picked.Add(id);
-        else
+        if (!_onGround.Remove(id, out SpriteRenderer renderer))
             renderer = Take();
+
+        // Until a list without it arrives, it must not be drawn again on the ground.
+        _picked.Add(id);
 
         if (picker == null)
         {

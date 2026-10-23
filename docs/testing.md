@@ -5,7 +5,6 @@ Pruebas que repetimos antes de cada pull request que toque la red, los jugadores
 ## Preparación
 
 - **En el editor:** abre **solo** `Bootstrap` y pulsa Play, para arrancar igual que la build. Para varios jugadores, activa los Players 2-4 en *Window > Multiplayer > Multiplayer Play Mode*.
-- **Vista Game:** la resolución base es 640×360 con recorte (#42). Pon la vista *Game* en 1920×1080 o 1280×720: con *Free Aspect* verás bandas negras si no es múltiplo exacto.
 - **Con la build:** abre dos copias. Una hospeda y la otra se une a `127.0.0.1`.
 - **Consola:** en el editor, la pestaña *Console*. En la build, la tecla `º` (a la izquierda del 1) abre la consola del juego.
 - **Con latencia:** en `Bootstrap`, en el *TransportManager* del NetworkManager, activa *Latency Simulator* con *Latency* 100. Da unos 200 ms de ida y vuelta, que se ven con F3. Desactívalo antes del commit.
@@ -363,6 +362,7 @@ Con el host y dos clientes, en local y otra vez con 100 ms de latencia. «Dar ex
 | Se ven en todas | Matad perseguidores. | Cada uno deja un orbe donde cayó, en el mismo sitio en todas las ventanas. |
 | Atracción suave | Pasa cerca de varios orbes, también con 100 ms. | Vuelan hacia ti acelerando y desaparecen al llegar, sin saltos. En las otras ventanas vuelan hacia ti, no hacia ellos. |
 | Orbes al entrar tarde | Deja orbes en el suelo y une a otro cliente. | Los ve todos en su sitio, una sola vez cada uno. |
+| Sin orbes fantasma | Con host y dos clientes, recoged muchos orbes por turnos durante un par de oleadas, cada uno en una zona, y derribaos y reanimaos entre medias. Mira la ventana del host. | Un orbe recogido desaparece en todas las ventanas, también en la del host. Nunca queda en una ventana un orbe que no se puede recoger. |
 | Sale quien los recoge | Un cliente recoge orbes y sale justo después. | Los orbes en vuelo desaparecen sin errores. |
 
 ## 20. Resolución base (#42)

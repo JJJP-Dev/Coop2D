@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
@@ -32,12 +33,18 @@ public class ExperienceOrbs : NetworkBehaviour
 
     public OrbSettings Settings => _settings;
 
-    // Client side, the host's client included, for ExperienceOrbsView. Added is also raised for the
-    // orbs already on the ground when this client arrives, so the view can draw them.
-    public event Action<ExperienceOrb> OrbAdded;
-    public event Action<ExperienceOrb> OrbChanged;
-    public event Action<ushort> OrbRemoved;
-    public event Action OrbsCleared;
+    /// <summary>
+    /// Client side: the orbs this client has received. On the host it's the host's own list.
+    /// </summary>
+    public IReadOnlyList<ExperienceOrb> Orbs => _orbs.GetCollection(false);
+
+    /// <summary>
+    /// Client side, the host's client included. The list changed: read Orbs again. Also raised when
+    /// this client arrives, for the orbs already on the ground.
+    /// The view compares the whole list instead of following each change, because FishNet doesn't say
+    /// which orb a removal took on the host's client (#84).
+    /// </summary>
+    public event Action OrbsChanged;
 
     /// <summary>
     /// Client side. An orb was picked up: where it was and who took it (null if they already left).
@@ -80,9 +87,7 @@ public class ExperienceOrbs : NetworkBehaviour
     {
         base.OnStartClient();
 
-        // The client's copy of the list: on the host it's the one the host's client has received.
-        foreach (ExperienceOrb orb in _orbs.GetCollection(false))
-            OrbAdded?.Invoke(orb);
+        OrbsChanged?.Invoke();
     }
 
     private void Update()
@@ -155,28 +160,13 @@ public class ExperienceOrbs : NetworkBehaviour
         OrbPicked?.Invoke(id, position, picker);
     }
 
-    // The view hears the client's copy of the list. The host's client gets its own calls with asServer false.
+    // Once per batch of changes, after all of them are in the list. On the host's client FishNet doesn't
+    // change the list again (the server already did) and passes an empty orb with each removal: following
+    // each removal took the wrong orb off the screen and left ghosts behind (#84).
     private void OnOrbsChanged(SyncListOperation operation, int index, ExperienceOrb previous, ExperienceOrb next, bool asServer)
     {
-        if (asServer)
-            return;
-
-        switch (operation)
-        {
-            case SyncListOperation.Add:
-            case SyncListOperation.Insert:
-                OrbAdded?.Invoke(next);
-                break;
-            case SyncListOperation.Set:
-                OrbChanged?.Invoke(next);
-                break;
-            case SyncListOperation.RemoveAt:
-                OrbRemoved?.Invoke(previous.Id);
-                break;
-            case SyncListOperation.Clear:
-                OrbsCleared?.Invoke();
-                break;
-        }
+        if (!asServer && operation == SyncListOperation.Complete)
+            OrbsChanged?.Invoke();
     }
 
     private int FindNearestOrb(Vector2 position)
