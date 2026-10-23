@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e459f3baf4042198be861c18f45e2ab, type: 3}
+  m_Name: VoltSurge
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeDefinition
+  _id: volt_surge
+  _displayName: "Sobretensi\u00F3n"
+  _description: "Conductor devuelve 0,5 s m\u00E1s a tus recargas"
+  _icon: {fileID: 0}
+  _category: 1
+  _element: 5
+  _rarity: 0
+  _maxStacks: 2
+  _weight: 1
+  _uniquePerGroup: 0
+  _risk: 0
+  _character: volt
+  _requires:
+  - "char:volt"
+  _excludes: []
+  _appearIf:
+    _minLevel: 0
+    _maxLevel: 0
+    _minPlayers: 0

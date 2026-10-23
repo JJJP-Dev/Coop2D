@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dbeb65ddc2d4a4b9d4887233edfc8d0, type: 3}
+  m_Name: DefaultOffers
+  m_EditorClassIdentifier: Assembly-CSharp::OfferSettings
+  _choices: 3
+  _rarityByLevel:
+  - _fromLevel: 2
+    _common: 80
+    _rare: 20
+    _epic: 0
+    _legendary: 0
+  - _fromLevel: 5
+    _common: 65
+    _rare: 30
+    _epic: 5
+    _legendary: 0
+  - _fromLevel: 9
+    _common: 50
+    _rare: 38
+    _epic: 12
+    _legendary: 0
+  - _fromLevel: 13
+    _common: 40
+    _rare: 40
+    _epic: 20
+    _legendary: 0
+  _maxLuck: 20
+  _ownFamilyChance: 0.35
+  _seenWeight: 0.5
+  _guaranteedRareLevel: 5
+  _guaranteedEpicLevel: 10
+  _riskMinLevel: 4
+  _duoMinLevel: 6
+  _duoChance: 0.2
+  _duoDroughtOffers: 3
+  _maxRerolls: 2
+  _timedRerollSeconds:
+  - 240
+  - 480
+  _skipRerollThirds: 1
+  _fallbackRerollThirds: 1
+  _banishes: 1
