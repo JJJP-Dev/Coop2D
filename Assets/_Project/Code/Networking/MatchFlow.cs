@@ -28,6 +28,9 @@ public class MatchFlow : NetworkBehaviour
     [Tooltip("Optional. Its orbs go away on a restart (#84).")]
     [SerializeField] private ExperienceOrbs _orbs;
 
+    [Tooltip("Optional. Every player's upgrades and offers go away on a restart (#78).")]
+    [SerializeField] private UpgradeOffers _upgrades;
+
     private readonly SyncVar<MatchPhase> _phase = new();
 
     // What the panel and the launcher show, frozen when the match ends so every client says the same.
@@ -174,6 +177,10 @@ public class MatchFlow : NetworkBehaviour
 
         if (_experience != null)
             _experience.ResetForNewRun();
+
+        // After the new seed: the next offers draw from the new run's streams.
+        if (_upgrades != null)
+            _upgrades.ResetForNewRun();
 
         _endSeconds.Value = 0;
         _endWaves.Value = 0;

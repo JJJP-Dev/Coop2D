@@ -97,7 +97,10 @@ id nuevo** en esta tabla; no reutilices uno existente para otra cosa.
 | `by` | `me`, `ally`, `none` | Quién lo hizo: el jugador local, otro jugador o nadie (truco, oleada, entorno) |
 | `source` | `basic`, `ability`, `reaction`, `cheat`, `other` | Qué lo causó |
 | `target` | `loopback`, `lan`, `vpn`, `public`, `invalid` | Tipo de dirección a la que se intenta unir (ver `join_attempt`) |
-| `cheat` | `spawn_chaser`, `spawn_chaser_10`, `kill_all`, `invulnerable`, `damage_all`, `heal_all`, `next_wave`, `reset_waves`, `give_xp`, `element_cycle`, `reaction_lab` | Un id por botón del panel F1; `element_cycle` es la tecla F6; `reaction_lab`, cualquier botón del panel del laboratorio de reacciones |
+| `upgrade` | `basic_twin_shot`, `basic_long_barrel`, `basic_tempo`, `stat_aura_hunter`, `aura_lingering`, `aura_wide_skill`, `coop_relay`, `coop_assist`, `def_vitality`, `mov_tailwind`, `ember_wall_detonate`, `ember_eternal_flame`, `tide_whirlpool`, `tide_tsunami_heart`, `volt_surge`, `volt_coil_detonator`, `econ_breather` | Los ids del catálogo de progresión (#78). `econ_breather` es Respiro. Cada mejora nueva añade el suyo |
+| `rarity` | `common`, `rare`, `epic`, `legendary`, `duo`, `evolution` | Rareza de una mejora |
+| `action` | `reroll`, `banish`, `skip` | Qué hizo el jugador con una oferta en vez de elegir (#78) |
+| `cheat` | `spawn_chaser`, `spawn_chaser_10`, `kill_all`, `invulnerable`, `damage_all`, `heal_all`, `next_wave`, `reset_waves`, `give_xp`, `give_reroll`, `element_cycle`, `reaction_lab` | Un id por botón del panel F1; `element_cycle` es la tecla F6; `reaction_lab`, cualquier botón del panel del laboratorio de reacciones |
 
 ## 5. Catálogo de eventos
 
@@ -221,6 +224,28 @@ Cada vez que el grupo sube de nivel (#76), en todas las ventanas. La experiencia
 | Campo | Tipo | Valor |
 |---|---|---|
 | `level` | entero | Nivel nuevo del grupo, desde 2 |
+| `match_time` | entero | Segundos de partida |
+
+#### `upgrade_picked` · Obligatorio
+
+Cuando el jugador local elige una mejora de su oferta y el host lo acepta (#78). Solo en su ventana: cada jugador elige la suya. Respiro también cuenta.
+
+| Campo | Tipo | Valor |
+|---|---|---|
+| `upgrade` | id | La mejora elegida |
+| `rarity` | id | Su rareza |
+| `level` | entero | Nivel de la subida de la que salió la oferta (puede ser anterior al actual si tenía ofertas en cola) |
+| `match_time` | entero | Segundos de partida |
+
+#### `offer_action` · Recomendado
+
+Cuando el jugador local vuelve a tirar, descarta una opción o salta una oferta y el host lo acepta (#78). Solo en su ventana.
+
+| Campo | Tipo | Valor |
+|---|---|---|
+| `action` | id | `reroll`, `banish` o `skip` |
+| `upgrade` | id | La mejora descartada con `banish`; `none` con `reroll` y `skip` |
+| `level` | entero | Nivel de la subida de la oferta |
 | `match_time` | entero | Segundos de partida |
 
 #### `match_over` · Obligatorio

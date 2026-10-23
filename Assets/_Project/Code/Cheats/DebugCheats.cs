@@ -69,6 +69,12 @@ public class DebugCheats : NetworkBehaviour
             ServerGiveXp();
     }
 
+    public void GiveReroll()
+    {
+        if (IsClientInitialized)
+            ServerGiveReroll();
+    }
+
     // Nobody owns this scene object, so it has to allow calls from anyone.
     // FishNet fills in caller with the connection that sent it.
     [ServerRpc(RequireOwnership = false)]
@@ -227,6 +233,25 @@ public class DebugCheats : NetworkBehaviour
         experience.AddExperience(_settings.GiveXpAmount);
         LogCheat(caller, $"gave the group {_settings.GiveXpAmount} experience");
         ReportCheat(caller, "give_xp");
+    }
+
+    // To every player, within the limit of 2 per match: it tests rerolls without waiting for minute 4 (#78).
+    [ServerRpc(RequireOwnership = false)]
+    private void ServerGiveReroll(NetworkConnection caller = null)
+    {
+        if (!IsAllowed(caller))
+            return;
+
+        UpgradeOffers offers = UpgradeOffers.Current;
+        if (offers == null)
+        {
+            TargetReport(caller, "Esta escena no tiene mejoras", ToastType.Warning);
+            return;
+        }
+
+        offers.GiveRerollToAll();
+        LogCheat(caller, "gave every player a reroll");
+        ReportCheat(caller, "give_reroll");
     }
 
     // Only to whoever asked: the others don't need to know.

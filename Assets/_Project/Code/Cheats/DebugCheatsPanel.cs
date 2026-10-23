@@ -29,6 +29,9 @@ public class DebugCheatsPanel : MonoBehaviour
     [Tooltip("Optional. Gives the group experience (#76).")]
     [SerializeField] private Button _giveXpButton;
 
+    [Tooltip("Optional. Gives every player a reroll, within the limit of 2 per match (#78).")]
+    [SerializeField] private Button _giveRerollButton;
+
     [Tooltip("Optional. Shows the match's seed (#75), to write it in RunRandomSettings and play the same run again.")]
     [SerializeField] private TMP_Text _seedLabel;
 
@@ -72,6 +75,9 @@ public class DebugCheatsPanel : MonoBehaviour
 
         if (_giveXpButton != null)
             _giveXpButton.onClick.AddListener(_cheats.GiveXp);
+
+        if (_giveRerollButton != null)
+            _giveRerollButton.onClick.AddListener(_cheats.GiveReroll);
 
         _invulnerableLabel = _invulnerableButton.GetComponentInChildren<TMP_Text>();
     }

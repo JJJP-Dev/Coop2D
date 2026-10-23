@@ -1,12 +1,17 @@
 using System;
 using System.Collections.Generic;
+using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using UnityEngine;
 
-// The upgrades of one player in this match (#78) and what they have to change their offers with:
-// rerolls, counted in thirds, and banishes. The host decides all of it. The upgrades each player has
-// travel to every client, because the group's HUD will show them; the rest is the host's alone.
+// The upgrades of one player in this match (#78), their queue of offers and what they have to change
+// them with: rerolls, counted in thirds, and banishes. The host decides all of it (catalog C.7):
+//   1. Each level up of the group queues an offer. The first of the queue is drawn when it becomes the
+//      first, with the player's state at that moment, and sent only to its owner (TargetRpc).
+//   2. The owner answers with the offer's id and what they chose (ServerRpc). The host checks it is the
+//      offer still pending and that the choice still holds, applies it and opens the next one.
+// The upgrades each player has travel to every client, because the group's HUD will show them.
 // On the player prefab, next to PlayerSkills.
 [RequireComponent(typeof(PlayerIdentity))]
 public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
@@ -20,6 +25,9 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     private readonly SyncVar<int> _rerollThirds = new();
     private readonly SyncVar<int> _banishesLeft = new();
 
+    // Offers waiting, the open one included, for the HUD's counter (#77).
+    private readonly SyncVar<int> _pendingOffers = new();
+
     // Server side. Earned counts every third ever received in this match, spent ones included, so the
     // limit of 2 rerolls per match holds whatever the order of earning and spending (catalog C.5).
     private int _earnedThirds;
@@ -27,6 +35,15 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     private readonly HashSet<string> _banished = new();
     private readonly HashSet<string> _seen = new();
     private int _offersWithoutDuo;
+
+    // Server side: the queue and the open offer. _offerId 0 means none is open.
+    private readonly Queue<int> _queuedLevels = new();
+    private readonly List<OfferOption> _options = new();
+    private int _offerId;
+    private int _offerLevel;
+    private int _lastOfferId;
+    private bool _ownerReady;
+    private UpgradeOffers _offers;
 
     private PlayerIdentity _identity;
     private PlayerElement _element;
@@ -49,6 +66,21 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     public int RerollThirdsOver => _rerollThirds.Value % 3;
 
     public int BanishesLeft => _banishesLeft.Value;
+
+    /// <summary>
+    /// Every client, host included. Offers this player has waiting, the open one included.
+    /// </summary>
+    public int PendingOffers => _pendingOffers.Value;
+
+    /// <summary>
+    /// Owner side. The offer open now, as it arrived from the host. Null when there is none.
+    /// </summary>
+    public ReceivedOffer CurrentOffer { get; private set; }
+
+    /// <summary>
+    /// Owner side. A new offer arrived, the open one changed (reroll, banish) or there's none left.
+    /// </summary>
+    public event Action OfferChanged;
 
     /// <summary>
     /// rarity_luck, which moves weight from common to rare and epic. 0 until player stats exist (#157).
@@ -83,6 +115,47 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         _hasProjectileBasic = GetComponent<PlayerAutoAttack>() != null;
     }
 
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+
+        _queuedLevels.Clear();
+        _options.Clear();
+        _offerId = 0;
+        _ownerReady = false;
+
+        // Null in a scene without offers, like ReactionLab: the player just never gets any.
+        _offers = UpgradeOffers.Current;
+        if (_offers != null)
+            _offers.Register(this);
+    }
+
+    public override void OnStopServer()
+    {
+        base.OnStopServer();
+
+        if (_offers != null)
+            _offers.Unregister(this);
+
+        _offers = null;
+    }
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+
+        // Only now can a TargetRpc reach the owner for sure: until this point its player may not exist
+        // on its side yet. Offers queued before (joining late, the first level up) wait for this.
+        if (IsOwner)
+            ServerOwnerReady();
+    }
+
+    public override void OnStopClient()
+    {
+        base.OnStopClient();
+        CurrentOffer = null;
+    }
+
     public int GetStacks(string id)
     {
         return !string.IsNullOrEmpty(id) && _stacks.TryGetValue(id, out int stacks) ? stacks : 0;
@@ -104,6 +177,43 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         _spentThirds = 0;
         _rerollThirds.Value = 0;
         _banishesLeft.Value = Mathf.Max(0, banishes);
+
+        bool hadOffer = _offerId != 0;
+        _queuedLevels.Clear();
+        _options.Clear();
+        _offerId = 0;
+        UpdatePending();
+
+        if (hadOffer && _ownerReady)
+            TargetCloseOffer(Owner);
+    }
+
+    /// <summary>
+    /// Server only. The group reached this level: one more offer in the queue. If none was open, it's
+    /// drawn and sent now.
+    /// </summary>
+    public void EnqueueOffer(int level)
+    {
+        if (!IsServerInitialized)
+            return;
+
+        _queuedLevels.Enqueue(level);
+        UpdatePending();
+        OpenNext();
+    }
+
+    /// <summary>
+    /// Owner side. Answers the open offer. index is the option for Pick and Banish, ignored otherwise.
+    /// The host's reply (the next offer, or none) arrives with the latency; until then the offer is
+    /// marked answered so the panel doesn't send twice.
+    /// </summary>
+    public void Answer(OfferAnswer answer, int index)
+    {
+        if (!IsOwner || CurrentOffer == null || CurrentOffer.IsAnswered)
+            return;
+
+        CurrentOffer.IsAnswered = true;
+        ServerAnswer(CurrentOffer.Id, answer, index);
     }
 
     /// <summary>
@@ -188,6 +298,220 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         {
             if (!string.IsNullOrEmpty(id))
                 _seen.Add(id);
+        }
+    }
+
+    [ServerRpc]
+    private void ServerOwnerReady()
+    {
+        _ownerReady = true;
+
+        if (_offerId != 0)
+            SendOffer();
+        else
+            OpenNext();
+    }
+
+    // Only the owner can call it (ServerRpc requires ownership), so nobody answers someone else's offer.
+    [ServerRpc]
+    private void ServerAnswer(int offerId, OfferAnswer answer, int index)
+    {
+        // An answer to an offer that was rerolled, banished from or closed meanwhile: the owner already
+        // has the newer one on its way.
+        if (_offerId == 0 || offerId != _offerId || _offers == null)
+            return;
+
+        bool accepted = answer switch
+        {
+            OfferAnswer.Pick => Pick(index),
+            OfferAnswer.Reroll => Reroll(),
+            OfferAnswer.Banish => Banish(index),
+            OfferAnswer.Skip => Skip(),
+            _ => false,
+        };
+
+        // Refused (no reroll left, an option that can't be banished...): the same offer goes back, so the
+        // owner's panel stops waiting for a reply.
+        if (!accepted)
+            SendOffer();
+    }
+
+    private bool Skip()
+    {
+        EarnRerollThirds(_offers.Settings.SkipRerollThirds, _offers.Settings.MaxRerollThirds);
+        TargetAnswered(Owner, OfferAnswer.Skip, null, _offerLevel);
+        CloseOffer();
+        return true;
+    }
+
+    private bool Pick(int index)
+    {
+        if (index < 0 || index >= _options.Count)
+            return false;
+
+        UpgradeDefinition upgrade = _options[index].Upgrade;
+
+        // Someone else may have just taken an upgrade only one player can have: that option changes
+        // and the offer goes back to the owner, who chooses again (C.7).
+        if (!_offers.IsStillOfferable(this, _offerLevel, upgrade))
+        {
+            if (!_offers.Replace(this, _offerLevel, _options, index, "sustituida"))
+                _options.RemoveAt(index);
+
+            SendOffer();
+            return true;
+        }
+
+        if (upgrade == _offers.Pool.Fallback)
+            EarnRerollThirds(_offers.Settings.FallbackRerollThirds, _offers.Settings.MaxRerollThirds);
+        else
+            AddStack(upgrade);
+
+        TargetAnswered(Owner, OfferAnswer.Pick, upgrade.Id, _offerLevel);
+        CloseOffer();
+        return true;
+    }
+
+    // The same level and guarantees, three new options; an evolution stays (C.5). What was on screen
+    // weighs half in the new draw.
+    private bool Reroll()
+    {
+        if (!TrySpendReroll())
+            return false;
+
+        SetSeen(CurrentIds());
+        _offers.Generate(this, _offerLevel, _options, "reroll");
+        TargetAnswered(Owner, OfferAnswer.Reroll, null, _offerLevel);
+        SendOffer();
+        return true;
+    }
+
+    // Out of the player's offers for the rest of the match, and another option takes its place (C.5).
+    private bool Banish(int index)
+    {
+        if (index < 0 || index >= _options.Count || !_options[index].CanBanish)
+            return false;
+
+        string id = _options[index].Upgrade.Id;
+        if (!TryBanish(id))
+            return false;
+
+        if (!_offers.Replace(this, _offerLevel, _options, index, "descarte"))
+            _options.RemoveAt(index);
+
+        TargetAnswered(Owner, OfferAnswer.Banish, id, _offerLevel);
+        SendOffer();
+        return true;
+    }
+
+    private void OpenNext()
+    {
+        if (!_ownerReady || _offerId != 0 || _queuedLevels.Count == 0 || _offers == null)
+            return;
+
+        _offerLevel = _queuedLevels.Dequeue();
+        _options.Clear();
+        _offers.Generate(this, _offerLevel, _options, "nueva");
+        SendOffer();
+    }
+
+    private void CloseOffer()
+    {
+        SetSeen(CurrentIds());
+        _options.Clear();
+        _offerId = 0;
+        UpdatePending();
+
+        if (_queuedLevels.Count > 0)
+            OpenNext();
+        else
+            TargetCloseOffer(Owner);
+    }
+
+    // Every change to the open offer gets a new id, so a late answer to the old one is ignored.
+    private void SendOffer()
+    {
+        _offerId = ++_lastOfferId;
+        UpdatePending();
+
+        string[] ids = CurrentIds();
+        bool[] banishable = new bool[_options.Count];
+        for (int i = 0; i < _options.Count; i++)
+            banishable[i] = _options[i].CanBanish;
+
+        TargetOffer(Owner, _offerId, _offerLevel, ids, banishable);
+    }
+
+    private string[] CurrentIds()
+    {
+        string[] ids = new string[_options.Count];
+        for (int i = 0; i < _options.Count; i++)
+            ids[i] = _options[i].Upgrade != null ? _options[i].Upgrade.Id : "";
+
+        return ids;
+    }
+
+    private void UpdatePending()
+    {
+        int pending = _queuedLevels.Count + (_offerId != 0 ? 1 : 0);
+        if (_pendingOffers.Value != pending)
+            _pendingOffers.Value = pending;
+    }
+
+    [TargetRpc]
+    private void TargetOffer(NetworkConnection target, int offerId, int level, string[] ids, bool[] banishable)
+    {
+        UpgradeOffers offers = UpgradeOffers.Current;
+        if (offers == null || offers.Pool == null)
+            return;
+
+        UpgradeDefinition[] options = new UpgradeDefinition[ids.Length];
+        for (int i = 0; i < ids.Length; i++)
+        {
+            // Host and clients run the same build, so a missing id is a bug worth seeing.
+            if (!offers.Pool.TryGet(ids[i], out options[i]))
+                Debug.LogError($"[PlayerUpgrades] The host offered «{ids[i]}», which this build doesn't have.", this);
+        }
+
+        CurrentOffer = new ReceivedOffer(offerId, level, options, banishable);
+        OfferChanged?.Invoke();
+    }
+
+    [TargetRpc]
+    private void TargetCloseOffer(NetworkConnection target)
+    {
+        CurrentOffer = null;
+        OfferChanged?.Invoke();
+    }
+
+    // The host accepted an answer: the launcher hears it from the player who made it (#78).
+    [TargetRpc]
+    private void TargetAnswered(NetworkConnection target, OfferAnswer answer, string upgradeId, int level)
+    {
+        int matchTime = MatchClock.Current != null ? MatchClock.Current.ElapsedSeconds : 0;
+
+        switch (answer)
+        {
+            case OfferAnswer.Pick:
+                UpgradeDefinition upgrade = null;
+                if (UpgradeOffers.Current != null && UpgradeOffers.Current.Pool != null)
+                    UpgradeOffers.Current.Pool.TryGet(upgradeId, out upgrade);
+
+                string rarity = LauncherEvents.RarityId(upgrade != null ? upgrade.Rarity : UpgradeRarity.Common);
+                LauncherEvents.UpgradePicked(upgradeId, rarity, level, matchTime);
+                break;
+
+            case OfferAnswer.Reroll:
+                LauncherEvents.OfferAction("reroll", null, level, matchTime);
+                break;
+
+            case OfferAnswer.Banish:
+                LauncherEvents.OfferAction("banish", upgradeId, level, matchTime);
+                break;
+
+            case OfferAnswer.Skip:
+                LauncherEvents.OfferAction("skip", null, level, matchTime);
+                break;
         }
     }
 

@@ -80,6 +80,23 @@ public static class LauncherEvents
         LauncherEventWriter.Write("level_up", ("level", level), ("match_time", matchTime));
     }
 
+    /// <param name="upgrade">Its id, as in the catalog (#78). econ_breather is Respiro.</param>
+    /// <param name="rarity">common, rare, epic, legendary, duo or evolution.</param>
+    /// <param name="level">Level of the level up whose offer it came from.</param>
+    public static void UpgradePicked(string upgrade, string rarity, int level, int matchTime)
+    {
+        LauncherEventWriter.Write("upgrade_picked", ("upgrade", upgrade), ("rarity", rarity), ("level", level),
+                                  ("match_time", matchTime));
+    }
+
+    /// <param name="action">reroll, banish or skip (#78).</param>
+    /// <param name="upgrade">The banished upgrade's id. Null writes none: reroll and skip have none.</param>
+    public static void OfferAction(string action, string upgrade, int level, int matchTime)
+    {
+        LauncherEventWriter.Write("offer_action", ("action", action), ("upgrade", upgrade), ("level", level),
+                                  ("match_time", matchTime));
+    }
+
     /// <param name="result">defeat. Others (victory) come with the boss (#93).</param>
     /// <param name="waves">Waves that had started.</param>
     public static void MatchOver(string result, int matchTime, int waves)
@@ -171,6 +188,19 @@ public static class LauncherEvents
             ElementType.Water => "water",
             ElementType.Electric => "electric",
             _ => "none",
+        };
+    }
+
+    public static string RarityId(UpgradeRarity rarity)
+    {
+        return rarity switch
+        {
+            UpgradeRarity.Rare => "rare",
+            UpgradeRarity.Epic => "epic",
+            UpgradeRarity.Legendary => "legendary",
+            UpgradeRarity.Duo => "duo",
+            UpgradeRarity.Evolution => "evolution",
+            _ => "common",
         };
     }
 
