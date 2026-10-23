@@ -1874,6 +1874,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildVersionLabel
   _format: v{0}
+  _buildType: internal
 --- !u!1 &960793265
 GameObject:
   m_ObjectHideFlags: 0

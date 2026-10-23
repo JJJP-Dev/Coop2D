@@ -28,15 +28,31 @@ MonoBehaviour:
     _enemyPrefab: {fileID: 1898934464352658694, guid: 82f0f5512bae53a4cb59e8d52f74bbcb, type: 3}
     _count: 8
     _spawnInterval: 0.4
+  - _startTime: 46
+    _enemyPrefab: {fileID: 5906877169094590986, guid: 3c8b3a109d116ba4387bcb39ddbf7427, type: 3}
+    _count: 2
+    _spawnInterval: 0.3
   - _startTime: 75
     _enemyPrefab: {fileID: 1898934464352658694, guid: 82f0f5512bae53a4cb59e8d52f74bbcb, type: 3}
     _count: 10
     _spawnInterval: 0.4
+  - _startTime: 76
+    _enemyPrefab: {fileID: 5906877169094590986, guid: 3c8b3a109d116ba4387bcb39ddbf7427, type: 3}
+    _count: 5
+    _spawnInterval: 0.3
   - _startTime: 105
     _enemyPrefab: {fileID: 1898934464352658694, guid: 82f0f5512bae53a4cb59e8d52f74bbcb, type: 3}
     _count: 14
     _spawnInterval: 0.3
+  - _startTime: 106
+    _enemyPrefab: {fileID: 5906877169094590986, guid: 3c8b3a109d116ba4387bcb39ddbf7427, type: 3}
+    _count: 7
+    _spawnInterval: 0.3
   - _startTime: 140
     _enemyPrefab: {fileID: 1898934464352658694, guid: 82f0f5512bae53a4cb59e8d52f74bbcb, type: 3}
     _count: 18
+    _spawnInterval: 0.3
+  - _startTime: 141
+    _enemyPrefab: {fileID: 5906877169094590986, guid: 3c8b3a109d116ba4387bcb39ddbf7427, type: 3}
+    _count: 10
     _spawnInterval: 0.3

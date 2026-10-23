@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DebugCheatsSettings
   _enemies:
   - {fileID: 1898934464352658694, guid: 82f0f5512bae53a4cb59e8d52f74bbcb, type: 3}
+  - {fileID: 5906877169094590986, guid: 3c8b3a109d116ba4387bcb39ddbf7427, type: 3}
   _spawnDistance: 4
-  _spawnAmounts:
-  - 1
-  - 10
+  _spawnAmounts: 010000000a000000
   _damageAllAmount: 10
+  _giveXpAmount: 10

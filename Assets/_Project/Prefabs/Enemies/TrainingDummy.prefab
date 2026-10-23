@@ -58,7 +58,10 @@ MonoBehaviour:
   <ComponentIndex>k__BackingField: 0
   <PredictedSpawn>k__BackingField: {fileID: 0}
   <PredictedOwner>k__BackingField: {fileID: 0}
-  NetworkBehaviours: []
+  NetworkBehaviours:
+  - {fileID: 7744754657226018601}
+  - {fileID: 5180513599228201881}
+  - {fileID: -4825408410532370113}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
@@ -69,7 +72,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: 0
+  _initializedTimestamp: -8584088390099551404
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -88,15 +91,15 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 65535
+  <PrefabId>k__BackingField: 0
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 5860749028799263616
   SceneId: 0
   SerializedTransformProperties:
     Position: {x: 0, y: 0, z: 0}
-    Rotation: {x: 0, y: 0, z: 0, w: 0}
-    Scale: {x: 0, y: 0, z: 0}
-    IsValid: 0
+    Rotation: {x: 0, y: 0, z: 0, w: 1}
+    Scale: {x: 1, y: 1, z: 1}
+    IsValid: 1
 --- !u!114 &7744754657226018601
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109,9 +112,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 765326acadda7cc47acfd9b41f955c4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
-  _componentIndexCache: 255
+  _componentIndexCache: 0
   _addedNetworkObject: {fileID: 8511590868925322904}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 8511590868925322904}
   _settings: {fileID: 11400000, guid: 56c1e547e6b3d7a45a931eac09602ea5, type: 2}
 --- !u!114 &5180513599228201881
 MonoBehaviour:
@@ -125,9 +128,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09ee7a5817027b249b213162801a63e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TrainingDummy
-  _componentIndexCache: 255
+  _componentIndexCache: 1
   _addedNetworkObject: {fileID: 8511590868925322904}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 8511590868925322904}
   _restoreDelay: 1
 --- !u!114 &-4825408410532370113
 MonoBehaviour:
@@ -141,9 +144,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90ce2438f10937a449774d6cf648ea4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AuraHolder
-  _componentIndexCache: 255
+  _componentIndexCache: 2
   _addedNetworkObject: {fileID: 8511590868925322904}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 8511590868925322904}
   _settings: {fileID: 11400000, guid: 6fcf46c86a98b56499851ffdc58820bc, type: 2}
   _reactions: {fileID: 11400000, guid: 2415430502494cc5aa6b02f441a0a7d9, type: 2}
 --- !u!61 &8718966909931752708

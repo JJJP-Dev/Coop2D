@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: e74b0613067289242a5f1d46aed01e11
+guid: 0db04eb8a89043a408f068fbdac5cb6e
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -102,7 +102,7 @@ ScriptedImporter:
     generateIndividualEvents: 1
     generateSpriteAtlas: 1
   importFileNodeState: 1
-  platformSettingsDirtyTick: 639282986095249460
+  platformSettingsDirtyTick: 639283701209017920
   textureAssetName: 
   singleSpriteImportData:
   - name: 
@@ -129,7 +129,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: Chr_water_idle
     originalName: 
-    pivot: {x: 0.5, y: -0.045454547}
+    pivot: {x: 0.5, y: 0}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -138,7 +138,7 @@ ScriptedImporter:
       x: 4
       y: 4
       width: 16
-      height: 22
+      height: 26
     spriteID: 20f77418af02e924f90dedd78a0df3c3
     spriteBone: []
     spriteOutline: []
@@ -168,9 +168,9 @@ ScriptedImporter:
       additiveSortOrder: 0
       cellRect:
         x: 0
-        y: 1
+        y: 0
         width: 16
-        height: 22
+        height: 26
       spriteId: 20f77418af02e924f90dedd78a0df3c3
     linkedCells: []
     tileCells: []
@@ -205,5 +205,5 @@ ScriptedImporter:
   generatePhysicsShape: 0
   secondarySpriteTextures: []
   spritePackingTag: 
-  canvasSize: {x: 16, y: 24}
-  previousTextureSize: {x: 32, y: 32}
+  canvasSize: {x: 16, y: 30}
+  previousTextureSize: {x: 32, y: 64}
