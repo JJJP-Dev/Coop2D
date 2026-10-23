@@ -375,3 +375,35 @@ Escena `ResolutionTest`, que no está en la build: ábrela sola y pulsa Play. En
 | Se lee a 1440p | A 2560×1440, alterna 1 y 2 y luego pulsa C. | 640×360 llena la pantalla (×4). 480×270 da ×5 y, sin recorte, se ve algo más de arena; con recorte, bandas negras. |
 | Espacio para 4 | Con 30 enemigos, mira si el grupo ve venir a los enemigos antes de que lleguen. | Apunta en el issue con qué resolución hay sitio para reaccionar. |
 | Personajes más grandes | A 1920×1080 con 640×360, pulsa S para ver los sprites ×1,5 y ×2. Compara con 480×270 a ×1. | Con ×1,5 un personaje de 24 px se ve como uno de 36, y con ×2 como uno de 48; la vista sigue siendo de 40×22 casillas. Apunta qué tamaño se siente cerca sin tapar el grupo con 30 enemigos. |
+
+## 21. Mejoras y ofertas (#78 y #77)
+
+Arena_Test. Para las pruebas de semilla, en `Data/Core/RunRandom.asset` pon *Fixed Seed* `3A9F01C2` y activa *Log Rolls*; vacía *Fixed Seed* al acabar. «Dar experiencia» (F1) sube niveles y «Dar reroll» (F1) da un reroll a todos. Hasta el #161 las mejoras no hacen nada: solo se comprueba qué se ofrece y qué se guarda.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Primera oferta | Hospeda solo y sube al nivel 2. | Se abre la franja abajo, encima de la barra de habilidades, con «Nivel 2» y tres filas. Te sigues moviendo y el básico sigue disparando. |
+| Misma semilla, mismas ofertas | Con la semilla fija, solo, sube de nivel y elige siempre la 1 hasta el nivel 6. Hazlo dos veces. | Las dos veces la consola dice lo mismo: `nivel 2 (nueva): aura_lingering, mov_tailwind, stat_aura_hunter`, `nivel 3: aura_lingering, basic_twin_shot, basic_tempo`, `nivel 4: basic_long_barrel, def_vitality, mov_tailwind`, `nivel 5: stat_aura_hunter, basic_twin_shot, mov_tailwind`, `nivel 6: basic_tempo, basic_twin_shot, def_vitality`. |
+| Builds distintas | Sin semilla fija, dos partidas eligiendo lo que quieras. | Ofertas y mejoras distintas. |
+| Plaza A | Elige Auras tenaces en el nivel 2. | En el nivel 3 sale primero otra vez, con «2/2». En el 4 ya no sale. |
+| Rara garantizada | Llega al nivel 5. | La segunda fila es Doble disparo (la única rara genérica del Pre 3) si no la tienes. |
+| Épica desde el 5 | Mira las ofertas de los niveles 2 a 4. | Nunca sale Aura expansiva (épica) antes del nivel 5. En el 10 sale seguro si no la tienes. |
+| Requisitos | Sube hasta el nivel 12 eligiendo cualquier cosa. | Nunca salen Muro vivo, Llama eterna, Remolino, Corazón de marea, Sobretensión ni Bobina detonante: piden personajes y habilidades que llegan con el #162. Cuando no queda nada, sale Respiro. |
+| Cooperación | Con host y un cliente, subid al nivel 3. | Relevo y Asistencia pueden salir desde el nivel 3. Solo, nunca. |
+| Cada uno la suya | Con host y dos clientes, misma semilla, subid al nivel 2. | Cada ventana tiene su oferta. Con la semilla fija y dos jugadores, J1 ve `aura_lingering, mov_tailwind, stat_aura_hunter` y J2 `def_vitality, basic_twin_shot, mov_tailwind`. |
+| Cola | Pulsa «Dar experiencia» varias veces seguidas sin elegir. | La cabecera dice «+N en cola». Al elegir, sale al instante la siguiente con su nivel. |
+| Ocultar | Con una oferta abierta, pulsa Tab. | Se oculta la franja y aparece «Mejoras: N · Tab». Tab la vuelve a abrir con las mismas cartas. |
+| Elegir con clic | Haz clic en una fila. | La elige, sin lanzar la habilidad del clic izquierdo. |
+| Reroll | Pulsa «Dar reroll» y luego F. | Tres opciones nuevas para el mismo nivel; «volver a tirar (0)». Sin rerolls, F no hace nada. |
+| Tope de rerolls | Pulsa «Dar reroll» cuatro veces. | Nunca pasa de 2. Saltar (C) da «+1/3», pero el total nunca pasa de 2 rerolls por partida. |
+| Rerolls por tiempo | Deja correr la partida hasta 4:00 y 8:00. | Cada vez, un reroll más para cada jugador (`[UpgradeOffers] Timed reroll`). |
+| Descartar | Pulsa X y luego 2. | Esa opción cambia por otra y «descartar (0)». No vuelve a salir en toda la partida. Una segunda X no hace nada. |
+| Respiro | Agota el pool (nivel 12 o más, solo) y elige Respiro. | Suma «+1/3» de reroll. No se puede descartar. |
+| Invulnerable al elegir | Elige con enemigos encima, y otra vez antes de 10 s. | La primera vez, 1 s sin recibir daño; la segunda, no. |
+| Eligiendo | Con host y cliente, abre la franja en el cliente. | En las dos ventanas, «Eligiendo» encima del cliente. Al cerrar o elegir, desaparece. |
+| Derribado elige | Déjate derribar con ofertas en cola. | Puedes seguir eligiendo. |
+| Con ping | Con 100 ms de latencia, elige, rerollea y descarta en un cliente. | La franja se abre al instante. Tras pulsar, las filas se atenúan hasta que llega la respuesta; nunca se elige dos veces. La mejora elegida coincide en host y cliente (`upgrade_picked` en el log del cliente). |
+| Entrar tarde | Con el grupo en nivel 4, une a un cliente. | Recibe tres ofertas en cola (niveles 2, 3 y 4) y los rerolls por tiempo ya dados. |
+| Reiniciar | Con mejoras y ofertas en cola, pierde y reinicia. | Se cierra la franja; nadie tiene mejoras, rerolls a 0 y descartes a 1. |
+| Fin de partida | Con la franja abierta, que caigan todos. | La franja se oculta mientras está la pantalla de fin. |
+| Launcher | Elige, rerollea, descarta y salta. | En el log de quien elige: `upgrade_picked upgrade=… rarity=… level=…` y `offer_action action=reroll`, `banish upgrade=…` y `skip`. «Dar reroll» escribe `cheat_used cheat=give_reroll`. |

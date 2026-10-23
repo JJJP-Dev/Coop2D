@@ -28,6 +28,9 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     // Offers waiting, the open one included, for the HUD's counter (#77).
     private readonly SyncVar<int> _pendingOffers = new();
 
+    // Whether the owner has the offer panel open, so the group knows they're distracted (#77).
+    private readonly SyncVar<bool> _choosing = new();
+
     // Server side. Earned counts every third ever received in this match, spent ones included, so the
     // limit of 2 rerolls per match holds whatever the order of earning and spending (catalog C.5).
     private int _earnedThirds;
@@ -44,6 +47,10 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     private int _lastOfferId;
     private bool _ownerReady;
     private UpgradeOffers _offers;
+    private float _nextConfirmInvulnerability;
+
+    // Owner side: what it last told the host, not the replicated value, which lags behind by the ping.
+    private bool _sentChoosing;
 
     private PlayerIdentity _identity;
     private PlayerElement _element;
@@ -71,6 +78,11 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     /// Every client, host included. Offers this player has waiting, the open one included.
     /// </summary>
     public int PendingOffers => _pendingOffers.Value;
+
+    /// <summary>
+    /// Every client, host included. The owner has the offer panel open.
+    /// </summary>
+    public bool IsChoosing => _choosing.Value;
 
     /// <summary>
     /// Owner side. The offer open now, as it arrived from the host. Null when there is none.
@@ -123,6 +135,8 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         _options.Clear();
         _offerId = 0;
         _ownerReady = false;
+        _nextConfirmInvulnerability = 0f;
+        _choosing.Value = false;
 
         // Null in a scene without offers, like ReactionLab: the player just never gets any.
         _offers = UpgradeOffers.Current;
@@ -154,6 +168,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     {
         base.OnStopClient();
         CurrentOffer = null;
+        _sentChoosing = false;
     }
 
     public int GetStacks(string id)
@@ -214,6 +229,18 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
 
         CurrentOffer.IsAnswered = true;
         ServerAnswer(CurrentOffer.Id, answer, index);
+    }
+
+    /// <summary>
+    /// Owner side. Tells the group whether the offer panel is open. Only sends when it changes.
+    /// </summary>
+    public void SetChoosing(bool choosing)
+    {
+        if (!IsOwner || _sentChoosing == choosing)
+            return;
+
+        _sentChoosing = choosing;
+        ServerSetChoosing(choosing);
     }
 
     /// <summary>
@@ -302,6 +329,12 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     }
 
     [ServerRpc]
+    private void ServerSetChoosing(bool choosing)
+    {
+        _choosing.Value = choosing;
+    }
+
+    [ServerRpc]
     private void ServerOwnerReady()
     {
         _ownerReady = true;
@@ -339,6 +372,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     private bool Skip()
     {
         EarnRerollThirds(_offers.Settings.SkipRerollThirds, _offers.Settings.MaxRerollThirds);
+        GrantConfirmInvulnerability();
         TargetAnswered(Owner, OfferAnswer.Skip, null, _offerLevel);
         CloseOffer();
         return true;
@@ -367,6 +401,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         else
             AddStack(upgrade);
 
+        GrantConfirmInvulnerability();
         TargetAnswered(Owner, OfferAnswer.Pick, upgrade.Id, _offerLevel);
         CloseOffer();
         return true;
@@ -402,6 +437,21 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         TargetAnswered(Owner, OfferAnswer.Banish, id, _offerLevel);
         SendOffer();
         return true;
+    }
+
+    // A second without hits for having looked at the panel, at most once every 10 (#77): picking three
+    // queued offers in a row gives it once.
+    private void GrantConfirmInvulnerability()
+    {
+        OfferSettings settings = _offers.Settings;
+        if (settings.ConfirmInvulnerability <= 0f || Time.time < _nextConfirmInvulnerability)
+            return;
+
+        if (!TryGetComponent(out Health health) || health.IsDead)
+            return;
+
+        health.AddInvulnerability(settings.ConfirmInvulnerability);
+        _nextConfirmInvulnerability = Time.time + settings.ConfirmInvulnerabilityCooldown;
     }
 
     private void OpenNext()

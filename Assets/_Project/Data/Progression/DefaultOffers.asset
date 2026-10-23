@@ -50,3 +50,5 @@ MonoBehaviour:
   _skipRerollThirds: 1
   _fallbackRerollThirds: 1
   _banishes: 1
+  _confirmInvulnerability: 1
+  _confirmInvulnerabilityCooldown: 10

@@ -149,6 +149,21 @@ public class Health : NetworkBehaviour
     }
 
     /// <summary>
+    /// Server only. Ignores hits for a few seconds from now, or longer if it already did. Choosing an
+    /// upgrade uses it (#77): the player looked away from the fight to pick.
+    /// </summary>
+    public void AddInvulnerability(float seconds)
+    {
+        if (!IsServerInitialized)
+        {
+            Debug.LogWarning("[Health] Only the server can change invulnerability.", this);
+            return;
+        }
+
+        _invulnerableUntil = Mathf.Max(_invulnerableUntil, Time.time + seconds);
+    }
+
+    /// <summary>
     /// Server only.
     /// </summary>
     public void SetInvulnerable(bool invulnerable)

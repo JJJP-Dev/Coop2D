@@ -68,6 +68,14 @@ public class OfferSettings : ScriptableObject
     [Tooltip("Banishes each player starts the match with.")]
     [SerializeField, Min(0)] private int _banishes = 1;
 
+    [Header("Panel (#77)")]
+    [Tooltip("Seconds without taking hits after picking or skipping, for having looked away from the fight.")]
+    [SerializeField, Min(0f)] private float _confirmInvulnerability = 1f;
+
+    [Tooltip("Seconds before that invulnerability can come again, so picking several queued offers in a row " +
+             "doesn't chain it.")]
+    [SerializeField, Min(0f)] private float _confirmInvulnerabilityCooldown = 10f;
+
     public int Choices => _choices;
     public int MaxLuck => _maxLuck;
     public float OwnFamilyChance => _ownFamilyChance;
@@ -83,6 +91,8 @@ public class OfferSettings : ScriptableObject
     public int SkipRerollThirds => _skipRerollThirds;
     public int FallbackRerollThirds => _fallbackRerollThirds;
     public int Banishes => _banishes;
+    public float ConfirmInvulnerability => _confirmInvulnerability;
+    public float ConfirmInvulnerabilityCooldown => _confirmInvulnerabilityCooldown;
 
     /// <summary>
     /// The weight of each rarity in the offer of this level, with this much luck moved from common.

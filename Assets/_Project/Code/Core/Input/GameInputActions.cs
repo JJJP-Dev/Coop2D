@@ -1175,6 +1175,161 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Offer"",
+            ""id"": ""0ee1fdec-9ff2-48d5-8518-dfed880cecce"",
+            ""actions"": [
+                {
+                    ""name"": ""Choose1"",
+                    ""type"": ""Button"",
+                    ""id"": ""d988363d-9d71-42e5-a4e2-fddb3c42b7ff"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""Choose2"",
+                    ""type"": ""Button"",
+                    ""id"": ""350727bd-cd40-4cb1-ab0a-6409586ab287"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""Choose3"",
+                    ""type"": ""Button"",
+                    ""id"": ""2d9c5a84-9518-4287-a10e-1e7c6aaa2164"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""Reroll"",
+                    ""type"": ""Button"",
+                    ""id"": ""2973de8f-c579-4332-8fa4-bf5600844ee6"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""Banish"",
+                    ""type"": ""Button"",
+                    ""id"": ""9df7d15c-5831-4bca-ab84-092f6157c449"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""Skip"",
+                    ""type"": ""Button"",
+                    ""id"": ""6ee34cfc-96c5-4f6b-8dc5-48c54b86cef4"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""TogglePanel"",
+                    ""type"": ""Button"",
+                    ""id"": ""86f55c24-6ab6-4a21-b74e-4b8bcd55ab31"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""5f76bd11-b860-4a8e-b4e8-12c5dc82477a"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Choose1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4efb3b6b-82bb-40c8-85db-ac3ab0fc6059"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Choose2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""676429ad-9ed9-4373-91af-f13afa8d92eb"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Choose3"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a2e0c83f-acce-455f-bfe1-95d2a1ef6bd1"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Reroll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9b879e8f-bf49-45c8-99a1-bc3ffcdc06d2"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Banish"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""74d46528-3059-41fe-a942-67307d0b9dac"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Skip"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""21688ab5-34ee-43d1-a9c4-0e49367b7360"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""TogglePanel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -1271,6 +1426,15 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         m_Debug_ToggleNetworkStats = m_Debug.FindAction("ToggleNetworkStats", throwIfNotFound: true);
         m_Debug_CycleElement = m_Debug.FindAction("CycleElement", throwIfNotFound: true);
         m_Debug_ToggleCheats = m_Debug.FindAction("ToggleCheats", throwIfNotFound: true);
+        // Offer
+        m_Offer = asset.FindActionMap("Offer", throwIfNotFound: true);
+        m_Offer_Choose1 = m_Offer.FindAction("Choose1", throwIfNotFound: true);
+        m_Offer_Choose2 = m_Offer.FindAction("Choose2", throwIfNotFound: true);
+        m_Offer_Choose3 = m_Offer.FindAction("Choose3", throwIfNotFound: true);
+        m_Offer_Reroll = m_Offer.FindAction("Reroll", throwIfNotFound: true);
+        m_Offer_Banish = m_Offer.FindAction("Banish", throwIfNotFound: true);
+        m_Offer_Skip = m_Offer.FindAction("Skip", throwIfNotFound: true);
+        m_Offer_TogglePanel = m_Offer.FindAction("TogglePanel", throwIfNotFound: true);
     }
 
     ~@GameInputActions()
@@ -1278,6 +1442,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, GameInputActions.Player.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, GameInputActions.UI.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Debug.enabled, "This will cause a leak and performance issues, GameInputActions.Debug.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Offer.enabled, "This will cause a leak and performance issues, GameInputActions.Offer.Disable() has not been called.");
     }
 
     /// <summary>
@@ -1879,6 +2044,167 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="DebugActions" /> instance referencing this action map.
     /// </summary>
     public DebugActions @Debug => new DebugActions(this);
+    // Offer
+    private readonly InputActionMap m_Offer;
+    private List<IOfferActions> m_OfferActionsCallbackInterfaces = new List<IOfferActions>();
+    private readonly InputAction m_Offer_Choose1;
+    private readonly InputAction m_Offer_Choose2;
+    private readonly InputAction m_Offer_Choose3;
+    private readonly InputAction m_Offer_Reroll;
+    private readonly InputAction m_Offer_Banish;
+    private readonly InputAction m_Offer_Skip;
+    private readonly InputAction m_Offer_TogglePanel;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "Offer".
+    /// </summary>
+    public struct OfferActions
+    {
+        private @GameInputActions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public OfferActions(@GameInputActions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "Offer/Choose1".
+        /// </summary>
+        public InputAction @Choose1 => m_Wrapper.m_Offer_Choose1;
+        /// <summary>
+        /// Provides access to the underlying input action "Offer/Choose2".
+        /// </summary>
+        public InputAction @Choose2 => m_Wrapper.m_Offer_Choose2;
+        /// <summary>
+        /// Provides access to the underlying input action "Offer/Choose3".
+        /// </summary>
+        public InputAction @Choose3 => m_Wrapper.m_Offer_Choose3;
+        /// <summary>
+        /// Provides access to the underlying input action "Offer/Reroll".
+        /// </summary>
+        public InputAction @Reroll => m_Wrapper.m_Offer_Reroll;
+        /// <summary>
+        /// Provides access to the underlying input action "Offer/Banish".
+        /// </summary>
+        public InputAction @Banish => m_Wrapper.m_Offer_Banish;
+        /// <summary>
+        /// Provides access to the underlying input action "Offer/Skip".
+        /// </summary>
+        public InputAction @Skip => m_Wrapper.m_Offer_Skip;
+        /// <summary>
+        /// Provides access to the underlying input action "Offer/TogglePanel".
+        /// </summary>
+        public InputAction @TogglePanel => m_Wrapper.m_Offer_TogglePanel;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_Offer; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="OfferActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(OfferActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="OfferActions" />
+        public void AddCallbacks(IOfferActions instance)
+        {
+            if (instance == null || m_Wrapper.m_OfferActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_OfferActionsCallbackInterfaces.Add(instance);
+            @Choose1.started += instance.OnChoose1;
+            @Choose1.performed += instance.OnChoose1;
+            @Choose1.canceled += instance.OnChoose1;
+            @Choose2.started += instance.OnChoose2;
+            @Choose2.performed += instance.OnChoose2;
+            @Choose2.canceled += instance.OnChoose2;
+            @Choose3.started += instance.OnChoose3;
+            @Choose3.performed += instance.OnChoose3;
+            @Choose3.canceled += instance.OnChoose3;
+            @Reroll.started += instance.OnReroll;
+            @Reroll.performed += instance.OnReroll;
+            @Reroll.canceled += instance.OnReroll;
+            @Banish.started += instance.OnBanish;
+            @Banish.performed += instance.OnBanish;
+            @Banish.canceled += instance.OnBanish;
+            @Skip.started += instance.OnSkip;
+            @Skip.performed += instance.OnSkip;
+            @Skip.canceled += instance.OnSkip;
+            @TogglePanel.started += instance.OnTogglePanel;
+            @TogglePanel.performed += instance.OnTogglePanel;
+            @TogglePanel.canceled += instance.OnTogglePanel;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="OfferActions" />
+        private void UnregisterCallbacks(IOfferActions instance)
+        {
+            @Choose1.started -= instance.OnChoose1;
+            @Choose1.performed -= instance.OnChoose1;
+            @Choose1.canceled -= instance.OnChoose1;
+            @Choose2.started -= instance.OnChoose2;
+            @Choose2.performed -= instance.OnChoose2;
+            @Choose2.canceled -= instance.OnChoose2;
+            @Choose3.started -= instance.OnChoose3;
+            @Choose3.performed -= instance.OnChoose3;
+            @Choose3.canceled -= instance.OnChoose3;
+            @Reroll.started -= instance.OnReroll;
+            @Reroll.performed -= instance.OnReroll;
+            @Reroll.canceled -= instance.OnReroll;
+            @Banish.started -= instance.OnBanish;
+            @Banish.performed -= instance.OnBanish;
+            @Banish.canceled -= instance.OnBanish;
+            @Skip.started -= instance.OnSkip;
+            @Skip.performed -= instance.OnSkip;
+            @Skip.canceled -= instance.OnSkip;
+            @TogglePanel.started -= instance.OnTogglePanel;
+            @TogglePanel.performed -= instance.OnTogglePanel;
+            @TogglePanel.canceled -= instance.OnTogglePanel;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="OfferActions.UnregisterCallbacks(IOfferActions)" />.
+        /// </summary>
+        /// <seealso cref="OfferActions.UnregisterCallbacks(IOfferActions)" />
+        public void RemoveCallbacks(IOfferActions instance)
+        {
+            if (m_Wrapper.m_OfferActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="OfferActions.AddCallbacks(IOfferActions)" />
+        /// <seealso cref="OfferActions.RemoveCallbacks(IOfferActions)" />
+        /// <seealso cref="OfferActions.UnregisterCallbacks(IOfferActions)" />
+        public void SetCallbacks(IOfferActions instance)
+        {
+            foreach (var item in m_Wrapper.m_OfferActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_OfferActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="OfferActions" /> instance referencing this action map.
+    /// </summary>
+    public OfferActions @Offer => new OfferActions(this);
     private int m_KeyboardMouseSchemeIndex = -1;
     /// <summary>
     /// Provides access to the input control scheme.
@@ -2142,5 +2468,62 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnToggleCheats(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Offer" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="OfferActions.AddCallbacks(IOfferActions)" />
+    /// <seealso cref="OfferActions.RemoveCallbacks(IOfferActions)" />
+    public interface IOfferActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "Choose1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnChoose1(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Choose2" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnChoose2(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Choose3" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnChoose3(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Reroll" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnReroll(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Banish" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnBanish(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Skip" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSkip(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "TogglePanel" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnTogglePanel(InputAction.CallbackContext context);
     }
 }
