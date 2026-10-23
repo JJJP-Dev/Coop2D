@@ -401,6 +401,7 @@ GameObject:
   - component: {fileID: 3781323485103818344}
   - component: {fileID: 4088126060001671563}
   - component: {fileID: 4992590136018386484}
+  - component: {fileID: 9179136649709530141}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -787,6 +788,21 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 3332554340608108226}
   _networkObjectCache: {fileID: 0}
   _settings: {fileID: 11400000, guid: fb010c19ad00fbf4fae22a851f7152a5, type: 2}
+--- !u!114 &9179136649709530141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4950291352465746428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01c45ca881d1498a9a99a6c87ebebd45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerUpgrades
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 3332554340608108226}
+  _networkObjectCache: {fileID: 0}
 --- !u!1 &5171306280570818574
 GameObject:
   m_ObjectHideFlags: 0
