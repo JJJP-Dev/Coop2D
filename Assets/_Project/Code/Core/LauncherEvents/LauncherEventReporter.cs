@@ -116,8 +116,15 @@ public class LauncherEventReporter : MonoBehaviour
 
         // The scene's seed arrived with the scene, before our player, so it's already here.
         string seed = MatchSeed.Current != null ? MatchSeed.Current.SeedText : null;
+
+        // The character arrived with the player, like the slot (#162).
+        CharacterDefinition character = null;
+        if (player.TryGetComponent(out PlayerCharacter playerCharacter))
+            character = playerCharacter.Definition;
+
         LauncherEvents.MatchJoined(isHost, player.Slot + 1, _services.PlayerRegistry.Count, matchTime,
-                                   !isHost && matchTime >= LateJoinSeconds, seed);
+                                   !isHost && matchTime >= LateJoinSeconds, seed,
+                                   character != null ? character.Id : null);
 
         // The host writes every wave, the ones that started before its own client connected included.
         // A client that arrives later only writes the waves that start from now on.
@@ -133,10 +140,14 @@ public class LauncherEventReporter : MonoBehaviour
         // arrives at level 1, before anyone can earn experience.
         _reportedLevel = RunExperience.Current != null ? RunExperience.Current.Level : 1;
 
-        // The element the slot gave us. It arrived with the player, so it's already here.
-        // Changes with the test key are written by PlayerElement itself.
+        // The element the character gave us. It arrived with the player, so it's already here.
+        // Changes with the test key are written by PlayerElement itself; after a restart the element
+        // may still be the one F6 set, and then it says so.
         if (player.TryGetComponent(out PlayerElement element))
-            LauncherEvents.ElementSet(element.Current, "slot");
+        {
+            bool fromCharacter = character != null && element.Current == character.Element;
+            LauncherEvents.ElementSet(element.Current, fromCharacter ? "character" : "debug_key");
+        }
     }
 
     private void OnConnectionStateChanged(SessionState state)

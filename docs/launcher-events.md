@@ -90,6 +90,7 @@ id nuevo** en esta tabla; no reutilices uno existente para otra cosa.
 | `role` | `host`, `client` | |
 | `slot` | `1`, `2`, `3`, `4` | Hueco del jugador (J1…J4) |
 | `element` | `fire`, `water`, `electric` | |
+| `character` | `ember`, `tide`, `volt` | Brasa, Marea y Voltio (#162). Los ids del catálogo de progresión; Filo será `blade` |
 | `ability` | `basic`, `burst`, `mark` | Estallido = `burst`, Marca = `mark`. Con los personajes (#162), un id por habilidad |
 | `variant` | `vapor_fire_water`, `vapor_water_fire`, `electrocution_water_electric`, `electrocution_electric_water`, `overload_electric_fire`, `overload_fire_electric` | Los mismos ids que ya usa `CombatEventLogger` |
 | `me` | `aura`, `detonator`, `both`, `none` | Papel del jugador local en una reacción. `both` = reacción en solitario propia |
@@ -180,6 +181,7 @@ Cuando el jugador local aparece en la Arena, en el host y en los clientes.
 | `match_time` | entero | Segundos que lleva la partida (desde que el host la creó). El host escribe `0` |
 | `late` | bool | `true` si la partida llevaba al menos **10 s** en marcha al entrar |
 | `seed` | id | Semilla de la partida (#75): 8 caracteres hexadecimales en mayúsculas, como `3A9F01C2`, iguales en todas las ventanas. `none` si la escena no tiene semilla. Llega con la primera build del Pre 3 |
+| `character` | id | Personaje del jugador local (#162): `ember`, `tide` o `volt`. Llega con la primera build del Pre 3 |
 
 #### `player_joined` / `player_left` · Obligatorio
 
@@ -287,7 +289,7 @@ Cada vez que cambia el elemento del jugador local, incluida la asignación inici
 | Campo | Tipo | Valor |
 |---|---|---|
 | `element` | id | Elemento nuevo |
-| `source` | id | `slot` (por su hueco), `debug_key` (F6) o `character` (cuando haya personajes) |
+| `source` | id | `character` (el elemento de su personaje, desde el Pre 3), `debug_key` (F6) o `slot` (por su hueco; solo en builds anteriores al Pre 3) |
 
 #### `ability_cast` · Obligatorio
 
@@ -337,12 +339,10 @@ Mínimo: lo escribe quien lo pulsa (`by=me`) y el host (`by=ally` para los de lo
 avise a todos los clientes y cada uno lo escriba, porque el launcher descarta en cada PC las misiones conseguidas en una
 partida con trucos (salvo las que los permiten).
 
-#### `player_died` / `player_revived` · Recomendado (cuando los jugadores puedan morir)
+#### `player_died` · No se emite
 
-| Campo | Tipo | Valor |
-|---|---|---|
-| `slot` | entero | Quién |
-| `me` | bool | Si es el jugador local |
+Reservado. Desde el #51 los jugadores no mueren: quedan derribados (`player_downed`) y se levantan (`player_revived`), los
+dos en la [sección 5.3](#53-partida). Se deja aquí para que nadie use este nombre para otra cosa.
 
 ### 5.5 Diagnóstico · Recomendado
 
@@ -401,7 +401,8 @@ El launcher abre el juego con argumentos extra. Unity ignora los que no conoce, 
 
 - **Nunca** renombres ni quites un evento o un campo, ni cambies lo que significa. Las misiones publicadas dependen de
   ellos.
-- **Sí** puedes añadir eventos, campos y valores nuevos cuando quieras: el launcher ignora lo que no conoce.
+- **Sí** puedes añadir eventos, campos y valores nuevos cuando quieras: el launcher ignora lo que no conoce, y una misión
+  puede usar un evento nuevo sin actualizar el launcher (basta con publicar `missions.json`).
 - Si algo tiene que cambiar de forma incompatible, se emite como evento nuevo (`reaction2`) o se sube `v` a `2`. Un
   launcher que no conoce esa `v` ignora esas líneas.
 - Apunta en el changelog de cada build qué eventos nuevos trae. El launcher solo cuenta para una misión las sesiones con
@@ -416,8 +417,8 @@ sale:
 [PalitoEvent] v=1 seq=1 t=0.412 ev=session_start game_version=0.0.4-prototype.2 dev_build=true launcher_session=9f2c4e7a1b3d4c5e8f9a0b1c2d3e4f50 utc=2026-10-31T20:02:11Z
 [PalitoEvent] v=1 seq=2 t=14.050 ev=join_attempt target=public via=enter
 [PalitoEvent] v=1 seq=3 t=15.318 ev=join_result result=ok target=public ms=1268
-[PalitoEvent] v=1 seq=4 t=15.901 ev=match_joined role=client slot=3 players=3 match_time=74 late=true seed=3A9F01C2
-[PalitoEvent] v=1 seq=5 t=15.902 ev=element_set element=electric source=slot
+[PalitoEvent] v=1 seq=4 t=15.901 ev=match_joined role=client slot=3 players=3 match_time=74 late=true seed=3A9F01C2 character=volt
+[PalitoEvent] v=1 seq=5 t=15.902 ev=element_set element=electric source=character
 [PalitoEvent] v=1 seq=6 t=31.270 ev=wave_started index=3 match_time=90
 [PalitoEvent] v=1 seq=7 t=44.600 ev=ability_cast ability=burst element=electric
 [PalitoEvent] v=1 seq=8 t=44.712 ev=reaction variant=electrocution_water_electric duo=true me=detonator targets=1

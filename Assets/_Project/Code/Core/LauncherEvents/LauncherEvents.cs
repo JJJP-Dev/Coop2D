@@ -40,11 +40,13 @@ public static class LauncherEvents
 
     /// <param name="slot">From 1 to 4, as players count them.</param>
     /// <param name="seed">The match's seed in 8 hexadecimal characters (#75). Null writes none.</param>
-    public static void MatchJoined(bool isHost, int slot, int players, int matchTime, bool late, string seed)
+    /// <param name="character">The local player's character id: ember, tide, volt (#162). Null writes none.</param>
+    public static void MatchJoined(bool isHost, int slot, int players, int matchTime, bool late, string seed,
+                                   string character)
     {
         LauncherEventWriter.Write("match_joined",
             ("role", isHost ? "host" : "client"), ("slot", slot), ("players", players),
-            ("match_time", matchTime), ("late", late), ("seed", seed));
+            ("match_time", matchTime), ("late", late), ("seed", seed), ("character", character));
     }
 
     public static void PlayerJoined(int slot, int players)
@@ -123,7 +125,7 @@ public static class LauncherEvents
 
     // --- Combat ---
 
-    /// <param name="source">slot, debug_key or character.</param>
+    /// <param name="source">character (the character's own element, #162), debug_key (F6), or slot (before #162).</param>
     public static void ElementSet(ElementType element, string source)
     {
         LauncherEventWriter.Write("element_set", ("element", ElementId(element)), ("source", source));
