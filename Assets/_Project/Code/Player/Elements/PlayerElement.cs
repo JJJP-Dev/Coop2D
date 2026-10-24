@@ -20,6 +20,19 @@ public class PlayerElement : NetworkBehaviour
 
     public ElementType Current => _element.Value;
 
+    /// <summary>
+    /// Every PC. The colour of the current element, for what this player's attacks look like. White
+    /// without one.
+    /// </summary>
+    public Color Color
+    {
+        get
+        {
+            ElementDefinition element = _library != null ? _library.Get(_element.Value) : null;
+            return element != null ? element.Color : Color.white;
+        }
+    }
+
     private void Awake()
     {
         _character = GetComponent<PlayerCharacter>();

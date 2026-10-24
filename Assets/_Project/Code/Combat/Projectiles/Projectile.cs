@@ -36,6 +36,15 @@ public class Projectile : MonoBehaviour
         _remainingLifetime = _settings != null ? _settings.Lifetime * Mathf.Max(0.1f, reach) : 0f;
     }
 
+    /// <summary>
+    /// Tints the picture: the basic attack takes the colour of its shooter's element.
+    /// </summary>
+    public void SetColor(Color color)
+    {
+        foreach (SpriteRenderer sprite in GetComponentsInChildren<SpriteRenderer>())
+            sprite.color = color;
+    }
+
     private void Update()
     {
         if (_settings == null)

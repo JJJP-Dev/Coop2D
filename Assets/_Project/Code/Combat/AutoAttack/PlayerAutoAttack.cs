@@ -372,9 +372,14 @@ public class PlayerAutoAttack : NetworkBehaviour
         return (Vector2)transform.position + _settings.FireOffset;
     }
 
+    // In the shooter's element colour on every PC: the element travels with the player, so copies match.
     private Projectile SpawnProjectile(Vector2 origin)
     {
-        return Instantiate(_settings.ProjectilePrefab, origin, Quaternion.identity);
+        Projectile projectile = Instantiate(_settings.ProjectilePrefab, origin, Quaternion.identity);
+        if (_element != null)
+            projectile.SetColor(_element.Color);
+
+        return projectile;
     }
 
     private bool TryFindNearestTarget(Vector2 origin, out Collider2D target)
