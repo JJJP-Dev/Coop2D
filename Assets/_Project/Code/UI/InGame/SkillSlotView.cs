@@ -6,6 +6,8 @@ using UnityEngine.UI;
 // One skill of the local player in the HUD, with its key and how long until it's ready.
 // It reads the owner's own cooldown, the same one that lets the cast through, so what it shows
 // matches what happens when you press the key, on the host and on a client alike.
+// When its slot gets a new skill or a level, it says so in a toast with the key, so the player knows
+// what they just got and where. A skill that goes away (a restart) or a lower level says nothing.
 public class SkillSlotView : MonoBehaviour
 {
     [Tooltip("Skill1, Skill2 or Skill3. Basic has no key, so it shows nothing.")]
@@ -40,6 +42,11 @@ public class SkillSlotView : MonoBehaviour
     private int _shownSeconds = -1;
     private bool _shownRecharging;
 
+    // What the slot had last frame, to tell a new skill or level from the slot being bound or reset.
+    private string _lastId;
+    private int _lastLevel;
+    private bool _baselineTaken;
+
     private void OnEnable()
     {
         if (GameServices.Instance == null)
@@ -69,6 +76,9 @@ public class SkillSlotView : MonoBehaviour
         _shownSkill = null;
         _shownSeconds = -1;
         ShowSkill(null);
+
+        // What the new player already has isn't news: the first frame only takes note of it.
+        _baselineTaken = false;
     }
 
     private void Update()
@@ -76,7 +86,14 @@ public class SkillSlotView : MonoBehaviour
         SkillInstance skill = _skills != null ? _skills.GetSkill(_slot) : null;
 
         if (skill != _shownSkill)
+        {
+            AnnounceIfNew(skill);
             ShowSkill(skill);
+        }
+        else if (!_baselineTaken)
+        {
+            AnnounceIfNew(skill);
+        }
 
         if (skill == null)
             return;
@@ -128,6 +145,35 @@ public class SkillSlotView : MonoBehaviour
             _group.alpha = skill != null ? 1f : _emptyAlpha;
 
         ShowRecharging(false);
+    }
+
+    private void AnnounceIfNew(SkillInstance skill)
+    {
+        string id = skill != null ? skill.Id : null;
+        int level = skill != null ? skill.Level : 0;
+        bool announce = _baselineTaken && skill != null && (id != _lastId || level > _lastLevel);
+
+        _baselineTaken = true;
+        _lastId = id;
+        _lastLevel = level;
+
+        if (!announce || GameServices.Instance == null)
+            return;
+
+        string key = _keyLabel != null && !string.IsNullOrEmpty(_keyLabel.text) ? $" · {_keyLabel.text}" : string.Empty;
+        string text;
+        if (level <= 1)
+        {
+            text = $"Nueva habilidad: {skill.DisplayName}{key}";
+        }
+        else
+        {
+            SkillLevelModifier modifier = skill.Definition.GetLevelModifier(level);
+            string change = modifier != null && !string.IsNullOrEmpty(modifier.Description) ? $": {modifier.Description}" : string.Empty;
+            text = $"{skill.DisplayName} · nivel {level}{change}{key}";
+        }
+
+        GameServices.Instance.ToastService.Show(text, ToastType.Success);
     }
 
     // Fades what's under the seconds while it recharges, and brings it back when it's ready.
