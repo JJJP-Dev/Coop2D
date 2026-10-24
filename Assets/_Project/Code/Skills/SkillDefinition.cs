@@ -15,6 +15,9 @@ public class SkillDefinition : ScriptableObject
     [Tooltip("For the HUD (#73). Optional: without it the HUD shows the first letter of the name.")]
     [SerializeField] private Sprite _icon;
 
+    [Tooltip("One line for the offer of a new skill (#162): «Bola que explota en 1,5 m y detona».")]
+    [SerializeField] private string _description;
+
     [Header("Element")]
     [Tooltip("The catalog's \"primary\": the skill takes the element of whoever casts it, and Element is ignored.")]
     [SerializeField] private bool _usesCasterElement;
@@ -89,9 +92,29 @@ public class SkillDefinition : ScriptableObject
     [Tooltip("What players see where it lands. Only the picture: it never decides hits.")]
     [SerializeField] private SkillShapeVisual _visual;
 
+    [Header("Levels (#162)")]
+    [Tooltip("Level 2 and level 3, in that order; each adds to the one before (catalog E.0 rule 5). " +
+             "Empty: the skill has only level 1 and its levels are never offered.")]
+    [SerializeField] private SkillLevelModifier[] _levels = new SkillLevelModifier[0];
+
     public string Id => _id;
     public string DisplayName => _displayName;
     public Sprite Icon => _icon;
+    public string Description => _description;
+
+    /// <summary>
+    /// 1 plus its level modifiers: 3 for the catalog's skills.
+    /// </summary>
+    public int MaxLevel => 1 + (_levels != null ? _levels.Length : 0);
+
+    /// <summary>
+    /// What getting that level (2 or 3) changes. Null for level 1 or one it doesn't have.
+    /// </summary>
+    public SkillLevelModifier GetLevelModifier(int level)
+    {
+        int index = level - 2;
+        return _levels != null && index >= 0 && index < _levels.Length ? _levels[index] : null;
+    }
     public bool CanDetonate => _canDetonate;
     public AuraStrength AuraStrength => _auraStrength;
     public float Cooldown => _cooldown;
@@ -109,16 +132,6 @@ public class SkillDefinition : ScriptableObject
     public float TrapDuration => _trapDuration;
     public SkillProjectile ProjectilePrefab => _projectilePrefab;
     public bool IsProjectile => _shape == SkillShape.Projectile;
-
-    /// <summary>
-    /// A projectile that bursts in a circle (Llamarada, Burbuja) rather than hitting enemies directly (Rayo).
-    /// </summary>
-    public bool Bursts => _impactRadius > 0f;
-
-    /// <summary>
-    /// Seconds a projectile flies, at most.
-    /// </summary>
-    public float FlightTime => _length / _projectileSpeed;
     public int Damage => _damage;
     public float Knockback => _knockback;
     public float KnockbackDuration => _knockbackDuration;

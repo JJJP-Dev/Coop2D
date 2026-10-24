@@ -5,7 +5,9 @@ using System.Collections.Generic;
 public class SkillShotRecord
 {
     public AttackSlot Slot { get; }
-    public SkillDefinition Skill { get; }
+
+    // With the level it had when it was launched, even if it levels up while flying.
+    public SkillInstance Skill { get; }
 
     // Its path, as wide as the projectile, from where the caster stood.
     public SkillArea Path { get; }
@@ -18,7 +20,7 @@ public class SkillShotRecord
 
     public HashSet<Health> Hit { get; } = new();
 
-    public SkillShotRecord(AttackSlot slot, SkillDefinition skill, SkillArea path, double expiresAt, int hits)
+    public SkillShotRecord(AttackSlot slot, SkillInstance skill, SkillArea path, double expiresAt, int hits)
     {
         Slot = slot;
         Skill = skill;

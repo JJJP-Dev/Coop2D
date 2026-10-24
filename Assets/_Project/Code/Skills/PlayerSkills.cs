@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using FishNet.Connection;
 using FishNet.Object;
+using FishNet.Object.Synchronizing;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 // The player's skills. The owner aims and casts at once, with what it sees on its screen.
 // The host checks the cast and applies its effects, and the other clients draw it.
-// Which skills: the starting ones of the player's character (#162). The character arrives with the
-// player's spawn, so every PC reads the same ones without sending them.
+// Which skills (#162): up to three, in the order they were got. The match starts with the character's
+// starting skill; the offers add new ones and levels. The host keeps them in a list every PC receives
+// (id and level), and each PC builds the same SkillInstance from it, numbers of the level included.
 // Where they hit: a circle, a line or a cone (SkillArea). The owner sends where it stood and where it
 // aimed, and the host rebuilds the same area from those two points to check the targets.
 // Projectiles (#162) work like the basic attack: the owner flies its own and reports what it hits or
@@ -31,6 +33,16 @@ public class PlayerSkills : NetworkBehaviour
 
     [SerializeField] private SkillCastSettings _castSettings;
     [SerializeField] private ElementLibrary _elements;
+
+    [Tooltip("Every skill, to find the ones this player has from their ids.")]
+    [SerializeField] private SkillLibrary _library;
+
+    // The skills of this player, one per slot in the order they were got (#162). Everyone receives it:
+    // other PCs draw this player's casts with these skills and their levels.
+    private readonly SyncList<OwnedSkill> _owned = new();
+
+    // Each slot's skill as built from _owned, rebuilt when its id or level changes.
+    private readonly SkillInstance[] _instances = new SkillInstance[SlotCount];
 
     private PlayerElement _element;
     private PlayerCharacter _character;
@@ -59,6 +71,7 @@ public class PlayerSkills : NetworkBehaviour
 
     private void Awake()
     {
+        _owned.OnChange += OnOwnedChanged;
         _element = GetComponent<PlayerElement>();
         _character = GetComponent<PlayerCharacter>();
 
@@ -73,9 +86,9 @@ public class PlayerSkills : NetworkBehaviour
         TryGetComponent(out _stats);
         TryGetComponent(out _events);
 
-        if (_castSettings == null || _elements == null)
+        if (_castSettings == null || _elements == null || _library == null)
         {
-            Debug.LogError("[PlayerSkills] Cast settings or element library are not assigned.", this);
+            Debug.LogError("[PlayerSkills] Cast settings, element library or skill library are not assigned.", this);
             return;
         }
 
@@ -92,6 +105,9 @@ public class PlayerSkills : NetworkBehaviour
         Array.Clear(_serverReadyTimes, 0, _serverReadyTimes.Length);
         Array.Clear(_serverCastTimes, 0, _serverCastTimes.Length);
         _pendingShots.Clear();
+
+        // The character was set before Spawn, so its starting skill goes in the spawn message too.
+        ResetSkills();
     }
 
     public override void OnStartClient()
@@ -129,17 +145,176 @@ public class PlayerSkills : NetworkBehaviour
     }
 
     /// <summary>
-    /// Null for an empty slot.
+    /// Every PC. Null for an empty slot.
     /// </summary>
-    public SkillDefinition GetSkill(AttackSlot slot)
+    public SkillInstance GetSkill(AttackSlot slot)
     {
         return GetSkillAt(ToIndex(slot));
     }
 
-    private SkillDefinition GetSkillAt(int index)
+    /// <summary>
+    /// Every PC. The skill list for the offers and upgrades (#162).
+    /// </summary>
+    public SkillLibrary Library => _library;
+
+    /// <summary>
+    /// Every PC. How many slots have a skill.
+    /// </summary>
+    public int Count => _owned.Count;
+
+    /// <summary>
+    /// Every PC. Whether a new skill still fits.
+    /// </summary>
+    public bool HasFreeSlot => _owned.Count < SlotCount;
+
+    /// <summary>
+    /// Every PC. The level this player has that skill at, or 0 if they don't have it.
+    /// </summary>
+    public int GetLevel(string id)
     {
+        foreach (OwnedSkill owned in _owned)
+        {
+            if (owned.Id == id)
+                return owned.Level;
+        }
+
+        return 0;
+    }
+
+    /// <summary>
+    /// Every PC. A skill or its level changed: the HUD and the requirements of the upgrades listen.
+    /// </summary>
+    public event Action SkillsChanged;
+
+    /// <summary>
+    /// Server only. The new skill goes into the first free slot, at level 1. False if there's no room,
+    /// the player already has it, or it isn't in the library (every PC must be able to find it).
+    /// </summary>
+    public bool TryAddSkill(SkillDefinition skill)
+    {
+        if (!IsServerInitialized || _library == null || skill == null || !HasFreeSlot || GetLevel(skill.Id) > 0 ||
+            _library.Get(skill.Id) != skill)
+            return false;
+
+        _owned.Add(new OwnedSkill(skill.Id, 1));
+        return true;
+    }
+
+    /// <summary>
+    /// Server only. One more level of a skill the player has, up to its maximum.
+    /// </summary>
+    public bool TryLevelUp(string id)
+    {
+        if (!IsServerInitialized || _library == null)
+            return false;
+
+        for (int i = 0; i < _owned.Count; i++)
+        {
+            SkillDefinition skill = _library.Get(_owned[i].Id);
+            if (_owned[i].Id != id || skill == null || _owned[i].Level >= skill.MaxLevel)
+                continue;
+
+            _owned[i] = new OwnedSkill(id, (byte)(_owned[i].Level + 1));
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Server only. For the cheats panel: these skills, at level 1, in this order, replacing what the
+    /// player has. Skills missing from the library are skipped.
+    /// </summary>
+    public void SetSkills(IReadOnlyList<SkillDefinition> skills)
+    {
+        if (!IsServerInitialized || _library == null || skills == null)
+            return;
+
+        _owned.Clear();
+        foreach (SkillDefinition skill in skills)
+        {
+            if (skill != null && _owned.Count < SlotCount && _library.Get(skill.Id) == skill && GetLevel(skill.Id) == 0)
+                _owned.Add(new OwnedSkill(skill.Id, 1));
+        }
+    }
+
+    /// <summary>
+    /// Server only. Back to the character's starting skill alone, for a new match (#52).
+    /// </summary>
+    public void ResetSkills()
+    {
+        if (!IsServerInitialized)
+            return;
+
+        _owned.Clear();
         CharacterDefinition character = _character != null ? _character.Definition : null;
-        return character != null ? character.GetStartingSkill(index) : null;
+        if (character != null && character.StartingSkill != null)
+            TryAddSkill(character.StartingSkill);
+    }
+
+    private SkillInstance GetSkillAt(int index)
+    {
+        if (index < 0 || index >= SlotCount || _library == null)
+            return null;
+
+        if (index >= _owned.Count)
+            return _instances[index] = null;
+
+        OwnedSkill owned = _owned[index];
+        SkillInstance cached = _instances[index];
+        if (cached != null && cached.Id == owned.Id && cached.Level == owned.Level)
+            return cached;
+
+        SkillDefinition skill = _library.Get(owned.Id);
+        if (skill == null)
+        {
+            // Host and clients run the same build, so this is a bug worth seeing.
+            Debug.LogError($"[PlayerSkills] Client {OwnerId} has skill «{owned.Id}», which isn't in the skill library.", this);
+            return null;
+        }
+
+        return _instances[index] = new SkillInstance(skill, owned.Level);
+    }
+
+    // A slot that gets another skill starts ready: the cooldown of the one before isn't carried over.
+    // A level up keeps its cooldown. Runs on the host as server and on every client.
+    private void OnOwnedChanged(SyncListOperation operation, int index, OwnedSkill previous, OwnedSkill next, bool asServer)
+    {
+        if (operation == SyncListOperation.Complete)
+        {
+            if (!asServer)
+                SkillsChanged?.Invoke();
+
+            return;
+        }
+
+        if (operation == SyncListOperation.Clear)
+        {
+            ClearCooldowns(0, SlotCount, asServer);
+            return;
+        }
+
+        if (index < 0 || index >= SlotCount || previous.Id == next.Id)
+            return;
+
+        ClearCooldowns(index, index + 1, asServer);
+    }
+
+    private void ClearCooldowns(int from, int to, bool asServer)
+    {
+        for (int i = from; i < to; i++)
+        {
+            if (asServer)
+            {
+                _serverReadyTimes[i] = 0;
+                _serverCastTimes[i] = 0;
+            }
+            else
+            {
+                _readyTimes[i] = 0f;
+                _castTimes[i] = 0f;
+            }
+        }
     }
 
     /// <summary>
@@ -156,7 +331,7 @@ public class PlayerSkills : NetworkBehaviour
 
     private void TryCast(AttackSlot slot)
     {
-        SkillDefinition skill = GetSkill(slot);
+        SkillInstance skill = GetSkill(slot);
         int index = ToIndex(slot);
 
         if (skill == null || _castSettings == null || Time.time < _readyTimes[index])
@@ -207,7 +382,7 @@ public class PlayerSkills : NetworkBehaviour
             _events.PredictSkillCast(tick);
     }
 
-    private bool TryGetAimPoint(SkillDefinition skill, Vector2 origin, out Vector2 point)
+    private bool TryGetAimPoint(SkillInstance skill, Vector2 origin, out Vector2 point)
     {
         point = default;
 
@@ -268,7 +443,7 @@ public class PlayerSkills : NetworkBehaviour
 
     private void CastOnServer(AttackSlot slot, Vector2 origin, Vector2 point, List<Health> targets, uint tick)
     {
-        if (!TryAcceptCast(slot, origin, point, false, out SkillDefinition skill))
+        if (!TryAcceptCast(slot, origin, point, false, out SkillInstance skill))
             return;
 
         SkillArea area = SkillArea.For(skill, origin, point);
@@ -288,7 +463,7 @@ public class PlayerSkills : NetworkBehaviour
 
     // The checks every cast goes through on the host, and its cooldown. False, with a warning when it
     // isn't honest, if the cast doesn't count.
-    private bool TryAcceptCast(AttackSlot slot, Vector2 origin, Vector2 point, bool projectile, out SkillDefinition skill)
+    private bool TryAcceptCast(AttackSlot slot, Vector2 origin, Vector2 point, bool projectile, out SkillInstance skill)
     {
         skill = GetSkill(slot);
         int index = ToIndex(slot);
@@ -336,7 +511,7 @@ public class PlayerSkills : NetworkBehaviour
         return true;
     }
 
-    private void ApplyToTargets(SkillDefinition skill, AttackSlot slot, SkillArea area, List<Health> targets)
+    private void ApplyToTargets(SkillInstance skill, AttackSlot slot, SkillArea area, List<Health> targets)
     {
         _appliedTargets.Clear();
 
@@ -376,7 +551,7 @@ public class PlayerSkills : NetworkBehaviour
     }
 
     // What a skill does to one enemy it hits, once the host has checked it: aura, damage and push.
-    private void HitTarget(SkillDefinition skill, AttackSlot slot, SkillArea area, Health target, ElementType element)
+    private void HitTarget(SkillInstance skill, AttackSlot slot, SkillArea area, Health target, ElementType element)
     {
         // Read before the aura goes on: a detonation consumes it, and Cazador de auras still counts
         // (catalog engine rule 10).
@@ -396,7 +571,7 @@ public class PlayerSkills : NetworkBehaviour
 
     // Ola (#162): straight away from where the caster stood. Only enemies with EnemyStatus can be moved,
     // so training dummies stay put, as with Sobrecarga.
-    private static void Push(SkillDefinition skill, SkillArea area, Health target)
+    private static void Push(SkillInstance skill, SkillArea area, Health target)
     {
         if (skill.Knockback <= 0f || !target.TryGetComponent(out EnemyStatus status))
             return;
@@ -419,7 +594,7 @@ public class PlayerSkills : NetworkBehaviour
     }
 
     // The skill's damage with the player's upgrades (#161). Conditional bonuses need to know the target.
-    private int GetDamage(SkillDefinition skill, bool targetHasAura)
+    private int GetDamage(SkillInstance skill, bool targetHasAura)
     {
         if (_stats == null)
             return skill.Damage;
@@ -433,7 +608,7 @@ public class PlayerSkills : NetworkBehaviour
     // Only the host looks for them, with what it sees: like the auras themselves, it's the host's decision.
     // The targets of the area are already in _appliedTargets, so nobody gets it twice. For a line or a
     // cone the ring is the same: everything up to that many units outside the shape (#162).
-    private void ApplyToRing(SkillDefinition skill, AttackSlot slot, SkillArea area)
+    private void ApplyToRing(SkillInstance skill, AttackSlot slot, SkillArea area)
     {
         ElementType element = skill.GetElement(_element.Current);
         if (_stats == null || element == ElementType.None)
@@ -471,7 +646,7 @@ public class PlayerSkills : NetworkBehaviour
     // Owner side: our own projectile flies at once, and the host hears of the launch first. Its hits (Rayo)
     // or its burst (Llamarada, Burbuja) are reported as they happen, on the same reliable channel, so the
     // host always knows the launch before any report.
-    private void LaunchOwn(AttackSlot slot, SkillDefinition skill, Vector2 origin, Vector2 point, uint tick)
+    private void LaunchOwn(AttackSlot slot, SkillInstance skill, Vector2 origin, Vector2 point, uint tick)
     {
         ushort castId = _nextCastId;
         _nextCastId = unchecked((ushort)(_nextCastId + 1));
@@ -518,7 +693,7 @@ public class PlayerSkills : NetworkBehaviour
 
     // On the caster's PC, where its own projectile stopped: it bursts there, finds what the circle touches
     // on this screen and draws it at once, as an instant skill does.
-    private void ReportBurst(ushort castId, SkillDefinition skill, Vector2 point, Collider2D hit)
+    private void ReportBurst(ushort castId, SkillInstance skill, Vector2 point, Collider2D hit)
     {
         if (this == null || !IsSpawned)
             return;
@@ -548,7 +723,7 @@ public class PlayerSkills : NetworkBehaviour
 
     private void LaunchOnServer(AttackSlot slot, Vector2 origin, Vector2 point, ushort castId, uint tick)
     {
-        if (!TryAcceptCast(slot, origin, point, true, out SkillDefinition skill))
+        if (!TryAcceptCast(slot, origin, point, true, out SkillInstance skill))
             return;
 
         ForgetExpiredShots();
@@ -572,12 +747,12 @@ public class PlayerSkills : NetworkBehaviour
     [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
     private void ObserversLaunch(AttackSlot slot, Vector2 origin, Vector2 point, uint tick)
     {
-        SkillDefinition skill = GetSkill(slot);
+        SkillInstance skill = GetSkill(slot);
         if (skill != null && skill.IsProjectile)
             LaunchCopy(skill, origin, point, (float)TimeManager.TimePassed(tick));
     }
 
-    private void LaunchCopy(SkillDefinition skill, Vector2 origin, Vector2 point, float timePassed)
+    private void LaunchCopy(SkillInstance skill, Vector2 origin, Vector2 point, float timePassed)
     {
         SkillProjectile projectile = SpawnProjectile(skill, origin);
         if (projectile == null)
@@ -656,7 +831,7 @@ public class PlayerSkills : NetworkBehaviour
 
     // Burbuja: the enemy it touched can't move or attack for a while. It's the stun of the reactions, so
     // EnemyStatus already stops its movement and its contact attack. Dummies have no EnemyStatus.
-    private void Trap(SkillDefinition skill, SkillArea area, Health touched)
+    private void Trap(SkillInstance skill, SkillArea area, Health touched)
     {
         if (skill.TrapDuration <= 0f || touched == null || touched.IsDead || !TryGetEnemyBody(touched, out Collider2D body))
             return;
@@ -671,7 +846,7 @@ public class PlayerSkills : NetworkBehaviour
     [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
     private void ObserversBurst(AttackSlot slot, Vector2 point)
     {
-        SkillDefinition skill = GetSkill(slot);
+        SkillInstance skill = GetSkill(slot);
         if (skill != null && skill.Bursts)
             ShowCast(skill, SkillArea.Circle(point, skill.ImpactRadius));
     }
@@ -704,11 +879,11 @@ public class PlayerSkills : NetworkBehaviour
         _expiredShotIds.Clear();
     }
 
-    private SkillProjectile SpawnProjectile(SkillDefinition skill, Vector2 origin)
+    private SkillProjectile SpawnProjectile(SkillInstance skill, Vector2 origin)
     {
         if (skill.ProjectilePrefab == null)
         {
-            Debug.LogError($"[PlayerSkills] {skill.Id} is a projectile without a Projectile Prefab.", skill);
+            Debug.LogError($"[PlayerSkills] {skill.Id} is a projectile without a Projectile Prefab.", skill.Definition);
             return null;
         }
 
@@ -742,7 +917,7 @@ public class PlayerSkills : NetworkBehaviour
         for (int i = 0; i < SlotCount; i++)
         {
             // Only cooldowns that are running: a ready skill stays as it is.
-            SkillDefinition skill = GetSkillAt(i);
+            SkillInstance skill = GetSkillAt(i);
             if (skill == null || _serverReadyTimes[i] <= now)
                 continue;
 
@@ -769,7 +944,7 @@ public class PlayerSkills : NetworkBehaviour
         float minFraction = _castSettings != null ? _castSettings.MinCooldownFraction : 0.6f;
         for (int i = 0; i < SlotCount; i++)
         {
-            SkillDefinition skill = GetSkillAt(i);
+            SkillInstance skill = GetSkillAt(i);
             if (skill == null || _readyTimes[i] <= Time.time)
                 continue;
 
@@ -784,12 +959,12 @@ public class PlayerSkills : NetworkBehaviour
     [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
     private void ObserversCast(AttackSlot slot, Vector2 origin, Vector2 point)
     {
-        SkillDefinition skill = GetSkill(slot);
+        SkillInstance skill = GetSkill(slot);
         if (skill != null)
             ShowCast(skill, SkillArea.For(skill, origin, point));
     }
 
-    private void ShowCast(SkillDefinition skill, SkillArea area)
+    private void ShowCast(SkillInstance skill, SkillArea area)
     {
         if (skill.Visual == null)
             return;
@@ -799,7 +974,7 @@ public class PlayerSkills : NetworkBehaviour
     }
 
     // The colour of the skill's element: a skill of another element shows that one, not the caster's.
-    private Color GetSkillColor(SkillDefinition skill)
+    private Color GetSkillColor(SkillInstance skill)
     {
         ElementDefinition element = _elements != null ? _elements.Get(skill.GetElement(_element.Current)) : null;
         return element != null ? element.Color : Color.white;

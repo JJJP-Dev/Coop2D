@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkillDefinition
   _id: mark
   _displayName: Marca
+  _description: "Habilidad de prueba: c\u00EDrculo de 2 m que solo marca"
   _usesCasterElement: 1
   _element: 0
   _canDetonate: 0
@@ -29,3 +30,4 @@ MonoBehaviour:
   _knockback: 0
   _knockbackDuration: 0.15
   _visual: {fileID: 5301884050686939402, guid: 70d7fecba95a40b9aa94e3da0195caab, type: 3}
+  _levels: []

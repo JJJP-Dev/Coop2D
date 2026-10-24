@@ -952,6 +952,7 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 3332554340608108226}
   _castSettings: {fileID: 11400000, guid: 594ecbe671e2beb429becdeabc77e0ca, type: 2}
   _elements: {fileID: 11400000, guid: 5fa0be1f25473d3449807b8a2f378e6f, type: 2}
+  _library: {fileID: 11400000, guid: 0751abc74f1241ef96838ae427052874, type: 2}
 --- !u!114 &5074802504927878542
 MonoBehaviour:
   m_ObjectHideFlags: 0

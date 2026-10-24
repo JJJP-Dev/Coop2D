@@ -15,7 +15,6 @@ MonoBehaviour:
   _id: volt
   _displayName: Voltio
   _element: 3
-  _startingSkills:
-  - {fileID: 11400000, guid: 5f7fcdf2db3152c4e99348e3f155108d, type: 2}
-  - {fileID: 11400000, guid: d4b84e33c2276c8469ba6b14d3b9d33f, type: 2}
+  _startingSkill: {fileID: 11400000, guid: cc9c0f4519ef42b19e2e1dec79563a65, type: 2}
+  _ownSkills:
   - {fileID: 11400000, guid: a35a2d4e59e5418eba14e94007bfca6c, type: 2}

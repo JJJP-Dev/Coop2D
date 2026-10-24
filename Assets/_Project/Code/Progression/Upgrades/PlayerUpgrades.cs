@@ -202,6 +202,10 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         if (_events != null)
             _events.ResetForNewRun();
 
+        // Back to the starting skill alone: the others come from the offers (#162).
+        if (_skills != null)
+            _skills.ResetSkills();
+
         _seen.Clear();
         _offersWithoutDuo = 0;
         _earnedThirds = 0;
@@ -605,8 +609,8 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
 
     /// <summary>
     /// Server only. Whether this player meets one requirement of an upgrade, written as in the catalog:
-    /// kind:value, or the id of another upgrade they must have. char: is the player's character (#162);
-    /// the skills are still the test ones until the kits arrive, so skill: only holds for those.
+    /// kind:value, or the id of another upgrade they must have. char: is the player's character and
+    /// skill:id@n a skill they have at level n or more (#162).
     /// </summary>
     public bool MeetsRequirement(string requirement)
     {
@@ -650,24 +654,14 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         }
     }
 
-    // skill:id, or skill:id@level. Every skill is at level 1 until skill levels arrive (#162).
+    // skill:id, or skill:id@level: the player has it at that level or more (#162).
     private bool HasSkill(string value)
     {
         int at = value.IndexOf('@');
         string id = at < 0 ? value : value.Substring(0, at);
         int level = at < 0 || !int.TryParse(value.Substring(at + 1), out int parsed) ? 1 : parsed;
 
-        if (_skills == null || level > 1)
-            return false;
-
-        for (int slot = (int)AttackSlot.Skill1; slot <= (int)AttackSlot.Skill3; slot++)
-        {
-            SkillDefinition skill = _skills.GetSkill((AttackSlot)slot);
-            if (skill != null && skill.Id == id)
-                return true;
-        }
-
-        return false;
+        return _skills != null && _skills.GetLevel(id) >= level;
     }
 
     private bool HasSkillOfElement(ElementType element)
@@ -677,7 +671,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
 
         for (int slot = (int)AttackSlot.Skill1; slot <= (int)AttackSlot.Skill3; slot++)
         {
-            SkillDefinition skill = _skills.GetSkill((AttackSlot)slot);
+            SkillInstance skill = _skills.GetSkill((AttackSlot)slot);
             if (skill != null && skill.GetElement(_element.Current) == element)
                 return true;
         }

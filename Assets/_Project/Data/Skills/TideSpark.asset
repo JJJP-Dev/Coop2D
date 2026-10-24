@@ -15,6 +15,7 @@ MonoBehaviour:
   _id: tide_spark
   _displayName: Chispa
   _icon: {fileID: 0}
+  _description: "Rayo en l\u00EDnea de 5 m que detona tu agua"
   _usesCasterElement: 0
   _element: 3
   _canDetonate: 1
@@ -30,3 +31,22 @@ MonoBehaviour:
   _knockback: 0
   _knockbackDuration: 0.15
   _visual: {fileID: 5301884050686939402, guid: 70d7fecba95a40b9aa94e3da0195caab, type: 3}
+  _levels:
+  - _description: "+20 % de da\u00F1o (18)"
+    _damagePercent: 20
+    _cooldownPercent: 0
+    _radiusAdd: 0
+    _lengthAdd: 0
+    _angleAdd: 0
+    _impactRadiusAdd: 0
+    _trapDurationAdd: 0
+    _pierceAdd: 0
+  - _description: "+2 m de largo (7 m)"
+    _damagePercent: 0
+    _cooldownPercent: 0
+    _radiusAdd: 0
+    _lengthAdd: 2
+    _angleAdd: 0
+    _impactRadiusAdd: 0
+    _trapDurationAdd: 0
+    _pierceAdd: 0

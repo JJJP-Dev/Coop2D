@@ -124,7 +124,7 @@ Para las pruebas del muñeco, desmarca el componente `WaveSpawner` de `Arena_Tes
 
 ## 9. Habilidades
 
-Con el host y dos clientes. Todos los personajes tienen las dos habilidades de prueba, del color de su elemento: **Estallido** con el clic izquierdo (círculo de 1,5) y **Marca** con el derecho (círculo de 2). Las dos tienen 7 de alcance y 7 s de recarga. La Q lleva una de su kit; se prueba en la sección 24. Quien lanza ve su zona al instante; el host comprueba el lanzamiento y aplica el daño y el aura fuerte.
+Con el host y dos clientes. **En cada ventana, abre F1 y pulsa «Habilidades de prueba»**: deja **Estallido** en el clic izquierdo (círculo de 1,5) y **Marca** en el derecho (círculo de 2), del color de tu elemento, y la Q vacía. Las dos tienen 7 de alcance y 7 s de recarga. Quien lanza ve su zona al instante; el host comprueba el lanzamiento y aplica el daño y el aura fuerte. Las habilidades de cada personaje se prueban en las secciones 24 a 26.
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
@@ -144,12 +144,12 @@ Con el host y dos clientes. Todos los personajes tienen las dos habilidades de p
 | Recarga en el host | En el host, sube la *Cooldown* de `TestBurst` a 20. Un cliente lanza Estallido cada 7 s. Devuélvela a 7. | El host avisa de lanzamientos rechazados antes de su recarga, y esos no hacen daño. Son los únicos avisos esperados. |
 | Con latencia | Repite «Daño» y «Varios objetivos» con latencia, contra perseguidores en movimiento. | Los golpes cuentan y la consola del host sigue limpia. |
 | Recarga en el HUD | Lanza Estallido y mira su hueco en la barra de habilidades. | El relleno se vacía en 7 s y el número baja de 7 a 1. Al acabar puedes volver a lanzarla, ni antes ni después. Igual en el host y en un cliente con latencia. |
-| Tercer hueco en el HUD | Mira el tercer hueco (Q). | Muestra la inicial de la habilidad de tu personaje (L, O o C) y su recarga, como los otros dos. |
+| Hueco vacío | Con las habilidades de prueba, pulsa Q y mira el tercer hueco del HUD. | No pasa nada; el hueco se ve atenuado, sin número, y la consola sigue limpia. |
 | Destello al golpear | Dispara al muñeco y a un perseguidor, y pulsa «Dañar a todos». | Cada golpe pone blanco el sprite un instante, en todas las ventanas, también a los jugadores. Cambia *Hit Flash Duration* de `DefaultFeedback` a 0,5 para verlo bien y devuélvelo a 0,05. |
 
 ## 10. Reacciones
 
-Con el host y dos clientes, el `WaveSpawner` desmarcado y la vida del muñeco a 500, como en la sección 8. J1 es fuego, J2 agua y J3 electricidad. Solo Estallido detona; Marca y el básico solo dejan aura. Lanzad las habilidades desde unos 7 de distancia, fuera del alcance del básico (6), para que vuestro básico no deje su aura justo después.
+Con el host y dos clientes, el `WaveSpawner` desmarcado y la vida del muñeco a 500, como en la sección 8, y F1 › «Habilidades de prueba» en cada ventana (sección 9). J1 es fuego, J2 agua y J3 electricidad. Solo Estallido detona; Marca y el básico solo dejan aura. Lanzad las habilidades desde unos 7 de distancia, fuera del alcance del básico (6), para que vuestro básico no deje su aura justo después.
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
@@ -214,6 +214,8 @@ Con el host y un cliente. Funciona en el editor y en las builds con *Development
 | Dañar y curar a todos | Pulsa «Dañar a todos» y luego «Curar a todos». | Bajan 10 las vidas de jugadores, enemigos y muñecos, y vuelven al máximo, en todas las ventanas. |
 | Siguiente oleada | Con las oleadas activas, pulsa «Siguiente oleada» varias veces. | Quien lo pulsa ve «Saltas a la oleada de M:SS» y empiezan a salir esos enemigos. Lo que quedaba de las oleadas anteriores ya no sale. Tras la última, el aviso dice «No quedan más oleadas». |
 | Reiniciar oleadas | Con las oleadas a medias, o ya terminadas, pulsa «Reiniciar oleadas». | Mueren todos los enemigos, quien lo pulsa ve «Oleadas reiniciadas» y vuelve a salir la primera oleada, como al empezar la partida. |
+| Dar habilidad | Con Brasa, pulsa «Dar habilidad» cuatro veces. | Cada vez, un toast «Habilidad: …» solo en tu ventana: la primera va al segundo hueco y la segunda al tercero; con los tres llenos, cambia la del tercero. Las demás ventanas ven tus lanzamientos con la habilidad nueva. `cheat_used cheat=give_skill`. |
+| Habilidades de prueba | Pulsa «Habilidades de prueba». | Estallido en el clic izquierdo, Marca en el derecho y la Q vacía, también para los demás. `cheat_used cheat=test_skills`. |
 | Build de lanzamiento | Haz una build sin *Development Build* y pulsa F1. | No pasa nada: el panel no existe. |
 
 ## 13. Prueba entre varios PCs
@@ -443,52 +445,52 @@ Arena_Test. Abre F1: la línea de estadísticas enseña las tuyas tal como las c
 
 ## 23. Personajes (#162)
 
-Arena_Test, con el host y tres clientes. Hasta la sala de espera (#173) el personaje sale del hueco. Hasta que las habilidades se consigan con las ofertas, todos tienen Estallido y Marca, y en la Q una de su kit.
+Arena_Test, con el host y tres clientes. Hasta la sala de espera (#173) el personaje sale del hueco.
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
 | Personaje por hueco | Hospeda y une a tres clientes. | J1 Brasa (fuego), J2 Marea (agua), J3 Voltio (electricidad) y J4 Brasa (fuego): lo dice el toast de cada ventana. Disparos, auras y círculos salen del color de ese elemento en todas las ventanas. |
-| Habilidades del personaje | En cada ventana, mira la barra de habilidades y lanza las tres. | Estallido en el clic izquierdo, Marca en el derecho y en la Q Llovizna (Brasa), Ola (Marea) o Cortocircuito (Voltio). Sin avisos en la consola del host. |
+| Habilidad inicial | En cada ventana, mira la barra de habilidades y lanza la del clic izquierdo. | Brasa tiene Llamarada, Marea Ola y Voltio Rayo, y los otros dos huecos están vacíos (se llenan con las ofertas, sección 26). Sin avisos en la consola del host. |
 | Entrar tarde | Con la partida empezada, une a otro cliente con 100 ms de latencia. | Recibe el personaje de su hueco y ve a los demás con el elemento correcto desde el principio. |
 | Volver al hueco | J2 sale y vuelve a entrar. | Vuelve a ser Marea. |
 | Datos | En `Data/Players/PlayerCharacters.asset`, pon Voltio en el hueco 0 (*By Slot*, elemento 0) y hospeda. Devuélvelo a Brasa. | El host juega Voltio, con electricidad, y su Q es Cortocircuito. |
 | Mejoras de personaje | Sube hasta el nivel 12 con cada personaje. | No sale ninguna de las 6 de personaje (no tienen efecto todavía). Con la semilla `3A9F01C2`, las ofertas son las mismas que en la sección 21. |
-| Reiniciar | Pierde y reinicia. | Cada uno sigue con su personaje y su elemento. |
+| Reiniciar | Con habilidades dadas con F1, pierde y reinicia. | Cada uno sigue con su personaje y su elemento, y solo con su habilidad inicial, lista para lanzar. |
 
 ## 24. Formas de las habilidades (#162)
 
-Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). Para Chispa, que aún no está en ningún hueco, pon `TideSpark` en el tercer hueco de *Starting Skills* de `Data/Characters/Tide.asset` antes de dar Play y devuélvelo a `TideWave` al terminar. Para las pruebas de daño, el muñeco y los perseguidores; con el logger de combate (`CombatEventLogger`) se ven los golpes.
+Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). Cada uno empieza con su habilidad inicial; para tener las demás, pulsa F1 › «Dar habilidad» hasta que te salga la que quieres (cada pulsación da la siguiente que no tienes y, con los tres huecos llenos, cambia la última). Para las pruebas de daño, el muñeco y los perseguidores; con el logger de combate (`CombatEventLogger`) se ven los golpes.
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
-| Llovizna | J1 lanza Q sobre un perseguidor. | Círculo azul de 2 donde apuntas (como mucho a 7). Le quita 10 y le pone «Agua (fuerte) · J1». |
-| Vapor en solitario | J1 lanza Marca (fuego) sobre un grupo y, antes de 6 s, Llovizna encima. | Reacción `vapor_fire_water` sin dúo («J1  EN SOLITARIO»). |
-| Cortocircuito | J3 lanza Marca (electricidad) sobre un grupo y luego Q encima. | Círculo naranja de 1,5; reacción `overload_electric_fire` en solitario. |
-| Ola | J2 se acerca a un grupo y lanza Q hacia él. | Una cuña azul de 3 m y 60° sale de J2 hacia el cursor. Los que toca reciben 20, aura de agua y se alejan media casilla de J2, igual en todas las ventanas. El muñeco recibe daño, pero no se mueve. |
+| Llovizna | J1 se da Llovizna con «Dar habilidad» y la lanza sobre un perseguidor. | Círculo azul de 2 donde apuntas (como mucho a 7). Le quita 10 y le pone «Agua (fuerte) · J1». |
+| Vapor en solitario | J1 deja que su básico (fuego) marque un grupo y, antes de 3 s, lanza Llovizna encima. | Reacción `vapor_fire_water` sin dúo («J1  EN SOLITARIO»). |
+| Cortocircuito | J3 se da Cortocircuito con «Dar habilidad», deja que su básico (electricidad) marque un grupo y lanza Cortocircuito encima. | Círculo naranja de 1,5; reacción `overload_electric_fire` en solitario. |
+| Ola | J2 se acerca a un grupo y lanza Ola (clic izquierdo) hacia él. | Una cuña azul de 3 m y 60° sale de J2 hacia el cursor. Los que toca reciben 20, aura de agua y se alejan media casilla de J2, igual en todas las ventanas. El muñeco recibe daño, pero no se mueve. |
 | Ola detona | J1 marca con fuego un grupo cercano a J2 y J2 lanza Ola. | Reacción `vapor_fire_water` dúo. |
-| Ola sin cursor | Pon el cursor justo encima de J2 y pulsa Q. | No sale nada y la recarga no empieza. |
-| Chispa | Con `TideSpark` en la Q de Marea, J2 la lanza hacia una fila de perseguidores. | Una banda amarilla de 5 × 0,5 sale de J2. Todos los que toca reciben 15 y aura eléctrica, aunque haya varios en fila. Los que quedan fuera de la banda no. |
-| Electrocución en solitario | J2 lanza Marca (agua) sobre un grupo y luego Chispa hacia ellos. | Reacción `electrocution_water_electric` en solitario. |
+| Ola sin cursor | Pon el cursor justo encima de J2 y haz clic izquierdo. | No sale nada y la recarga no empieza. |
+| Chispa | J2 se da Chispa con «Dar habilidad» y la lanza hacia una fila de perseguidores. | Una banda amarilla de 5 × 0,5 sale de J2. Todos los que toca reciben 15 y aura eléctrica, aunque haya varios en fila. Los que quedan fuera de la banda no. |
+| Electrocución en solitario | J2 marca un grupo con Ola (agua) y, antes de 6 s, lanza Chispa hacia ellos. | Reacción `electrocution_water_electric` en solitario. |
 | Línea y cono con ping | Con 100 ms de latencia, un cliente lanza Ola y Chispa mientras corre hacia un grupo. | La zona sale de donde estaba al lanzar, en todas las ventanas. Los enemigos que veía dentro reciben el golpe, y la consola del host sigue sin `Rejected`. |
 | Origen falso | En el host, baja *Position Tolerance* de `DefaultSkillCast` a 0 y, con 150 ms, que un cliente lance corriendo. Devuélvelo a 2. | El host avisa `cast from … away from where the host sees it` y ese lanzamiento no hace nada. Son los únicos avisos esperados. |
 | Aura expansiva con línea | Coge Aura expansiva (F1 › «Dar experiencia» y reroll) y lanza Chispa junto a enemigos que quedan justo fuera de la banda. | Los que están a menos de 1 m por fuera reciben solo el aura, sin daño ni reacción. Como mucho 8. |
 | Cazador de auras con cono | Con Cazador de auras, lanza Ola sobre un enemigo con aura y otro sin ella. | 23 al que tenía aura (20 + 15 %) y 20 al otro. |
 | Lo ven todos | Lanza cada habilidad desde un cliente. | Su zona sale en todas las ventanas, del color del elemento de la habilidad (no del jugador): Llovizna azul también en Brasa. |
-| Estallido y Marca igual que antes | Repite «Lanzar», «Alcance» y «Varios objetivos» de la sección 9. | Igual que antes. El círculo se dibuja ahora como una forma lisa del color del elemento, del mismo tamaño. |
+| Estallido y Marca igual que antes | Con «Habilidades de prueba», repite «Lanzar», «Alcance» y «Varios objetivos» de la sección 9. | Igual que antes. El círculo se dibuja ahora como una forma lisa del color del elemento, del mismo tamaño. |
 
 ## 25. Habilidades con proyectil (#162)
 
-Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). Estas habilidades aún no están en ningún hueco: antes de dar Play, pon en el tercer hueco de *Starting Skills* `EmberFlare` en `Data/Characters/Ember.asset`, `TideBubble` en `Tide.asset` y `VoltBolt` en `Volt.asset`. Al terminar, devuélvelos a `EmberDrizzle`, `TideWave` y `VoltShort`. Haz cada prueba en local y otra vez con 100 ms de latencia.
+Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). Llamarada y Rayo son las iniciales de Brasa y Voltio; Marea consigue Burbuja con F1 › «Dar habilidad». Haz cada prueba en local y otra vez con 100 ms de latencia.
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
-| Llamarada | J1 lanza Q hacia un perseguidor. | Sale una bola naranja que vuela rápido hacia el cursor. Al tocar al perseguidor estalla en un círculo de 1,5: los que toca reciben 30 y aura de fuego fuerte. |
-| Llamarada al vacío | J1 lanza Q hacia donde no hay nadie. | La bola vuela 7 casillas y estalla allí. |
-| Llamarada detona | J2 marca con agua un grupo (Marca) y J1 lanza Llamarada encima. | Reacción `vapor_water_fire` dúo en cada perseguidor del círculo. |
-| Burbuja | J2 lanza Q hacia un perseguidor de un grupo. | Una burbuja azul más lenta. Al tocar al primero estalla: los de 1,5 alrededor reciben 10 y aura de agua; el primero se queda quieto 1,5 s y no pega. |
-| Burbuja no detona | J1 marca con fuego un grupo y J2 lanza Burbuja encima. | No hay reacción: el aura de fuego se queda (como Marca). |
-| Burbuja al vacío | J2 lanza Q hacia donde no hay nadie. | Vuela 8 casillas y estalla allí, sin atrapar a nadie. |
-| Rayo | J3 lanza Q hacia una fila de perseguidores. | Un proyectil amarillo muy rápido golpea al primero y al segundo (22 cada uno, aura eléctrica) y desaparece. El tercero no recibe nada. |
+| Llamarada | J1 lanza Llamarada (clic izquierdo) hacia un perseguidor. | Sale una bola naranja que vuela rápido hacia el cursor. Al tocar al perseguidor estalla en un círculo de 1,5: los que toca reciben 30 y aura de fuego fuerte. |
+| Llamarada al vacío | J1 lanza Llamarada hacia donde no hay nadie. | La bola vuela 7 casillas y estalla allí. |
+| Llamarada detona | J2 marca con agua un grupo (Ola) y J1 lanza Llamarada encima. | Reacción `vapor_water_fire` dúo en cada perseguidor del círculo. |
+| Burbuja | J2 se da Burbuja prisión con «Dar habilidad» y la lanza hacia un perseguidor de un grupo. | Una burbuja azul más lenta. Al tocar al primero estalla: los de 1,5 alrededor reciben 10 y aura de agua; el primero se queda quieto 1,5 s y no pega. |
+| Burbuja no detona | J1 marca con fuego un grupo y J2 lanza Burbuja encima. | No hay reacción: el aura de fuego se queda (Burbuja no detona). |
+| Burbuja al vacío | J2 lanza Burbuja hacia donde no hay nadie. | Vuela 8 casillas y estalla allí, sin atrapar a nadie. |
+| Rayo | J3 lanza Rayo (clic izquierdo) hacia una fila de perseguidores. | Un proyectil amarillo muy rápido golpea al primero y al segundo (22 cada uno, aura eléctrica) y desaparece. El tercero no recibe nada. |
 | Rayo detona | J2 marca con agua y J3 lanza Rayo encima. | Reacción `electrocution_water_electric` dúo, con su cadena. |
 | Lo ven todos | Cada uno lanza la suya. | En las demás ventanas el proyectil sale de quien lo lanza, ya avanzado si hay ping, y el estallido se dibuja donde explotó para el host. |
 | Con ping | Con 100 ms, cada cliente lanza la suya hacia perseguidores en movimiento. | Los golpes y estallidos cuentan; en el host, ningún `Rejected`. |

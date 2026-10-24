@@ -33,6 +33,12 @@ public class DebugCheatsPanel : MonoBehaviour
     [Tooltip("Optional. Gives every player a reroll, within the limit of 2 per match (#78).")]
     [SerializeField] private Button _giveRerollButton;
 
+    [Tooltip("Optional (#162). The next skill you don't have.")]
+    [SerializeField] private Button _giveSkillButton;
+
+    [Tooltip("Optional (#162). Estallido and Marca, for the reaction tests.")]
+    [SerializeField] private Button _testSkillsButton;
+
     [Tooltip("Optional. Shows the match's seed (#75), to write it in RunRandomSettings and play the same run again.")]
     [SerializeField] private TMP_Text _seedLabel;
 
@@ -83,6 +89,12 @@ public class DebugCheatsPanel : MonoBehaviour
 
         if (_giveRerollButton != null)
             _giveRerollButton.onClick.AddListener(_cheats.GiveReroll);
+
+        if (_giveSkillButton != null)
+            _giveSkillButton.onClick.AddListener(_cheats.GiveSkill);
+
+        if (_testSkillsButton != null)
+            _testSkillsButton.onClick.AddListener(_cheats.SetTestSkills);
 
         _invulnerableLabel = _invulnerableButton.GetComponentInChildren<TMP_Text>();
     }

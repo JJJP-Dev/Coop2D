@@ -101,7 +101,7 @@ id nuevo** en esta tabla; no reutilices uno existente para otra cosa.
 | `upgrade` | `basic_twin_shot`, `basic_long_barrel`, `basic_tempo`, `stat_aura_hunter`, `aura_lingering`, `aura_wide_skill`, `coop_relay`, `coop_assist`, `def_vitality`, `mov_tailwind`, `ember_wall_detonate`, `ember_eternal_flame`, `tide_whirlpool`, `tide_tsunami_heart`, `volt_surge`, `volt_coil_detonator`, `econ_magnet`, `mov_swift`, `def_thick_skin`, `econ_breather` | Los ids del catálogo de progresión (#78). `econ_breather` es Respiro. Cada mejora nueva añade el suyo |
 | `rarity` | `common`, `rare`, `epic`, `legendary`, `duo`, `evolution` | Rareza de una mejora |
 | `action` | `reroll`, `banish`, `skip` | Qué hizo el jugador con una oferta en vez de elegir (#78) |
-| `cheat` | `spawn_chaser`, `spawn_chaser_10`, `kill_all`, `invulnerable`, `damage_all`, `heal_all`, `next_wave`, `reset_waves`, `give_xp`, `give_reroll`, `element_cycle`, `reaction_lab` | Un id por botón del panel F1; `element_cycle` es la tecla F6; `reaction_lab`, cualquier botón del panel del laboratorio de reacciones |
+| `cheat` | `spawn_chaser`, `spawn_chaser_10`, `kill_all`, `invulnerable`, `damage_all`, `heal_all`, `next_wave`, `reset_waves`, `give_xp`, `give_reroll`, `give_skill`, `test_skills`, `element_cycle`, `reaction_lab` | Un id por botón del panel F1; `element_cycle` es la tecla F6; `reaction_lab`, cualquier botón del panel del laboratorio de reacciones |
 
 ## 5. Catálogo de eventos
 

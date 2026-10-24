@@ -36,7 +36,7 @@ public class SkillSlotView : MonoBehaviour
 
     private LocalPlayerService _localPlayer;
     private PlayerSkills _skills;
-    private SkillDefinition _shownSkill;
+    private SkillInstance _shownSkill;
     private int _shownSeconds = -1;
     private bool _shownRecharging;
 
@@ -73,7 +73,7 @@ public class SkillSlotView : MonoBehaviour
 
     private void Update()
     {
-        SkillDefinition skill = _skills != null ? _skills.GetSkill(_slot) : null;
+        SkillInstance skill = _skills != null ? _skills.GetSkill(_slot) : null;
 
         if (skill != _shownSkill)
             ShowSkill(skill);
@@ -99,7 +99,7 @@ public class SkillSlotView : MonoBehaviour
         }
     }
 
-    private void ShowSkill(SkillDefinition skill)
+    private void ShowSkill(SkillInstance skill)
     {
         _shownSkill = skill;
         _shownSeconds = -1;

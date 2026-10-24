@@ -203,7 +203,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 | Velocidad, aceleración, frenada | `Data/Characters/DefaultPlayerMovement.asset` | 5 · 50 · 60 |
 | Color de cada hueco | `Data/Players/PlayerColors.asset` | rojo, azul, verde, amarillo |
 | Personaje de cada hueco, y la lista de personajes | `Data/Players/PlayerCharacters.asset` | Brasa, Marea, Voltio, Brasa |
-| Nombre, elemento y habilidades de inicio de cada personaje | `Data/Characters/Ember.asset`, `Tide.asset`, `Volt.asset` | Brasa fuego, Marea agua, Voltio electricidad; los tres con Estallido y Marca, y en la Q Llovizna, Ola y Cortocircuito |
+| Nombre, elemento, habilidad inicial y kit de cada personaje | `Data/Characters/Ember.asset`, `Tide.asset`, `Volt.asset` | Brasa fuego, empieza con Llamarada y su kit es Llovizna · Marea agua, Ola y Burbuja prisión + Chispa · Voltio electricidad, Rayo y Cortocircuito. Muro ígneo (Brasa) y Bobina (Voltio) entrarán en el kit cuando existan |
 
 **Cuidado con.** Máximo 4 jugadores (`PlayerSlots.MaxPlayers`); el quinto se desconecta. Los puntos de aparición están en `PlayerSpawnPoints` de cada escena: sin ellos, todos aparecen en el origen.
 - **Un personaje que no está en la lista *Characters* de `PlayerCharacters` no se puede jugar**: los demás PCs reciben su id y no encontrarían su ficha. El asset avisa en consola si das a un hueco uno que no está.
@@ -264,7 +264,16 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 
 ### 4.6 Habilidades
 
-**Qué hace.** Tres huecos de habilidad: clic izquierdo, clic derecho y Q. Ahora, todos los personajes llevan las dos de prueba, **Estallido** (clic izquierdo, detona reacciones) y **Marca** (clic derecho, solo marca), y en la Q una de su kit: **Llovizna** Brasa, **Ola** Marea y **Cortocircuito** Voltio. **Llamarada** (Brasa), **Burbuja prisión** y **Chispa** (Marea) y **Rayo** (Voltio) ya existen, pero no están en ningún hueco hasta que las habilidades se consigan con las ofertas (#162): para probarlas, ponlas en *Starting Skills* de la ficha del personaje.
+**Qué hace.** Tres huecos de habilidad: clic izquierdo, clic derecho y Q (catálogo E.0, regla 1). **Empiezas con la habilidad inicial de tu personaje** en el clic izquierdo (Llamarada, Ola o Rayo) y los otros dos huecos se llenan **durante la partida**, en el orden en que consigues las habilidades. Cada habilidad tiene **3 niveles**: el 1 al conseguirla, y el 2 y el 3 cambian sus números (más daño, menos recarga, más alcance…).
+
+Hay además dos habilidades **de prueba**, Estallido (círculo que detona) y Marca (círculo que solo marca), que las pruebas de reacciones usan. No salen en partida: se ponen con F1 › «Habilidades de prueba».
+
+**De dónde salen las habilidades** (`SkillLibrary` en `Data/Skills/SkillLibrary.asset`):
+- **La biblioteca** tiene todas, para encontrar cada una por su id en cualquier PC.
+- **Las del personaje**: su *Starting Skill* (la inicial) y sus *Own Skills* (el resto de su kit) en `Data/Characters/`.
+- **Las genéricas** (*Generic*, catálogo E.2): las puede recibir cualquier personaje. Vacía en el Pre 3: llegan en la 0.1 (#88).
+
+**Los huecos de cada jugador viajan por la red.** `PlayerSkills` guarda una lista sincronizada (`SyncList<OwnedSkill>`: id y nivel por hueco) que reciben todos los PCs, porque todos dibujan los lanzamientos de todos. Cada PC convierte cada entrada en una `SkillInstance`: la ficha con los números de su nivel ya calculados. Así el host comprueba un lanzamiento con los mismos números que dibujan los clientes. Solo el host cambia la lista (`TryAddSkill`, `TryLevelUp`, `SetSkills`, `ResetSkills`); al reiniciar la partida vuelve a la inicial sola. Un hueco que recibe otra habilidad empieza listo: no hereda la recarga de la anterior.
 
 **Formas** (`SkillShape`):
 
@@ -275,7 +284,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 | *Cone* | Desde ti hacia el cursor; una cuña de *Length* de radio y *Angle* grados de abertura | Ola (3 m, 60°) |
 | *Projectile* | Vuela desde ti hacia el cursor hasta *Length*. Golpea directamente (*Impact Radius* 0) a 1 + *Pierce* enemigos, o estalla en un círculo de *Impact Radius* al tocar el primero (y al final de su recorrido, con *Burst At End*) | Rayo (directo, atraviesa a 1), Llamarada (estalla 1,5 m), Burbuja (estalla 1,5 m y atrapa) |
 
-**Piezas.** `Code/Skills/PlayerSkills.cs`, `SkillDefinition`, `SkillShape`, `SkillArea` (la zona de un lanzamiento ya colocada, con sus cuentas), `SkillCastSettings`, `SkillShapeVisual` (el dibujo provisional) y `Prefabs/Skills/SkillShapeVisual.prefab`; para los proyectiles, `SkillProjectile` (lo que vuela) con `Prefabs/Skills/SkillProjectile.prefab` y `SkillShotRecord` (lo que recuerda el host de cada uno); en el HUD, `Code/UI/InGame/SkillSlotView.cs`.
+**Piezas.** `Code/Skills/PlayerSkills.cs`, `SkillDefinition`, `SkillLevelModifier` (lo que cambia un nivel), `SkillInstance` (una habilidad con su nivel), `OwnedSkill` (lo que viaja de cada hueco), `SkillLibrary`, `SkillShape`, `SkillArea` (la zona de un lanzamiento ya colocada, con sus cuentas), `SkillCastSettings`, `SkillShapeVisual` (el dibujo provisional) y `Prefabs/Skills/SkillShapeVisual.prefab`; para los proyectiles, `SkillProjectile` (lo que vuela) con `Prefabs/Skills/SkillProjectile.prefab` y `SkillShotRecord` (lo que recuerda el host de cada uno); en el HUD, `Code/UI/InGame/SkillSlotView.cs`.
 
 **Cómo funciona.**
 1. El dueño pulsa. El juego toma **desde dónde** lanza (su posición) y **hacia dónde** (el cursor; un círculo se queda a su alcance, una línea o un cono solo usan la dirección) y arma la zona (`SkillArea`). Busca los enemigos que la tocan **en su pantalla** y la dibuja al momento.
@@ -295,17 +304,17 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 
 **Qué ajustar.** Cada habilidad es un asset en `Data/Skills/`: id, nombre, icono, si usa el elemento de quien la lanza (o el suyo), si detona, fuerza del aura, recarga, alcance (solo círculo), forma con sus medidas (*Radius*; *Length* y *Width*; *Length* y *Angle*), daño, empuje y el dibujo (*Visual* = `SkillShapeVisual.prefab`).
 
-| Habilidad | Asset | Elemento | Forma | Daño | Recarga | Detona |
-|---|---|---|---|---|---|---|
-| Estallido | `TestBurst` | el tuyo | círculo 1,5, a 7 | 16 | 7 s | sí |
-| Marca | `TestMark` | el tuyo | círculo 2, a 7 | 10 | 7 s | no |
-| Llovizna | `EmberDrizzle` | agua | círculo 2, a 7 | 10 | 7 s | sí |
-| Cortocircuito | `VoltShort` | fuego | círculo 1,5, a 7 | 16 | 7 s | sí |
-| Chispa | `TideSpark` | electricidad | línea 5 × 0,5 | 15 | 7 s | sí |
-| Ola | `TideWave` | agua | cono 3 m, 60°; empuja 0,5 | 20 | 6 s | sí |
-| Llamarada | `EmberFlare` | fuego | proyectil 14 m/s hasta 7, estalla 1,5 | 30 | 5 s | sí |
-| Burbuja prisión | `TideBubble` | agua | proyectil 12 m/s hasta 8, estalla 1,5 (moja) y atrapa 1,5 s al que toca | 10 | 9 s | no |
-| Rayo | `VoltBolt` | electricidad | proyectil 16 m/s hasta 9, atraviesa a 1 (golpea a 2) | 22 | 4 s | sí |
+| Habilidad | Asset | Elemento | Forma | Daño | Recarga | Detona | Nivel 2 · nivel 3 |
+|---|---|---|---|---|---|---|---|
+| Llamarada (inicial de Brasa) | `EmberFlare` | fuego | proyectil 14 m/s hasta 7, estalla 1,5 | 30 | 5 s | sí | +20 % daño · −15 % recarga |
+| Llovizna (Brasa) | `EmberDrizzle` | agua | círculo 2, a 7 | 10 | 7 s | sí | +20 % daño · −15 % recarga |
+| Ola (inicial de Marea) | `TideWave` | agua | cono 3 m, 60°; empuja 0,5 | 20 | 6 s | sí | +20 % daño · cono de 75° |
+| Burbuja prisión (Marea) | `TideBubble` | agua | proyectil 12 m/s hasta 8, estalla 1,5 (moja) y atrapa 1,5 s al que toca | 10 | 9 s | no | trampa 2 s · moja en 2 m |
+| Chispa (Marea) | `TideSpark` | electricidad | línea 5 × 0,5 | 15 | 7 s | sí | +20 % daño · 7 m de largo |
+| Rayo (inicial de Voltio) | `VoltBolt` | electricidad | proyectil 16 m/s hasta 9, atraviesa a 1 (golpea a 2) | 22 | 4 s | sí | +20 % daño · −12,5 % recarga |
+| Cortocircuito (Voltio) | `VoltShort` | fuego | círculo 1,5, a 7 | 16 | 7 s | sí | +25 % daño · −15 % recarga |
+| Estallido (prueba) | `TestBurst` | el tuyo | círculo 1,5, a 7 | 16 | 7 s | sí | — |
+| Marca (prueba) | `TestMark` | el tuyo | círculo 2, a 7 | 10 | 7 s | no | — |
 
 Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objetivos), con el suelo de la recarga devuelta (*Min Cooldown Fraction*, 0,6) y la edad máxima del tick de un lanzamiento (*Max Cast Tick Age*, 0,5 s).
 
@@ -316,7 +325,9 @@ Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objet
 - Un cono de más de 180° no es una cuña: las cuentas de `SkillArea` lo dan por hecho (el Inspector no deja pasar de 180).
 - El dibujo (`SkillShapeVisual`) es solo eso: construye una malla con la misma `SkillArea`, así que siempre enseña la zona real. Llegará el arte de verdad con las familias de efecto del catálogo (E.5).
 - El id de la habilidad (`burst`, `mark`, `tide_wave`…) lo usa el launcher (`ability_cast`): no lo cambies una vez publicada una build.
-- Las habilidades de cada jugador son las *Starting Skills* de la ficha de su personaje (`Data/Characters/`). Como el personaje llega con el jugador, cada PC sabe sus habilidades sin que se manden. Cuando se consigan con las ofertas (#162), pasarán a sincronizarse.
+- **Toda habilidad que se pueda tener tiene que estar en `SkillLibrary`**: los demás PCs reciben su id y la buscan ahí. Si falta, sale un error en consola y ese hueco queda vacío.
+- **Los niveles** son la lista *Levels* de la ficha (`SkillLevelModifier`): el primero es el nivel 2 y el segundo el 3, y se suman. Los porcentajes son de los números base. Una habilidad sin *Levels* solo tiene nivel 1 (las de prueba).
+- Quien usa los números de una habilidad lee la `SkillInstance` (con su nivel), nunca la ficha directamente: si no, el nivel 2 no se notaría.
 
 ### 4.7 Elementos y auras
 
@@ -558,7 +569,7 @@ Interfaz: `Code/UI/InGame/UpgradeOfferPanel.cs` y `UpgradeOfferRow.cs`. Datos: `
 
 | Herramienta | Cómo se usa | Dónde |
 |---|---|---|
-| **Panel de trucos** | F1, solo en desarrollo. Generar enemigos, matar a todos, saltar o reiniciar oleadas, invulnerable, dañar o curar a todos, dar experiencia, dar reroll; enseña semilla y reanimaciones | `Code/Cheats/` (`DebugCheats` hace las cosas en el host, `DebugCheatsPanel` son los botones, `DebugCheatsSettings` los valores) |
+| **Panel de trucos** | F1, solo en desarrollo. Generar enemigos, matar a todos, saltar o reiniciar oleadas, invulnerable, dañar o curar a todos, dar experiencia, dar reroll, **dar habilidad** (la siguiente de la biblioteca que no tienes: a un hueco libre o en lugar de la última) y **habilidades de prueba** (Estallido y Marca, para las pruebas de reacciones); enseña semilla y reanimaciones | `Code/Cheats/` (`DebugCheats` hace las cosas en el host, `DebugCheatsPanel` son los botones, `DebugCheatsSettings` los valores) |
 | **Laboratorio de reacciones** | Botón «Laboratorio» del menú (solo desarrollo): poner auras y detonar sobre muñecos | `Code/Elements/ReactionLab/`, escena `ReactionLab` |
 | **Estadísticas de red** | F3: ping y tráfico | `Code/Networking/Stats/` |
 | **PerformanceLogger** | En builds de desarrollo: una línea por cada fotograma de más de 100 ms y un resumen cada 10 s | `Bootstrap` › `NetworkManager` |
@@ -715,8 +726,10 @@ Abre `Data/Enemies/Waves/ArenaTestWaves.asset` y añade una fila (segundo de ini
 
 1. *Create › Coop2D › Skills › Skill Definition* en `Data/Skills/`, con el id del catálogo (`skills.json`) y el nombre del archivo en PascalCase del id (`TideSpark` para `tide_spark`).
 2. Rellena elemento, si detona, recarga, forma y medidas, daño y empuje, y en *Visual* pon `Prefabs/Skills/SkillShapeVisual.prefab`.
-3. Para jugarla, ponla en un hueco de *Starting Skills* de la ficha de un personaje (`Data/Characters/`).
-4. Añade su id a la tabla `ability` de launcher-events.md.
+3. Añádela a la lista *Skills* de `Data/Skills/SkillLibrary.asset` (al final). Si es del kit de un personaje, a sus *Own Skills* (o como *Starting Skill*); si es genérica, también a *Generic*.
+4. Sus niveles 2 y 3, en *Levels*, con el texto de una línea que sale en la oferta y lo que cambia cada uno.
+5. Para probarla sin esperar a que salga, F1 › «Dar habilidad» hasta que te toque.
+6. Añade su id a la tabla `ability` de launcher-events.md.
 
 Para un proyectil: *Shape* = Projectile, su velocidad, radio, *Impact Radius* (0 = golpe directo), *Pierce*, *Burst At End*, *Trap Duration* y *Projectile Prefab* = `Prefabs/Skills/SkillProjectile.prefab`.
 
@@ -786,7 +799,7 @@ Método en `LauncherEvents` (con `///` que diga los valores), llamada desde dond
 
 ### 5.15 Un personaje nuevo
 
-1. *Create › Coop2D › Player › Character Definition* en `Data/Characters/`, con un **id nuevo en snake_case** (el del catálogo: `blade` para Filo), su nombre, su elemento y sus habilidades de inicio.
+1. *Create › Coop2D › Player › Character Definition* en `Data/Characters/`, con un **id nuevo en snake_case** (el del catálogo: `blade` para Filo), su nombre, su elemento, su habilidad inicial (*Starting Skill*) y el resto de su kit (*Own Skills*). Todas tienen que estar en `SkillLibrary`.
 2. Añádelo a la lista *Characters* de `Data/Players/PlayerCharacters.asset`. Para probarlo, ponlo en un hueco de *By Slot*.
 3. Sus mejoras propias llevan su id en *Character* y `char:<id>` en *Requires*.
 4. Añade su id a la tabla `character` de launcher-events.md.

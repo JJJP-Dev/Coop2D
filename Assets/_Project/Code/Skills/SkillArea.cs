@@ -40,8 +40,9 @@ public readonly struct SkillArea
     /// <summary>
     /// The area of that skill cast from origin towards aim. A circle lands on aim (the caller clamps it to
     /// the cast range); a line or a cone only takes the direction of aim and always has its full length.
+    /// With the skill's level (#162), so a longer Chispa is checked as long as it is drawn.
     /// </summary>
-    public static SkillArea For(SkillDefinition skill, Vector2 origin, Vector2 aim)
+    public static SkillArea For(SkillInstance skill, Vector2 origin, Vector2 aim)
     {
         Vector2 toAim = aim - origin;
         Vector2 direction = toAim.sqrMagnitude > 0.0001f ? toAim.normalized : Vector2.right;

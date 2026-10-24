@@ -15,6 +15,7 @@ MonoBehaviour:
   _id: tide_bubble
   _displayName: "Burbuja prisi\u00F3n"
   _icon: {fileID: 0}
+  _description: "Burbuja que atrapa 1,5 s y moja en 1,5 m"
   _usesCasterElement: 0
   _element: 2
   _canDetonate: 0
@@ -37,3 +38,22 @@ MonoBehaviour:
   _knockback: 0
   _knockbackDuration: 0.15
   _visual: {fileID: 5301884050686939402, guid: 70d7fecba95a40b9aa94e3da0195caab, type: 3}
+  _levels:
+  - _description: "+0,5 s de trampa (2 s)"
+    _damagePercent: 0
+    _cooldownPercent: 0
+    _radiusAdd: 0
+    _lengthAdd: 0
+    _angleAdd: 0
+    _impactRadiusAdd: 0
+    _trapDurationAdd: 0.5
+    _pierceAdd: 0
+  - _description: "Moja en 2 m en vez de 1,5 m"
+    _damagePercent: 0
+    _cooldownPercent: 0
+    _radiusAdd: 0
+    _lengthAdd: 0
+    _angleAdd: 0
+    _impactRadiusAdd: 0.5
+    _trapDurationAdd: 0
+    _pierceAdd: 0

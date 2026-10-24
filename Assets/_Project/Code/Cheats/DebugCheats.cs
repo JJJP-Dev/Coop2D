@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using FishNet.Connection;
 using FishNet.Object;
+using System.Collections.Generic;
 using UnityEngine;
 
 // Cheats for testing, in development builds only. Any player can ask for them,
@@ -73,6 +73,18 @@ public class DebugCheats : NetworkBehaviour
     {
         if (IsClientInitialized)
             ServerGiveReroll();
+    }
+
+    public void GiveSkill()
+    {
+        if (IsClientInitialized)
+            ServerGiveSkill();
+    }
+
+    public void SetTestSkills()
+    {
+        if (IsClientInitialized)
+            ServerSetTestSkills();
     }
 
     // Nobody owns this scene object, so it has to allow calls from anyone.
@@ -252,6 +264,83 @@ public class DebugCheats : NetworkBehaviour
         offers.GiveRerollToAll();
         LogCheat(caller, "gave every player a reroll");
         ReportCheat(caller, "give_reroll");
+    }
+
+    // Only to whoever asked (#162): the next skill of the library they don't have, so pressing it again goes
+    // through every skill. Into a free slot, or in place of the last one when the three are taken.
+    [ServerRpc(RequireOwnership = false)]
+    private void ServerGiveSkill(NetworkConnection caller = null)
+    {
+        if (!IsAllowed(caller) || !TryGetSkills(caller, out PlayerSkills skills))
+            return;
+
+        IReadOnlyList<SkillDefinition> all = skills.Library.Skills;
+        SkillInstance last = skills.Count > 0 ? skills.GetSkill((AttackSlot)((int)AttackSlot.Skill1 + skills.Count - 1)) : null;
+        int start = last != null ? IndexOf(all, last.Definition) + 1 : 0;
+
+        SkillDefinition next = null;
+        for (int i = 0; i < all.Count && next == null; i++)
+        {
+            SkillDefinition candidate = all[(start + i) % all.Count];
+            if (candidate != null && skills.GetLevel(candidate.Id) == 0)
+                next = candidate;
+        }
+
+        if (next == null)
+        {
+            TargetReport(caller, "No quedan habilidades que darte", ToastType.Warning);
+            return;
+        }
+
+        if (!skills.TryAddSkill(next))
+        {
+            // The three slots are taken: the new one replaces the last, and the others keep their place.
+            List<SkillDefinition> kept = new();
+            for (int slot = 0; slot < skills.Count - 1; slot++)
+                kept.Add(skills.GetSkill((AttackSlot)((int)AttackSlot.Skill1 + slot)).Definition);
+
+            kept.Add(next);
+            skills.SetSkills(kept);
+        }
+
+        TargetReport(caller, $"Habilidad: {next.DisplayName}", ToastType.Info);
+        LogCheat(caller, $"gave themselves {next.Id}");
+        ReportCheat(caller, "give_skill");
+    }
+
+    // Estallido and Marca for the reaction tests, which were written for them (#162).
+    [ServerRpc(RequireOwnership = false)]
+    private void ServerSetTestSkills(NetworkConnection caller = null)
+    {
+        if (!IsAllowed(caller) || !TryGetSkills(caller, out PlayerSkills skills))
+            return;
+
+        skills.SetSkills(_settings.TestSkills);
+        TargetReport(caller, "Habilidades de prueba", ToastType.Info);
+        LogCheat(caller, "set the test skills");
+        ReportCheat(caller, "test_skills");
+    }
+
+    private bool TryGetSkills(NetworkConnection caller, out PlayerSkills skills)
+    {
+        skills = null;
+        NetworkObject player = caller.FirstObject;
+        if (player != null && player.TryGetComponent(out skills) && skills.Library != null)
+            return true;
+
+        TargetReport(caller, "No tienes habilidades", ToastType.Warning);
+        return false;
+    }
+
+    private static int IndexOf(IReadOnlyList<SkillDefinition> skills, SkillDefinition skill)
+    {
+        for (int i = 0; i < skills.Count; i++)
+        {
+            if (skills[i] == skill)
+                return i;
+        }
+
+        return -1;
     }
 
     // Only to whoever asked: the others don't need to know.

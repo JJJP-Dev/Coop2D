@@ -19,9 +19,14 @@ public class DebugCheatsSettings : ScriptableObject
     [Tooltip("Experience that Give XP adds to the group (#76). The first level needs 10 with one player.")]
     [SerializeField, Min(1)] private int _giveXpAmount = 10;
 
+    [Tooltip("What «Habilidades de prueba» leaves the player with, slot by slot (#162): Estallido and Marca, " +
+             "which the reaction tests of testing.md use. At most 3.")]
+    [SerializeField] private List<SkillDefinition> _testSkills = new();
+
     public IReadOnlyList<Enemy> Enemies => _enemies;
     public float SpawnDistance => _spawnDistance;
     public IReadOnlyList<int> SpawnAmounts => _spawnAmounts;
     public int DamageAllAmount => _damageAllAmount;
     public int GiveXpAmount => _giveXpAmount;
+    public IReadOnlyList<SkillDefinition> TestSkills => _testSkills;
 }
