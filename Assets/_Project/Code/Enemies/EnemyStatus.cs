@@ -1,8 +1,11 @@
 using FishNet.Object;
+using FishNet.Object.Synchronizing;
 using UnityEngine;
 
 // Slows, stuns and pushes on an enemy, decided by the host. A simple version until the
 // common crowd control rules. Movement components read it.
+// Only the stun travels, as the tick it ends on, so every PC can show which enemies can't move or
+// attack (a Burbuja, a Sobrecarga) without a message each time one starts or ends.
 public class EnemyStatus : NetworkBehaviour
 {
     // The catalog's cap: no slow takes more than 60 % of an enemy's speed.
@@ -14,6 +17,9 @@ public class EnemyStatus : NetworkBehaviour
     private Vector2 _pushVelocity;
     private float _pushUntil;
 
+    // In ticks of the host's clock, which every client follows: stunned while the tick is below it.
+    private readonly SyncVar<uint> _stunEndTick = new();
+
     /// <summary>
     /// Server side. 1 is full speed.
     /// </summary>
@@ -24,6 +30,11 @@ public class EnemyStatus : NetworkBehaviour
     /// </summary>
     public bool IsStunned => Time.time < _stunUntil;
 
+    /// <summary>
+    /// Every PC, for the picture. Can be a tick off the host's IsStunned.
+    /// </summary>
+    public bool LooksStunned => IsSpawned && TimeManager.Tick < _stunEndTick.Value;
+
     public override void OnStartServer()
     {
         base.OnStartServer();
@@ -32,6 +43,7 @@ public class EnemyStatus : NetworkBehaviour
         _slowUntil = 0f;
         _stunUntil = 0f;
         _pushUntil = 0f;
+        _stunEndTick.Value = 0;
     }
 
     /// <summary>
@@ -65,8 +77,14 @@ public class EnemyStatus : NetworkBehaviour
     /// </summary>
     public void ApplyStun(float duration)
     {
-        if (IsServerInitialized)
-            _stunUntil = Mathf.Max(_stunUntil, Time.time + duration);
+        if (!IsServerInitialized)
+            return;
+
+        _stunUntil = Mathf.Max(_stunUntil, Time.time + duration);
+
+        uint endTick = TimeManager.Tick + TimeManager.TimeToTicks(duration);
+        if (endTick > _stunEndTick.Value)
+            _stunEndTick.Value = endTick;
     }
 
     /// <summary>
