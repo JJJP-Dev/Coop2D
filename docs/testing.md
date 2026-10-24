@@ -101,6 +101,8 @@ Desde el #51 los perseguidores hacen daño al tocar. En las pruebas de persecuci
 | Sale el perseguido | Con perseguidores detrás de un cliente, ese cliente sale de la partida. | En menos de medio segundo van a por otro jugador, sin errores. |
 | Oleadas | Hospeda, une a un cliente y jugad los 3 minutos con *Range* en 6. | Los enemigos salen por los puntos de los bordes, lejos de los jugadores, en tandas que crecen con el tiempo. Pasados los 3 minutos no sale ninguno más. Todo igual en todas las ventanas. |
 | Tope de enemigos | Con *Range* a 0, deja correr las oleadas sin matar a nadie. Luego vuelve a ponerlo en 6. | Nunca hay más de 40 enemigos vivos: cuenta los `Chaser(Clone)` de la escena de la arena en la *Hierarchy* del host. Al matar alguno, salen los que esperaban. |
+| Drones | Juega hasta el minuto 1:00 con *Range* en 6. | A los 0:46 salen 2 drones, más rápidos que los perseguidores; caen antes (45 de vida) y dejan orbes que valen 2. Al tocarte quitan 8 cada 0,7 s. Igual en todas las ventanas. |
+| Generar dron | En F1, «Generar Arc» y «Generar 10 Arc». | Salen junto a quien lo pide, en todas las ventanas. `cheat_used cheat=spawn_arc` y `spawn_arc_10`. |
 | Oleadas al entrar tarde | Une a un cliente a mitad de partida. | Ve a todos los enemigos vivos en su sitio, y las oleadas siguen igual para todos. |
 | Oleadas al volver a hospedar | El host sale y vuelve a hospedar. | Las oleadas empiezan de cero. |
 

@@ -109,7 +109,7 @@ Una tarea está hecha cuando:
 
 La regla depende del rol, y el arte lo hacemos siempre nosotros.
 
-**Quien está aprendiendo** (Fushigod, GrandMaster53):
+**Quien está aprendiendo** (Fushigod):
 
 | Permitido | No permitido |
 | --- | --- |

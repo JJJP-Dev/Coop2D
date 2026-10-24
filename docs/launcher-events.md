@@ -94,14 +94,14 @@ id nuevo** en esta tabla; no reutilices uno existente para otra cosa.
 | `ability` | `basic`, `burst`, `mark`, `ember_flare`, `ember_drizzle`, `tide_wave`, `tide_bubble`, `tide_spark`, `volt_bolt`, `volt_short` | Estallido = `burst`, Marca = `mark` (de prueba). Las demás, con los ids del catálogo (#162): Llamarada, Llovizna, Ola, Burbuja prisión, Chispa, Rayo y Cortocircuito. Cada habilidad nueva añade el suyo |
 | `variant` | `vapor_fire_water`, `vapor_water_fire`, `electrocution_water_electric`, `electrocution_electric_water`, `overload_electric_fire`, `overload_fire_electric` | Los mismos ids que ya usa `CombatEventLogger` |
 | `me` | `aura`, `detonator`, `both`, `none` | Papel del jugador local en una reacción. `both` = reacción en solitario propia |
-| `enemy` | `chaser`, `dummy` | |
+| `enemy` | `chaser`, `arc`, `dummy` | `arc` es el dron |
 | `by` | `me`, `ally`, `none` | Quién lo hizo: el jugador local, otro jugador o nadie (truco, oleada, entorno) |
 | `source` | `basic`, `ability`, `reaction`, `cheat`, `other` | Qué lo causó |
 | `target` | `loopback`, `lan`, `vpn`, `public`, `invalid` | Tipo de dirección a la que se intenta unir (ver `join_attempt`) |
 | `upgrade` | `basic_twin_shot`, `basic_long_barrel`, `basic_tempo`, `stat_aura_hunter`, `aura_lingering`, `aura_wide_skill`, `coop_relay`, `coop_assist`, `def_vitality`, `mov_tailwind`, `ember_wall_detonate`, `ember_eternal_flame`, `tide_whirlpool`, `tide_tsunami_heart`, `volt_surge`, `volt_coil_detonator`, `econ_magnet`, `mov_swift`, `def_thick_skin`, `econ_breather` | Los ids del catálogo de progresión (#78). `econ_breather` es Respiro. Cada mejora nueva añade el suyo |
 | `rarity` | `common`, `rare`, `epic`, `legendary`, `duo`, `evolution` | Rareza de una mejora |
 | `action` | `reroll`, `banish`, `skip` | Qué hizo el jugador con una oferta en vez de elegir (#78) |
-| `cheat` | `spawn_chaser`, `spawn_chaser_10`, `kill_all`, `invulnerable`, `damage_all`, `heal_all`, `next_wave`, `reset_waves`, `give_xp`, `give_reroll`, `give_skill`, `test_skills`, `element_cycle`, `reaction_lab` | Un id por botón del panel F1; `element_cycle` es la tecla F6; `reaction_lab`, cualquier botón del panel del laboratorio de reacciones |
+| `cheat` | `spawn_chaser`, `spawn_chaser_10`, `spawn_arc`, `spawn_arc_10`, `kill_all`, `invulnerable`, `damage_all`, `heal_all`, `next_wave`, `reset_waves`, `give_xp`, `give_reroll`, `give_skill`, `test_skills`, `element_cycle`, `reaction_lab` | Un id por botón del panel F1; `element_cycle` es la tecla F6; `reaction_lab`, cualquier botón del panel del laboratorio de reacciones |
 
 ## 5. Catálogo de eventos
 
@@ -331,7 +331,7 @@ Cuando muere un enemigo, en todas las ventanas. Los muñecos que reviven tambié
 
 | Campo | Tipo | Valor |
 |---|---|---|
-| `enemy` | id | `chaser`, `dummy` |
+| `enemy` | id | `chaser`, `arc`, `dummy` |
 | `by` | id | `me`, `ally` o `none` (por ejemplo, «Matar a todos») |
 | `source` | id | Qué dio el golpe final: `basic`, `ability`, `reaction` o `cheat` |
 

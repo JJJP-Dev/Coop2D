@@ -6,8 +6,10 @@ using UnityEngine;
 [RequireComponent(typeof(TMP_Text))]
 public class BuildVersionLabel : MonoBehaviour
 {
-    [Tooltip("{0} is the version. Development builds add \" dev\" after it.")]
+    [Tooltip("{0} is the version. Development builds add Build Type after it.")]
     [SerializeField] private string _format = "v{0}";
+
+    [Tooltip("What development builds add after the version: dev, internal... Release builds add nothing.")]
     [SerializeField] private string _buildType = "dev";
 
     private void Awake()

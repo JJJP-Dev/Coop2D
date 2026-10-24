@@ -117,7 +117,8 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 | `Arena_Test` › `InGameMenuCanvas` | El HUD: barra de experiencia, habilidades, franja de mejoras, fin de partida, botón de salir |
 | `Arena_Test` › `PlayerSpawnPoints` | Dónde aparece cada jugador |
 | `Prefabs/Player/Player.prefab` | El jugador y todos sus componentes |
-| `Prefabs/Enemies/Chaser.prefab` | El perseguidor (el único enemigo por ahora) |
+| `Prefabs/Enemies/Chaser.prefab` | El perseguidor |
+| `Prefabs/Enemies/Arc.prefab` | El dron (Arc) |
 | `Data/` | Todos los valores de diseño, en ScriptableObjects, por carpetas |
 
 ### 3.3 Carpetas de código
@@ -375,7 +376,9 @@ Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objet
 
 ### 4.9 Enemigos
 
-**Qué hace.** El perseguidor camina hacia el jugador en pie más cercano y le pega al tocarlo. Al morir suelta un orbe de experiencia.
+**Qué hace.** Dos enemigos, que caminan hacia el jugador en pie más cercano y le pegan al tocarlo. Al morir sueltan un orbe de experiencia.
+- **Perseguidor** (`chaser`): el básico.
+- **Dron** (`arc`): un ojo volador con hélice, más rápido y frágil, que aparece desde el minuto 0:46. Por ahora se mueve y ataca como el perseguidor (es su mismo prefab con otros datos); su movimiento a distancia y su ataque propio llegarán con la base de ataques de enemigo.
 
 **Piezas.** `Code/Enemies/`: `Enemy` (lo común: su ficha, morir y soltar el orbe), `EnemyDefinition` (la ficha), `ChaserMovement` (cómo se mueve), `EnemyStatus` (frenado, aturdido, empujado), `Attacks/EnemyContactAttack` + `ContactAttackSettings` (cómo ataca), `TrainingDummy` (muñeco que revive).
 
@@ -387,10 +390,11 @@ Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objet
 
 | Valor | Asset | Ahora |
 |---|---|---|
-| Velocidad, aceleración, distancia a la que para, experiencia | `Data/Enemies/Chaser.asset` | 2,5 · 20 · 0,5 · 1 |
-| Daño, alcance y ritmo del contacto | `Data/Enemies/ChaserContactAttack.asset` | 10 · 0,75 · 1 s |
+| Velocidad, aceleración, distancia a la que para, experiencia | `Data/Enemies/Chaser.asset` · `Arc.asset` | 2,5 · 20 · 0,5 · 1 · dron 3,5 · 25 · 0,5 · 2 |
+| Vida | `Data/Enemies/ChaserHealth.asset` · `ArcHealth.asset` | 60 · dron 45 |
+| Daño, alcance y ritmo del contacto | `Data/Enemies/ChaserContactAttack.asset` · `ArcContactAttack.asset` | 10 · 0,75 · 1 s · dron 8 · 0,8 · 0,7 s |
 
-**Cuidado con.** El *Id* (`chaser`) lo usa el launcher. Los enemigos se destruyen al morir (no se reutilizan).
+**Cuidado con.** El *Id* (`chaser`, `arc`) lo usa el launcher. Los enemigos se destruyen al morir (no se reutilizan). Un enemigo nuevo tiene que estar en las dos listas de prefabs de FishNet (`DefaultPrefabObjects` y `FishNet_PrefabObjects`), o al generarlo da error.
 
 ### 4.10 Oleadas
 
@@ -402,7 +406,7 @@ Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objet
 
 **Cómo funciona.** Cada fotograma (en el host) avanza su reloj y saca los enemigos que tocan mientras haya sitio. Elige el punto con una tirada de la semilla entre los que están a ≥ 8 casillas de todos (o el más lejano). Cuenta las oleadas empezadas y si se han acabado (SyncVars, para el launcher). `MatchFlow` lo pausa al perder y lo reinicia al reiniciar.
 
-**Qué ajustar.** `Data/Enemies/Waves/ArenaTestWaves.asset`: duración (180 s), tope de vivos (40), distancia mínima (8) y la lista de oleadas (segundo de inicio, prefab, cantidad e intervalo).
+**Qué ajustar.** `Data/Enemies/Waves/ArenaTestWaves.asset`: duración (180 s), tope de vivos (40), distancia mínima (8) y la lista de oleadas (segundo de inicio, prefab, cantidad e intervalo). Los drones salen a los 46, 76, 106 y 141 s (2, 5, 7 y 10), entre las tandas de perseguidores.
 
 **Cuidado con.** El ritmo de experiencia depende de cuántos enemigos salen: ahora las oleadas llevan al nivel 3-4 en 3 minutos, cuando el catálogo espera el 7. Toca ajustarlas junto con la curva de experiencia.
 
