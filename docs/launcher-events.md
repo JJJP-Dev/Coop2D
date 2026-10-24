@@ -249,6 +249,18 @@ Cuando el jugador local vuelve a tirar, descarta una opción o salta una oferta 
 | `upgrade` | id | La mejora descartada con `banish`; `none` con `reroll` y `skip` |
 | `level` | entero | Nivel de la subida de la oferta |
 | `match_time` | entero | Segundos de partida |
+| `ability` | id | Con `banish` de una habilidad (#162), la habilidad descartada; `none` en los demás casos (y entonces `upgrade` dice qué mejora fue) |
+
+#### `skill_gained` · Obligatorio
+
+Cuando el jugador local coge de su oferta una habilidad nueva o un nivel de una que tiene, y el host lo acepta (#162). Solo en su ventana. La habilidad inicial con la que empieza cada partida no lo escribe.
+
+| Campo | Tipo | Valor |
+|---|---|---|
+| `ability` | id | La habilidad (ver [`ability`](#4-valores-fijos-enumeraciones)) |
+| `ability_level` | entero | `1` si es nueva; `2` o `3` si es un nivel |
+| `level` | entero | Nivel de la subida de la que salió la oferta |
+| `match_time` | entero | Segundos de partida |
 
 #### `match_over` · Obligatorio
 

@@ -5,11 +5,14 @@ using UnityEngine;
 // A plain class, not a component: the host creates one and calls it with each player's context and
 // offer stream. It draws in a fixed order and goes through the pool in its order, so the same seed with
 // the same choices gives the same offers (#75). Changing that order, or the pool's, changes what a seed offers.
+// Since #162 an option can also be a new skill or the next level of one the player has.
 //
 // Order of the draws for a full offer:
-//   1. Place A: one weighted pick among the evolutions, or else among «yours». Nothing when there are none.
-//   2. Each open place: a family roll, a rarity roll and a weighted pick. Place B with a guarantee skips
-//      the rarity roll when it finds that rarity.
+//   1. Place A: one weighted pick among the evolutions, or else among «yours» (upgrades and the next level
+//      of your skills). Nothing when there are none.
+//   2. Each open place: on a skill guarantee level, place B picks a new skill. Otherwise a type roll (a new
+//      skill, only while one can be offered), a family roll, a rarity roll and a weighted pick. Place B with
+//      a rarity guarantee skips the type and rarity rolls when it finds that rarity.
 //   3. A duo roll, only when the level allows duos and one could be offered.
 public class OfferGenerator
 {
@@ -21,9 +24,12 @@ public class OfferGenerator
     private readonly OfferSettings _settings;
 
     // Reused on every draw, so an offer allocates almost nothing.
-    private readonly List<UpgradeDefinition> _candidates = new();
+    private readonly List<OfferOption> _candidates = new();
     private readonly List<int> _weights = new();
     private readonly List<UpgradeDefinition> _owned = new();
+    private readonly List<SkillDefinition> _ownedSkills = new();
+    private readonly List<SkillDefinition> _ownSkills = new();
+    private readonly List<SkillDefinition> _genericSkills = new();
 
     public OfferGenerator(UpgradePool pool, OfferSettings settings)
     {
@@ -49,17 +55,17 @@ public class OfferGenerator
         CollectOwned(context);
 
         // 1. Place A.
-        if (kept.HasValue && IsStillOfferable(context, kept.Value.Upgrade))
+        if (kept.HasValue && IsStillOfferable(context, kept.Value))
             options.Add(kept.Value);
-        else if (TryPick(context, random, options, Kind.Evolution, false, UpgradeRarity.Common, out UpgradeDefinition evolution))
-            options.Add(new OfferOption(evolution, OfferPlace.Evolution));
-        else if (TryPick(context, random, options, Kind.Yours, false, UpgradeRarity.Common, out UpgradeDefinition yours))
-            options.Add(new OfferOption(yours, OfferPlace.Yours));
+        else if (TryPick(context, random, options, Kind.Evolution, false, UpgradeRarity.Common, false, out OfferOption evolution))
+            options.Add(evolution.WithPlace(OfferPlace.Evolution));
+        else if (TryPick(context, random, options, Kind.Yours, false, UpgradeRarity.Common, false, out OfferOption yours))
+            options.Add(yours.WithPlace(OfferPlace.Yours));
 
         // 2. The open places. Place B, the second one, carries the level's guarantee.
         while (options.Count < _settings.Choices)
         {
-            OfferPlace place = options.Count == 1 && HasGuarantee(context.Level, out _) ? OfferPlace.Guaranteed : OfferPlace.Open;
+            OfferPlace place = options.Count == 1 && HasAnyGuarantee(context.Level) ? OfferPlace.Guaranteed : OfferPlace.Open;
             if (!TryFill(context, random, options, place, out OfferOption option))
                 break;
 
@@ -106,16 +112,19 @@ public class OfferGenerator
     }
 
     /// <summary>
-    /// Whether this upgrade could still be offered to this player now. The host checks it again when the
+    /// Whether this option could still be offered to this player now. The host checks it again when the
     /// player picks: another player may have taken an upgrade only one can have in the meantime (C.7).
     /// </summary>
-    public bool IsStillOfferable(OfferContext context, UpgradeDefinition upgrade)
+    public bool IsStillOfferable(OfferContext context, OfferOption option)
     {
-        if (upgrade != null && upgrade == _pool.Fallback)
+        if (option.IsSkill)
+            return IsSkillOfferable(context, option.Skill, option.SkillLevel, null);
+
+        if (option.Upgrade != null && option.Upgrade == _pool.Fallback)
             return true;
 
         CollectOwned(context);
-        return IsOfferable(context, upgrade, null);
+        return IsOfferable(context, option.Upgrade, null);
     }
 
     private enum Kind
@@ -124,17 +133,40 @@ public class OfferGenerator
         Yours,
         Open,
         Duo,
+        NewSkill,
     }
 
-    // An open place, or place B with a guarantee: family, rarity, the weighted pick, and the way down
-    // when nothing fits (C.1): lower rarities first, then the other family, then the higher rarities the
-    // level allows, then Respiro.
+    // An open place, or place B with a guarantee: the skill guarantee, then type, family, rarity, the
+    // weighted pick, and the way down when nothing fits (C.1): lower rarities first, then the other family,
+    // then the higher rarities the level allows, then Respiro.
     private bool TryFill(OfferContext context, SeededRandom random, List<OfferOption> options, OfferPlace place,
                          out OfferOption option)
     {
+        // C.4: a new skill on levels 2 and 6 while there's a free slot. Without one, the place is open.
+        if (place == OfferPlace.Guaranteed && _settings.IsSkillGuaranteeLevel(context.Level) &&
+            TryPickNewSkill(context, random, options, NeedsOtherElement(context), out option))
+        {
+            option = option.WithPlace(OfferPlace.Guaranteed);
+            return true;
+        }
+
+        // Declared apart: with && the out is only written when place is Guaranteed, and C# can't tell it's
+        // never read otherwise.
+        UpgradeRarity guaranteed = UpgradeRarity.Common;
+        bool rarityGuarantee = place == OfferPlace.Guaranteed && HasGuarantee(context.Level, out guaranteed);
+
+        // C.1: the type first, a new skill a quarter of the time. Rolled only when one could be offered, so
+        // a player with no room for skills draws exactly as before #162.
+        if (!rarityGuarantee && HasCandidates(context, options, Kind.NewSkill) && random.Chance(_settings.NewSkillChance) &&
+            TryPickNewSkill(context, random, options, false, out option))
+        {
+            option = option.WithPlace(OfferPlace.Open);
+            return true;
+        }
+
         bool own = random.Chance(_settings.OwnFamilyChance);
 
-        if (place == OfferPlace.Guaranteed && HasGuarantee(context.Level, out UpgradeRarity guaranteed))
+        if (rarityGuarantee)
         {
             // At least that rarity, in either family. Without any, the place goes back to being open.
             for (int family = 0; family < 2; family++)
@@ -142,15 +174,16 @@ public class OfferGenerator
                 bool ownFamily = family == 0 ? own : !own;
                 for (UpgradeRarity rarity = guaranteed; rarity <= UpgradeRarity.Epic; rarity++)
                 {
-                    if (TryPick(context, random, options, Kind.Open, ownFamily, rarity, out UpgradeDefinition upgrade))
+                    if (TryPick(context, random, options, Kind.Open, ownFamily, rarity, false, out option))
                     {
-                        option = new OfferOption(upgrade, OfferPlace.Guaranteed);
+                        option = option.WithPlace(OfferPlace.Guaranteed);
                         return true;
                     }
                 }
             }
         }
 
+        OfferPlace open = place == OfferPlace.Guaranteed ? OfferPlace.Open : place;
         UpgradeRarity rolled = RollRarity(context, random);
 
         for (int family = 0; family < 2; family++)
@@ -158,9 +191,9 @@ public class OfferGenerator
             bool ownFamily = family == 0 ? own : !own;
             for (UpgradeRarity rarity = rolled; rarity >= UpgradeRarity.Common; rarity--)
             {
-                if (TryPick(context, random, options, Kind.Open, ownFamily, rarity, out UpgradeDefinition upgrade))
+                if (TryPick(context, random, options, Kind.Open, ownFamily, rarity, false, out option))
                 {
-                    option = new OfferOption(upgrade, place == OfferPlace.Guaranteed ? OfferPlace.Open : place);
+                    option = option.WithPlace(open);
                     return true;
                 }
             }
@@ -176,16 +209,16 @@ public class OfferGenerator
                 if (_settings.GetRarityWeight(rarity, context.Level, context.Holder.Luck) <= 0)
                     continue;
 
-                if (TryPick(context, random, options, Kind.Open, ownFamily, rarity, out UpgradeDefinition upgrade))
+                if (TryPick(context, random, options, Kind.Open, ownFamily, rarity, false, out option))
                 {
-                    option = new OfferOption(upgrade, place == OfferPlace.Guaranteed ? OfferPlace.Open : place);
+                    option = option.WithPlace(open);
                     return true;
                 }
             }
         }
 
         // Respiro, only once per offer: two of the same would be one choice shown twice.
-        if (_pool.Fallback != null && !Contains(options, _pool.Fallback))
+        if (_pool.Fallback != null && !Contains(options, _pool.Fallback.Id))
         {
             option = new OfferOption(_pool.Fallback, OfferPlace.Fallback);
             return true;
@@ -193,6 +226,33 @@ public class OfferGenerator
 
         option = default;
         return false;
+    }
+
+    // A new skill, the character's weighing more than the generic ones (C.3). With otherElement, only skills
+    // of another element than the player's, when there are any.
+    private bool TryPickNewSkill(OfferContext context, SeededRandom random, List<OfferOption> options, bool otherElement,
+                                 out OfferOption option)
+    {
+        if (otherElement && TryPick(context, random, options, Kind.NewSkill, false, UpgradeRarity.Common, true, out option))
+            return true;
+
+        return TryPick(context, random, options, Kind.NewSkill, false, UpgradeRarity.Common, false, out option);
+    }
+
+    // Catalog E.0 rule 1: alone, from level 6, a player without a skill of another element is only
+    // guaranteed those, so they can always set off a reaction on their own.
+    private bool NeedsOtherElement(OfferContext context)
+    {
+        if (context.Players > 1 || _settings.SoloOtherElementLevel <= 0 || context.Level < _settings.SoloOtherElementLevel)
+            return false;
+
+        foreach (SkillDefinition skill in _ownedSkills)
+        {
+            if (skill.GetElement(context.Holder.Element) != context.Holder.Element)
+                return false;
+        }
+
+        return true;
     }
 
     // From the duo level, while a duo could be offered: a 20 % chance, or for sure after 3 offers in a
@@ -214,8 +274,8 @@ public class OfferGenerator
         if (last < options.Count)
             options.RemoveAt(last);
 
-        if (TryPick(context, random, options, Kind.Duo, false, UpgradeRarity.Common, out UpgradeDefinition duo))
-            options.Insert(last, new OfferOption(duo, OfferPlace.Duo));
+        if (TryPick(context, random, options, Kind.Duo, false, UpgradeRarity.Common, false, out OfferOption duo))
+            options.Insert(last, duo.WithPlace(OfferPlace.Duo));
     }
 
     /// <summary>
@@ -225,6 +285,11 @@ public class OfferGenerator
     {
         CollectOwned(context);
         return _settings.Choices >= 2 && context.Level >= _settings.DuoMinLevel && HasCandidates(context, null, Kind.Duo);
+    }
+
+    private bool HasAnyGuarantee(int level)
+    {
+        return _settings.IsSkillGuaranteeLevel(level) || HasGuarantee(level, out _);
     }
 
     private bool HasGuarantee(int level, out UpgradeRarity rarity)
@@ -270,23 +335,22 @@ public class OfferGenerator
     private bool TryPickAs(OfferContext context, SeededRandom random, List<OfferOption> options, Kind kind,
                            OfferPlace place, out OfferOption option)
     {
-        if (TryPick(context, random, options, kind, false, UpgradeRarity.Common, out UpgradeDefinition upgrade))
+        if (TryPick(context, random, options, kind, false, UpgradeRarity.Common, false, out option))
         {
-            option = new OfferOption(upgrade, place);
+            option = option.WithPlace(place);
             return true;
         }
 
-        option = default;
         return false;
     }
 
-    // One weighted pick among the upgrades of this kind that can be offered. Uses one number only when
+    // One weighted pick among the options of this kind that can be offered. Uses one number only when
     // there is something to pick.
     private bool TryPick(OfferContext context, SeededRandom random, List<OfferOption> options, Kind kind, bool ownFamily,
-                         UpgradeRarity rarity, out UpgradeDefinition picked)
+                         UpgradeRarity rarity, bool otherElement, out OfferOption picked)
     {
-        int total = Gather(context, options, kind, ownFamily, rarity);
-        picked = null;
+        int total = Gather(context, options, kind, ownFamily, rarity, otherElement);
+        picked = default;
 
         if (total <= 0)
             return false;
@@ -308,32 +372,79 @@ public class OfferGenerator
 
     private bool HasCandidates(OfferContext context, List<OfferOption> options, Kind kind)
     {
-        return Gather(context, options, kind, false, UpgradeRarity.Common) > 0;
+        return Gather(context, options, kind, false, UpgradeRarity.Common, false) > 0;
     }
 
-    // Fills the candidate lists and returns their total weight.
-    private int Gather(OfferContext context, List<OfferOption> options, Kind kind, bool ownFamily, UpgradeRarity rarity)
+    // Fills the candidate lists and returns their total weight. Upgrades go first, in the pool's order;
+    // then the skills, in slot order or in the character's and the library's order.
+    private int Gather(OfferContext context, List<OfferOption> options, Kind kind, bool ownFamily, UpgradeRarity rarity,
+                       bool otherElement)
     {
         _candidates.Clear();
         _weights.Clear();
         int total = 0;
 
-        foreach (UpgradeDefinition upgrade in _pool.Upgrades)
+        if (kind != Kind.NewSkill)
         {
-            if (!IsKind(context, upgrade, kind, ownFamily, rarity) || !IsOfferable(context, upgrade, options))
-                continue;
+            foreach (UpgradeDefinition upgrade in _pool.Upgrades)
+            {
+                if (!IsKind(context, upgrade, kind, ownFamily, rarity) || !IsOfferable(context, upgrade, options))
+                    continue;
 
-            float seen = context.Holder.WasSeen(upgrade.Id) ? _settings.SeenWeight : 1f;
-            int weight = Mathf.RoundToInt(upgrade.Weight * seen * WeightScale);
-            if (weight <= 0)
-                continue;
+                total += AddCandidate(context, new OfferOption(upgrade, OfferPlace.Open), upgrade.Weight);
+            }
+        }
 
-            _candidates.Add(upgrade);
-            _weights.Add(weight);
-            total += weight;
+        // Place A: the next level of each skill the player has (C.1, catalog E.0 rule 5).
+        if (kind == Kind.Yours)
+        {
+            foreach (SkillDefinition skill in _ownedSkills)
+            {
+                int next = context.Holder.GetSkillLevel(skill.Id) + 1;
+                if (IsSkillOfferable(context, skill, next, options))
+                    total += AddCandidate(context, new OfferOption(skill, next, OfferPlace.Yours), _settings.SkillLevelWeight);
+            }
+        }
+
+        if (kind == Kind.NewSkill)
+        {
+            context.Holder.CollectSkillPool(_ownSkills, _genericSkills);
+            total += GatherNewSkills(context, options, _ownSkills, _settings.OwnSkillWeight, otherElement);
+            total += GatherNewSkills(context, options, _genericSkills, _settings.GenericSkillWeight, otherElement);
         }
 
         return total;
+    }
+
+    private int GatherNewSkills(OfferContext context, List<OfferOption> options, List<SkillDefinition> skills, float weight,
+                                bool otherElement)
+    {
+        int total = 0;
+        foreach (SkillDefinition skill in skills)
+        {
+            if (skill == null || !IsSkillOfferable(context, skill, 1, options))
+                continue;
+
+            if (otherElement && skill.GetElement(context.Holder.Element) == context.Holder.Element)
+                continue;
+
+            total += AddCandidate(context, new OfferOption(skill, 1, OfferPlace.Open), weight);
+        }
+
+        return total;
+    }
+
+    // What the last offer showed weighs half (C.1).
+    private int AddCandidate(OfferContext context, OfferOption option, float weight)
+    {
+        float seen = context.Holder.WasSeen(option.Key) ? _settings.SeenWeight : 1f;
+        int scaled = Mathf.RoundToInt(weight * seen * WeightScale);
+        if (scaled <= 0)
+            return 0;
+
+        _candidates.Add(option);
+        _weights.Add(scaled);
+        return scaled;
     }
 
     private bool IsKind(OfferContext context, UpgradeDefinition upgrade, Kind kind, bool ownFamily, UpgradeRarity rarity)
@@ -377,6 +488,22 @@ public class OfferGenerator
         return false;
     }
 
+    // A new skill (level 1) while there's room and the player doesn't have it, or the level right after
+    // the one they have, up to the skill's maximum. Banished keys are out, and an option is never twice.
+    private static bool IsSkillOfferable(OfferContext context, SkillDefinition skill, int level, List<OfferOption> options)
+    {
+        if (skill == null || string.IsNullOrEmpty(skill.Id) || level < 1 || level > skill.MaxLevel)
+            return false;
+
+        IUpgradeHolder holder = context.Holder;
+        string key = OfferOption.SkillKey(skill.Id, level);
+        if (holder.IsBanished(key) || (options != null && Contains(options, key)))
+            return false;
+
+        int has = holder.GetSkillLevel(skill.Id);
+        return level == 1 ? has == 0 && holder.HasFreeSkillSlot : has == level - 1;
+    }
+
     // The filters of C.1: requirements, exclusions, appearIf, stacks, banishes, upgrades only one player
     // can have and at most one risk upgrade per offer, and none without effects. options is null when
     // checking one on its own.
@@ -394,7 +521,7 @@ public class OfferGenerator
 
         IUpgradeHolder holder = context.Holder;
 
-        if (options != null && Contains(options, upgrade))
+        if (options != null && Contains(options, upgrade.Id))
             return false;
 
         if (holder.GetStacks(upgrade.Id) >= upgrade.MaxStacks || holder.IsBanished(upgrade.Id))
@@ -427,7 +554,7 @@ public class OfferGenerator
         return true;
     }
 
-    // What the player has, once per draw, for the exclusions.
+    // What the player has, once per draw, for the exclusions and for place A.
     private void CollectOwned(OfferContext context)
     {
         _owned.Clear();
@@ -437,13 +564,15 @@ public class OfferGenerator
             if (upgrade != null && context.Holder.GetStacks(upgrade.Id) > 0)
                 _owned.Add(upgrade);
         }
+
+        context.Holder.CollectOwnedSkills(_ownedSkills);
     }
 
-    private static bool Contains(List<OfferOption> options, UpgradeDefinition upgrade)
+    private static bool Contains(List<OfferOption> options, string key)
     {
         foreach (OfferOption option in options)
         {
-            if (option.Upgrade == upgrade)
+            if (option.Key == key)
                 return true;
         }
 

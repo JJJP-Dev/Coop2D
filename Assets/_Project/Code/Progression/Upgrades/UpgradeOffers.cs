@@ -177,11 +177,11 @@ public class UpgradeOffers : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server only. Whether the upgrade is still valid for this player, checked again when they pick it.
+    /// Server only. Whether the option is still valid for this player, checked again when they pick it.
     /// </summary>
-    public bool IsStillOfferable(PlayerUpgrades player, int level, UpgradeDefinition upgrade)
+    public bool IsStillOfferable(PlayerUpgrades player, int level, OfferOption option)
     {
-        return _generator != null && _generator.IsStillOfferable(CreateContext(player, level), upgrade);
+        return _generator != null && _generator.IsStillOfferable(CreateContext(player, level), option);
     }
 
     private void OnLeveledUp(int level)
@@ -262,7 +262,8 @@ public class UpgradeOffers : NetworkBehaviour
             if (i > 0)
                 line.Append(", ");
 
-            line.Append(options[i].Upgrade != null ? options[i].Upgrade.Id : "null");
+            // Upgrades by id and skills by key (skill:tide_bubble, skill:tide_wave@2), as the owner receives them.
+            line.Append(options[i].Key);
         }
 
         Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, "{0}", line.ToString());

@@ -30,6 +30,9 @@ public class UpgradeOfferPanel : MonoBehaviour
     [SerializeField] private Color _epicColor = new(0.78f, 0.49f, 1f);
     [SerializeField] private Color _specialColor = new(1f, 0.84f, 0f);
     [SerializeField] private Color _fallbackColor = new(0.63f, 0.63f, 0.63f);
+
+    [Tooltip("Name of a new skill or a skill level in the offer (#162).")]
+    [SerializeField] private Color _skillColor = new(0.4f, 0.9f, 0.75f);
     [SerializeField] private Color _descriptionColor = new(0.75f, 0.75f, 0.75f);
 
     private readonly StringBuilder _text = new();
@@ -241,26 +244,53 @@ public class UpgradeOfferPanel : MonoBehaviour
             if (_rows[i] == null)
                 continue;
 
-            UpgradeDefinition upgrade = i < offer.Options.Length ? offer.Options[i] : null;
-            if (upgrade == null)
+            OfferOption? option = i < offer.Options.Length ? offer.Options[i] : null;
+            if (option == null)
             {
                 _rows[i].Hide();
                 continue;
             }
 
             bool dimmed = answered || (_banishMode && !offer.CanBanish(i));
-            _rows[i].Show(FormatText(upgrade), FormatTag(upgrade), dimmed);
+            _rows[i].Show(FormatText(option.Value), FormatTag(option.Value), dimmed);
         }
     }
 
-    private string FormatText(UpgradeDefinition upgrade)
+    // A skill shows its own description when new, and what the level changes otherwise (#162).
+    private string FormatText(OfferOption option)
     {
+        string name;
+        string description;
+        Color color;
+
+        if (option.IsSkill)
+        {
+            name = option.Skill.DisplayName;
+            SkillLevelModifier level = option.Skill.GetLevelModifier(option.SkillLevel);
+            description = level != null ? level.Description : option.Skill.Description;
+            color = _skillColor;
+        }
+        else
+        {
+            name = option.Upgrade.DisplayName;
+            description = option.Upgrade.Description;
+            color = GetColor(option.Upgrade);
+        }
+
         _text.Clear();
-        _text.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(GetColor(upgrade))).Append('>')
-             .Append(upgrade.DisplayName).Append("</color> <color=#")
+        _text.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(color)).Append('>')
+             .Append(name).Append("</color> <color=#")
              .Append(ColorUtility.ToHtmlStringRGB(_descriptionColor)).Append('>')
-             .Append(upgrade.Description).Append("</color>");
+             .Append(description).Append("</color>");
         return _text.ToString();
+    }
+
+    private string FormatTag(OfferOption option)
+    {
+        if (!option.IsSkill)
+            return FormatTag(option.Upgrade);
+
+        return option.SkillLevel <= 1 ? "habilidad" : $"nivel {option.SkillLevel}";
     }
 
     // The next stack when it has more than one, and otherwise its rarity.

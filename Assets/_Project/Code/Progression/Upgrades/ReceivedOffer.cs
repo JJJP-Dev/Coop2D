@@ -4,7 +4,7 @@ public class ReceivedOffer
 {
     private readonly bool[] _banishable;
 
-    public ReceivedOffer(int id, int level, UpgradeDefinition[] options, bool[] banishable)
+    public ReceivedOffer(int id, int level, OfferOption?[] options, bool[] banishable)
     {
         Id = id;
         Level = level;
@@ -23,7 +23,10 @@ public class ReceivedOffer
     /// </summary>
     public int Level { get; }
 
-    public UpgradeDefinition[] Options { get; }
+    /// <summary>
+    /// Upgrades, new skills and skill levels (#162). Null for an id this build doesn't know.
+    /// </summary>
+    public OfferOption?[] Options { get; }
 
     /// <summary>
     /// True once the player answered, until the host's reply arrives. The panel ignores more input meanwhile.

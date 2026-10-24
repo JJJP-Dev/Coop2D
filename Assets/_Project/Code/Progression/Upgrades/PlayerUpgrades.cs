@@ -184,6 +184,45 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         return !string.IsNullOrEmpty(id) && _stacks.TryGetValue(id, out int stacks) ? stacks : 0;
     }
 
+    // --- Skills in the offers (#162) ---
+
+    public ElementType Element => _element != null ? _element.Current : ElementType.None;
+
+    public bool HasFreeSkillSlot => _skills != null && _skills.HasFreeSlot;
+
+    public int GetSkillLevel(string skillId)
+    {
+        return _skills != null ? _skills.GetLevel(skillId) : 0;
+    }
+
+    public void CollectOwnedSkills(List<SkillDefinition> skills)
+    {
+        skills.Clear();
+        if (_skills == null)
+            return;
+
+        for (int slot = 0; slot < _skills.Count; slot++)
+        {
+            // AttackSlot is a byte enum: an int can't be added to it, so through int and back.
+            SkillInstance skill = _skills.GetSkill((AttackSlot)((int)AttackSlot.Skill1 + slot));
+            if (skill != null)
+                skills.Add(skill.Definition);
+        }
+    }
+
+    public void CollectSkillPool(List<SkillDefinition> own, List<SkillDefinition> generic)
+    {
+        own.Clear();
+        generic.Clear();
+
+        CharacterDefinition character = _character != null ? _character.Definition : null;
+        if (character != null)
+            own.AddRange(character.OwnSkills);
+
+        if (_skills != null && _skills.Library != null)
+            generic.AddRange(_skills.Library.Generic);
+    }
+
     /// <summary>
     /// Server only. Nothing taken, nothing banished, no rerolls: how every player starts a match.
     /// </summary>
@@ -307,7 +346,8 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     }
 
     /// <summary>
-    /// Server only. Takes this upgrade out of the player's offers for the rest of the match.
+    /// Server only. Takes this option (an upgrade's id or a skill's key) out of the player's offers for the
+    /// rest of the match.
     /// </summary>
     public bool TryBanish(string id)
     {
@@ -403,11 +443,11 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         if (index < 0 || index >= _options.Count)
             return false;
 
-        UpgradeDefinition upgrade = _options[index].Upgrade;
+        OfferOption option = _options[index];
 
         // Someone else may have just taken an upgrade only one player can have: that option changes
         // and the offer goes back to the owner, who chooses again (C.7).
-        if (!_offers.IsStillOfferable(this, _offerLevel, upgrade))
+        if (!_offers.IsStillOfferable(this, _offerLevel, option))
         {
             if (!_offers.Replace(this, _offerLevel, _options, index, "sustituida"))
                 _options.RemoveAt(index);
@@ -415,6 +455,11 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
             SendOffer();
             return true;
         }
+
+        if (option.IsSkill)
+            return PickSkill(option);
+
+        UpgradeDefinition upgrade = option.Upgrade;
 
         // Respiro isn't counted as taken: it can come again whenever nothing else is left.
         if (upgrade != _offers.Pool.Fallback)
@@ -424,6 +469,23 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
 
         GrantConfirmInvulnerability();
         TargetAnswered(Owner, OfferAnswer.Pick, upgrade.Id, _offerLevel);
+        CloseOffer();
+        return true;
+    }
+
+    // A new skill goes into the next free slot; a level goes onto the skill (#162). IsStillOfferable has
+    // just checked that it fits, so a refusal here is a bug, and the offer stays open.
+    private bool PickSkill(OfferOption option)
+    {
+        bool done = option.SkillLevel <= 1 ? _skills.TryAddSkill(option.Skill) : _skills.TryLevelUp(option.Skill.Id);
+        if (!done)
+        {
+            Debug.LogWarning($"[PlayerUpgrades] J{Slot + 1} couldn't take {option.Key}.", this);
+            return false;
+        }
+
+        GrantConfirmInvulnerability();
+        TargetAnswered(Owner, OfferAnswer.Pick, option.Key, _offerLevel);
         CloseOffer();
         return true;
     }
@@ -448,7 +510,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         if (index < 0 || index >= _options.Count || !_options[index].CanBanish)
             return false;
 
-        string id = _options[index].Upgrade.Id;
+        string id = _options[index].Key;
         if (!TryBanish(id))
             return false;
 
@@ -526,7 +588,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     {
         string[] ids = new string[_options.Count];
         for (int i = 0; i < _options.Count; i++)
-            ids[i] = _options[i].Upgrade != null ? _options[i].Upgrade.Id : "";
+            ids[i] = _options[i].Key;
 
         return ids;
     }
@@ -545,16 +607,33 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         if (offers == null || offers.Pool == null)
             return;
 
-        UpgradeDefinition[] options = new UpgradeDefinition[ids.Length];
+        OfferOption?[] options = new OfferOption?[ids.Length];
         for (int i = 0; i < ids.Length; i++)
         {
             // Host and clients run the same build, so a missing id is a bug worth seeing.
-            if (!offers.Pool.TryGet(ids[i], out options[i]))
+            if (!TryResolve(offers, ids[i], out OfferOption option))
                 Debug.LogError($"[PlayerUpgrades] The host offered «{ids[i]}», which this build doesn't have.", this);
+            else
+                options[i] = option;
         }
 
         CurrentOffer = new ReceivedOffer(offerId, level, options, banishable);
         OfferChanged?.Invoke();
+    }
+
+    // An upgrade's id, or a skill's key: the panel only needs what it shows, so the place is left open.
+    private bool TryResolve(UpgradeOffers offers, string key, out OfferOption option)
+    {
+        if (OfferOption.TryParseSkillKey(key, out string skillId, out int skillLevel))
+        {
+            SkillDefinition skill = _skills != null && _skills.Library != null ? _skills.Library.Get(skillId) : null;
+            option = new OfferOption(skill, skillLevel, OfferPlace.Open);
+            return skill != null;
+        }
+
+        bool found = offers.Pool.TryGet(key, out UpgradeDefinition upgrade);
+        option = new OfferOption(upgrade, OfferPlace.Open);
+        return found;
     }
 
     [TargetRpc]
@@ -572,6 +651,11 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
 
         switch (answer)
         {
+            // A skill taken from an offer is its own event (#162): ability and level.
+            case OfferAnswer.Pick when OfferOption.TryParseSkillKey(upgradeId, out string skillId, out int skillLevel):
+                LauncherEvents.SkillGained(skillId, skillLevel, level, matchTime);
+                break;
+
             case OfferAnswer.Pick:
                 UpgradeDefinition upgrade = null;
                 if (UpgradeOffers.Current != null && UpgradeOffers.Current.Pool != null)
@@ -583,6 +667,10 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
 
             case OfferAnswer.Reroll:
                 LauncherEvents.OfferAction("reroll", null, level, matchTime);
+                break;
+
+            case OfferAnswer.Banish when OfferOption.TryParseSkillKey(upgradeId, out string banishedSkill, out _):
+                LauncherEvents.OfferAction("banish", null, level, matchTime, banishedSkill);
                 break;
 
             case OfferAnswer.Banish:

@@ -39,6 +39,14 @@ MonoBehaviour:
   _seenWeight: 0.5
   _guaranteedRareLevel: 5
   _guaranteedEpicLevel: 10
+  _skillGuaranteeLevels:
+  - 2
+  - 6
+  _newSkillChance: 0.25
+  _ownSkillWeight: 3
+  _genericSkillWeight: 1
+  _skillLevelWeight: 1
+  _soloOtherElementLevel: 6
   _riskMinLevel: 4
   _duoMinLevel: 6
   _duoChance: 0.2

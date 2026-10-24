@@ -502,11 +502,13 @@ Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objet
 Interfaz: `Code/UI/InGame/UpgradeOfferPanel.cs` y `UpgradeOfferRow.cs`. Datos: `Data/Progression/Upgrades/` (17 fichas), `DefaultUpgradePool.asset`, `DefaultOffers.asset`.
 
 **Cómo se arma una oferta** (`OfferGenerator`, en el host):
-1. **Plaza A, «lo tuyo»:** otra acumulación de algo que ya tienes, o una mejora que pide algo tuyo (tu personaje, una habilidad, tu elemento u otra mejora). Si hay una evolución lista, va aquí. Si no hay nada, la plaza pasa a ser abierta.
-2. **Plazas B y C, abiertas:** primero la familia (35 % de tu personaje, 65 % genérica), luego la rareza según el nivel (2-4: 80/20/0 · 5-8: 65/30/5 · 9-12: 50/38/12 · 13+: 40/40/20, común/rara/épica) y al final la mejora, según su peso.
-3. **Garantías:** la plaza B es al menos rara en el nivel 5 y épica en el 10.
+1. **Plaza A, «lo tuyo»:** otra acumulación de algo que ya tienes, una mejora que pide algo tuyo (tu personaje, una habilidad, tu elemento u otra mejora) o **el siguiente nivel de una de tus habilidades** (#162). Si hay una evolución lista, va aquí. Si no hay nada, la plaza pasa a ser abierta.
+2. **Plazas B y C, abiertas:** primero el tipo: **una habilidad nueva el 25 % de las veces** mientras tengas hueco y quede alguna que darte (las de tu personaje pesan 3, las genéricas 1). Si no, una mejora: la familia (35 % de tu personaje, 65 % genérica), luego la rareza según el nivel (2-4: 80/20/0 · 5-8: 65/30/5 · 9-12: 50/38/12 · 13+: 40/40/20, común/rara/épica) y al final la mejora, según su peso.
+3. **Garantías:** la plaza B es **una habilidad nueva en los niveles 2 y 6** (si tienes hueco), al menos rara en el 5 y épica en el 10. Jugando solo, desde el 6, si no tienes ninguna habilidad de otro elemento, la garantía solo ofrece de otro elemento (catálogo E.0, regla 1): así siempre puedes reaccionar tú solo.
 4. **Filtros:** fuera lo que no cumple requisitos, lo excluido por algo que tienes, lo que está al máximo, lo descartado, lo que no toca por nivel o número de jugadores, lo que ya tiene otro jugador si es única, y más de una de riesgo. Lo que salió en la oferta anterior pesa la mitad.
 5. **Si no queda nada:** baja la rareza, cambia de familia, sube a rarezas permitidas en ese nivel y, por último, **Respiro**.
+
+**Habilidades en las ofertas** (#162). Una opción puede ser una mejora, una habilidad nueva (nivel 1) o el siguiente nivel de una que tienes. Por la red viajan como **claves**: el id para una mejora (`def_vitality`), `skill:tide_bubble` para una habilidad nueva y `skill:tide_wave@2` para un nivel. Lo visto y lo descartado se guarda por clave, así que descartar `skill:tide_bubble` quita esa habilidad de las ofertas, pero no los niveles de otra. Al elegirla, el host la pone en el siguiente hueco libre (`PlayerSkills.TryAddSkill`) o le sube el nivel (`TryLevelUp`), y la lista de habilidades llega a todos. **Cambia lo que da cada semilla:** desde el #162 las habilidades entran en las tiradas.
 
 **El recorrido por la red:**
 1. El host sube de nivel → `UpgradeOffers` encola una oferta en el `PlayerUpgrades` de cada jugador (también derribados).
@@ -518,7 +520,7 @@ Interfaz: `Code/UI/InGame/UpgradeOfferPanel.cs` y `UpgradeOfferRow.cs`. Datos: `
 **Qué ajustar.**
 - Cada mejora: su ficha en `Data/Progression/Upgrades/` (rareza, acumulaciones, peso, requisitos, *Appear If*).
 - Qué mejoras existen: la lista de `DefaultUpgradePool.asset`.
-- Las reglas, en `DefaultOffers.asset`: opciones por oferta, tabla de rarezas, suerte, familia propia, peso de lo visto, niveles de garantía, nivel de riesgo y dúo, rerolls (tope 2, +1 a los 240 y 480 s), tercios por saltar y por Respiro, descartes e invulnerabilidad al elegir (1 s, como mucho cada 10 s).
+- Las reglas, en `DefaultOffers.asset`: opciones por oferta, tabla de rarezas, suerte, familia propia, peso de lo visto, niveles de garantía, habilidades (niveles con habilidad garantizada 2 y 6, probabilidad de habilidad nueva 25 %, pesos 3 / 1 de las del personaje y las genéricas, peso de un nivel 1 y nivel del solitario 6), nivel de riesgo y dúo, rerolls (tope 2, +1 a los 240 y 480 s), tercios por saltar y por Respiro, descartes e invulnerabilidad al elegir (1 s, como mucho cada 10 s).
 
 **Cuidado con.**
 - **Lo que hace cada mejora** está en su lista de bloques de efecto (ver 4.21). **Una mejora sin bloques no sale en las ofertas**: no haría nada. Así están las 6 de personaje hasta que lleguen sus bloques con el #162. El filtro mira solo la ficha, antes de cualquier tirada, así que no cambia lo que da una semilla.

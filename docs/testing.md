@@ -385,14 +385,14 @@ Arena_Test. Para las pruebas de semilla, en `Data/Core/RunRandom.asset` pon *Fix
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
 | Primera oferta | Hospeda solo y sube al nivel 2. | Se abre la franja abajo, encima de la barra de habilidades, con «Nivel 2» y tres filas. Te sigues moviendo y el básico sigue disparando. |
-| Misma semilla, mismas ofertas | Con la semilla fija, solo, sube de nivel y elige siempre la 1 hasta el nivel 6. Hazlo dos veces. | Las dos veces la consola dice lo mismo: `nivel 2 (nueva): econ_magnet, basic_tempo, aura_lingering`, `nivel 3: econ_magnet, basic_twin_shot, def_thick_skin`, `nivel 4: mov_tailwind, basic_long_barrel, stat_aura_hunter`, `nivel 5: mov_swift, basic_twin_shot, def_thick_skin`, `nivel 6: mov_swift, aura_lingering, basic_twin_shot`. (Cambian si cambia la lista del pool: se recalculan con `offers_sim.py`.) |
+| Misma semilla, mismas ofertas | Con la semilla fija, solo, sube de nivel y elige siempre la 1 hasta el nivel 6. Hazlo dos veces. | Las dos veces la consola dice lo mismo, línea a línea (`[UpgradeOffers] J1 nivel 2 (nueva): …`). Las habilidades salen como `skill:id` (nueva) o `skill:id@2` (nivel). Desde el #162 las habilidades entran en las tiradas, así que las secuencias de antes ya no valen: apunta aquí la primera que salga con Brasa como referencia. |
 | Builds distintas | Sin semilla fija, dos partidas eligiendo lo que quieras. | Ofertas y mejoras distintas. |
-| Plaza A | Elige Auras tenaces en el nivel 2. | En el nivel 3 sale primero otra vez, con «2/2». En el 4 ya no sale. |
+| Plaza A | Elige Auras tenaces en el nivel 2. | En el nivel 3 la primera fila es otra acumulación («2/2») o el nivel 2 de tu habilidad inicial: las dos son «lo tuyo». Con las dos acumulaciones, Auras tenaces ya no sale. |
 | Rara garantizada | Llega al nivel 5. | La segunda fila es Doble disparo (la única rara genérica del Pre 3) si no la tienes. |
 | Épica desde el 5 | Mira las ofertas de los niveles 2 a 4. | Nunca sale Aura expansiva (épica) antes del nivel 5. En el 10 sale seguro si no la tienes. |
 | Requisitos | Sube hasta el nivel 12 eligiendo cualquier cosa. | Nunca salen Muro vivo, Llama eterna, Remolino, Corazón de marea, Sobretensión ni Bobina detonante: aún no tienen efecto (llegan con el #162), y una mejora sin efecto no sale. Cuando no queda nada, sale Respiro. |
 | Cooperación | Con host y un cliente, subid al nivel 3. | Relevo y Asistencia pueden salir desde el nivel 3. Solo, nunca. |
-| Cada uno la suya | Con host y dos clientes, misma semilla, subid al nivel 2. | Cada ventana tiene su oferta. Con la semilla fija y dos jugadores, J1 ve `econ_magnet, basic_tempo, aura_lingering` y J2 `mov_swift, basic_twin_shot, def_vitality`. |
+| Cada uno la suya | Con host y dos clientes, misma semilla, subid al nivel 2. | Cada ventana tiene su oferta, distinta de la de los demás, y repetida igual si se vuelve a jugar con la misma semilla. |
 | Cola | Pulsa «Dar experiencia» varias veces seguidas sin elegir. | La cabecera dice «+N en cola». Al elegir, sale al instante la siguiente con su nivel. |
 | Ocultar | Con una oferta abierta, pulsa Tab. | Se oculta la franja y aparece «Mejoras: N · Tab». Tab la vuelve a abrir con las mismas cartas. |
 | Elegir con clic | Haz clic en una fila. | La elige, sin lanzar la habilidad del clic izquierdo. |
@@ -454,7 +454,7 @@ Arena_Test, con el host y tres clientes. Hasta la sala de espera (#173) el perso
 | Entrar tarde | Con la partida empezada, une a otro cliente con 100 ms de latencia. | Recibe el personaje de su hueco y ve a los demás con el elemento correcto desde el principio. |
 | Volver al hueco | J2 sale y vuelve a entrar. | Vuelve a ser Marea. |
 | Datos | En `Data/Players/PlayerCharacters.asset`, pon Voltio en el hueco 0 (*By Slot*, elemento 0) y hospeda. Devuélvelo a Brasa. | El host juega Voltio, con electricidad, y su Q es Cortocircuito. |
-| Mejoras de personaje | Sube hasta el nivel 12 con cada personaje. | No sale ninguna de las 6 de personaje (no tienen efecto todavía). Con la semilla `3A9F01C2`, las ofertas son las mismas que en la sección 21. |
+| Mejoras de personaje | Sube hasta el nivel 12 con cada personaje. | No sale ninguna de las 6 de personaje (no tienen efecto todavía). |
 | Reiniciar | Con habilidades dadas con F1, pierde y reinicia. | Cada uno sigue con su personaje y su elemento, y solo con su habilidad inicial, lista para lanzar. |
 
 ## 24. Formas de las habilidades (#162)
@@ -498,3 +498,22 @@ Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). Llamara
 | Sale el lanzador | Un cliente lanza Burbuja y sale antes de que estalle. | Sin errores en ninguna ventana. |
 | Aura expansiva | Con Aura expansiva, lanza Llamarada a un grupo y Rayo a otro. | Con Llamarada, los de hasta 1 m fuera del círculo reciben solo el aura. Con Rayo no hay anillo. |
 | Tempo | Con Tempo, lanza Rayo. | La cadencia del básico pasa a 0.48 al momento, como con las demás habilidades. |
+
+## 26. Habilidades en las ofertas (#162)
+
+Arena_Test. «Dar experiencia» (F1) sube niveles. Para las comprobaciones de nivel, mira la recarga en el HUD y los números flotantes. Marea tiene dos habilidades que conseguir (Burbuja prisión y Chispa); Brasa y Voltio solo una cada uno hasta que lleguen Muro ígneo y Bobina.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Empiezas con una | Hospeda con Marea (hueco 2: une un cliente o cambia *By Slot*). | Solo Ola, en el clic izquierdo. Clic derecho y Q vacíos. |
+| Garantía del nivel 2 | Sube al nivel 2. | La segunda fila es una habilidad nueva de tu kit, con la etiqueta «habilidad» en el color de las habilidades y su descripción. La primera puede ser «Ola · nivel 2». |
+| Coger una habilidad | Elígela. | Aparece en el clic derecho, lista para lanzar, en tu HUD. Las demás ventanas ven tus lanzamientos con ella. En tu log, `skill_gained ability=… ability_level=1 level=2`. |
+| Tercera habilidad | Con Marea, sube hasta el nivel 6. | En el nivel 6 la segunda fila vuelve a ser una habilidad nueva si te queda hueco, y al cogerla va a la Q. Con los tres huecos llenos no vuelven a salir habilidades nuevas. |
+| En solitario, otro elemento | Solo, con Marea, no cojas Chispa antes del 6. | En el nivel 6 la habilidad garantizada es Chispa (eléctrica), no otra de agua: así puedes reaccionar tú solo. |
+| Nivel 2 y 3 | Coge «Ola · nivel 2» y luego «nivel 3». | Con el 2, Ola hace 24 (antes 20); con el 3, la cuña es más ancha (75°). Las otras ventanas la dibujan igual de ancha. Ya no vuelve a salir otro nivel de Ola. |
+| Nivel de recarga | Con Voltio, coge Rayo nivel 2 y nivel 3. | El daño pasa a 26 y la recarga del HUD, de 4 a 3,5 s; el host no rechaza los lanzamientos. |
+| Descartar una habilidad | Con una habilidad en la oferta, X y su número. | Se cambia por otra opción y no vuelve a salir esa habilidad en la partida. En tu log, `offer_action action=banish upgrade=none ability=…`. |
+| Reroll | Rerollea una oferta con habilidad. | Las tres opciones nuevas pueden traer o no habilidades; la garantía del nivel se mantiene. |
+| Entrar tarde | Une un cliente con el grupo en el nivel 4. | Sus ofertas de los niveles 2 a 4 incluyen la habilidad garantizada del 2. |
+| Reiniciar | Con habilidades cogidas, pierde y reinicia. | Todos vuelven a su habilidad inicial a nivel 1, y la garantía del nivel 2 vuelve a ofrecer una nueva. |
+| Con ping | Con 100 ms, un cliente coge una habilidad y la lanza enseguida. | La habilidad llega con el ping; lanzarla en cuanto aparece no da `Rejected` en el host. |

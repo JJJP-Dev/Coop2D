@@ -93,10 +93,20 @@ public static class LauncherEvents
 
     /// <param name="action">reroll, banish or skip (#78).</param>
     /// <param name="upgrade">The banished upgrade's id. Null writes none: reroll and skip have none.</param>
-    public static void OfferAction(string action, string upgrade, int level, int matchTime)
+    /// <param name="ability">With banish, the skill banished from an offer (#162); null otherwise writes none.</param>
+    public static void OfferAction(string action, string upgrade, int level, int matchTime, string ability = null)
     {
         LauncherEventWriter.Write("offer_action", ("action", action), ("upgrade", upgrade), ("level", level),
-                                  ("match_time", matchTime));
+                                  ("match_time", matchTime), ("ability", ability));
+    }
+
+    /// <param name="ability">The skill's id: tide_bubble, ember_flare...</param>
+    /// <param name="abilityLevel">1 for a new skill, 2 or 3 for a level of one the player has (#162).</param>
+    /// <param name="level">Level of the group's level up the offer came from.</param>
+    public static void SkillGained(string ability, int abilityLevel, int level, int matchTime)
+    {
+        LauncherEventWriter.Write("skill_gained", ("ability", ability), ("ability_level", abilityLevel),
+                                  ("level", level), ("match_time", matchTime));
     }
 
     /// <param name="result">defeat. Others (victory) come with the boss (#93).</param>

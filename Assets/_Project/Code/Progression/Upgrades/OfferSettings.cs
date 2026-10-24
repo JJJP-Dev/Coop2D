@@ -37,6 +37,26 @@ public class OfferSettings : ScriptableObject
     [Tooltip("Level whose offer brings an epic (or a duo, from #166) in place B. 0: none.")]
     [SerializeField, Min(0)] private int _guaranteedEpicLevel = 10;
 
+    [Header("Skills (#162, C.1 and C.4)")]
+    [Tooltip("Levels whose place B offers a new skill while the player has a free slot: 2 and 6 in the catalog.")]
+    [SerializeField] private int[] _skillGuaranteeLevels = { 2, 6 };
+
+    [Tooltip("In an open place, the chance that it offers a new skill instead of an upgrade, while the " +
+             "player has a free slot and a skill to be offered. 0.25 in the catalog.")]
+    [SerializeField, Range(0f, 1f)] private float _newSkillChance = 0.25f;
+
+    [Tooltip("Weight of a new skill of the player's character, against the generic ones (catalog C.3: 3 to 1).")]
+    [SerializeField, Min(0f)] private float _ownSkillWeight = 3f;
+
+    [SerializeField, Min(0f)] private float _genericSkillWeight = 1f;
+
+    [Tooltip("Weight of the next level of a skill, against the upgrades of place A (whose weight is their own).")]
+    [SerializeField, Min(0f)] private float _skillLevelWeight = 1f;
+
+    [Tooltip("Playing alone, from this level a skill guarantee only offers skills of another element while " +
+             "the player has none (catalog E.0 rule 1), so they can always react on their own. 0: never.")]
+    [SerializeField, Min(0)] private int _soloOtherElementLevel = 6;
+
     [Header("Risk")]
     [Tooltip("First level whose offers can bring a risk upgrade. At most one per offer.")]
     [SerializeField, Min(0)] private int _riskMinLevel = 4;
@@ -79,6 +99,26 @@ public class OfferSettings : ScriptableObject
     public float SeenWeight => _seenWeight;
     public int GuaranteedRareLevel => _guaranteedRareLevel;
     public int GuaranteedEpicLevel => _guaranteedEpicLevel;
+    public float NewSkillChance => _newSkillChance;
+    public float OwnSkillWeight => _ownSkillWeight;
+    public float GenericSkillWeight => _genericSkillWeight;
+    public float SkillLevelWeight => _skillLevelWeight;
+    public int SoloOtherElementLevel => _soloOtherElementLevel;
+
+    public bool IsSkillGuaranteeLevel(int level)
+    {
+        if (_skillGuaranteeLevels == null)
+            return false;
+
+        foreach (int guaranteed in _skillGuaranteeLevels)
+        {
+            if (guaranteed == level)
+                return true;
+        }
+
+        return false;
+    }
+
     public int RiskMinLevel => _riskMinLevel;
     public int DuoMinLevel => _duoMinLevel;
     public float DuoChance => _duoChance;
