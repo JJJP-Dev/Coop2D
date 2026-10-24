@@ -556,7 +556,7 @@ Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). Mira la
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
-| Aviso de habilidad | Con «Dar experiencia», sube al nivel 2 y coge la habilidad nueva. | Un aviso verde «Nueva habilidad: … · tecla», solo en tu ventana. Al coger un nivel, «Nombre · nivel 2: lo que cambia». Al entrar o reiniciar no sale ninguno. |
+| Aviso de habilidad | Con «Dar experiencia», sube al nivel 2 y coge la habilidad nueva. | Un aviso verde «Nueva habilidad: … · tecla», solo en tu ventana, durante unos 4,5 s (más que los demás avisos). Al coger un nivel, «Nombre · nivel 2: lo que cambia». Al entrar o reiniciar no sale ninguno. |
 | Balas de color | Mira el ataque básico de cada uno. | Brasa dispara naranja, Marea azul y Voltio amarillo (los colores de los elementos), igual en las tres ventanas. Con F6, las balas nuevas cambian de color. |
 | Borde de lo que detona | Marea lanza Ola (detona) y Burbuja (no detona). | La Ola tiene un borde claro; la burbuja estalla sin borde. El muro y la torreta, sin borde. |
 | Tuyo y de otros | Lanzad habilidades a la vez. | En cada ventana, las tuyas se ven más fuertes que las de los demás. |

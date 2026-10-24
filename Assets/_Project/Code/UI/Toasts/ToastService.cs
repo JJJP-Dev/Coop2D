@@ -27,14 +27,18 @@ public class ToastService : MonoBehaviour
         _view.SetAlpha(0f);
     }
 
-    public void Show(string text, ToastType type)
+    /// <summary>
+    /// Queues a toast. duration is how long it stays fully visible, in seconds; 0 uses Display Duration.
+    /// A message with more to read (a new skill and what it does) can ask for longer.
+    /// </summary>
+    public void Show(string text, ToastType type, float duration = 0f)
     {
-        Enqueue(text, type);
+        Enqueue(text, type, duration);
     }
 
-    private void Enqueue(string text, ToastType type)
+    private void Enqueue(string text, ToastType type, float duration)
     {
-        _queue.Enqueue(new ToastMessage(text, type));
+        _queue.Enqueue(new ToastMessage(text, type, duration));
 
         if (_showCoroutine == null)
             _showCoroutine = StartCoroutine(ProcessQueue());
@@ -51,7 +55,7 @@ public class ToastService : MonoBehaviour
 
             yield return Fade(0f, 1f, _fadeInDuration);
 
-            yield return new WaitForSecondsRealtime(_displayDuration);
+            yield return new WaitForSecondsRealtime(message.Duration > 0f ? message.Duration : _displayDuration);
 
             yield return Fade(1f, 0f, _fadeOutDuration);
         }

@@ -348,7 +348,7 @@ Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objet
 
 | Qué | Cómo se ve | Dónde se ajusta |
 |---|---|---|
-| Habilidad nueva o nivel | Un aviso con su nombre y su tecla («Nueva habilidad: Burbuja prisión · RMB», «Ola · nivel 2: +20 % de daño (24)») | `SkillSlotView`: lo dice cada hueco del HUD al cambiar; no avisa de lo que ya tenías al entrar ni de lo que se pierde al reiniciar |
+| Habilidad nueva o nivel | Un aviso con su nombre y su tecla («Nueva habilidad: Burbuja prisión · RMB», «Ola · nivel 2: +20 % de daño (24)») | `SkillSlotView`: lo dice cada hueco del HUD al cambiar, durante *Toast Seconds* (4,5 s, más que el resto de avisos); no avisa de lo que ya tenías al entrar ni de lo que se pierde al reiniciar |
 | Detona o solo marca | Las que pueden detonar llevan **un borde claro**; las que solo marcan son solo relleno | `SkillShapeVisual.prefab`: *Edge Alpha*, *Edge Width* (0,1), *Edge Whiten* |
 | Tuya o de otro | Las tuyas, enteras; las de tus compañeros, al 55 % | *Others Opacity* en el mismo prefab |
 | Cuánto dura | Destello al aparecer y desvanecido en 0,5 s; muros y torretas se apagan hasta el final y destellan en cada golpe | *Fade Duration*, *Pulse Alpha*, *Pulse Duration*, *Lasting End Fade* |

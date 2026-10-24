@@ -36,6 +36,10 @@ public class SkillSlotView : MonoBehaviour
     [Tooltip("Opacity of the icon or the initial while the skill recharges, so the seconds on top read clearly.")]
     [SerializeField, Range(0f, 1f)] private float _rechargingContentAlpha = 0.25f;
 
+    [Tooltip("Seconds the toast of a new skill or level stays, longer than a normal toast: it has a name, " +
+             "what changed and a key to read.")]
+    [SerializeField, Min(0.5f)] private float _toastSeconds = 4.5f;
+
     private LocalPlayerService _localPlayer;
     private PlayerSkills _skills;
     private SkillInstance _shownSkill;
@@ -173,7 +177,7 @@ public class SkillSlotView : MonoBehaviour
             text = $"{skill.DisplayName} · nivel {level}{change}{key}";
         }
 
-        GameServices.Instance.ToastService.Show(text, ToastType.Success);
+        GameServices.Instance.ToastService.Show(text, ToastType.Success, _toastSeconds);
     }
 
     // Fades what's under the seconds while it recharges, and brings it back when it's ready.
