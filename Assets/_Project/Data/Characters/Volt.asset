@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
   _id: volt
   _displayName: Voltio
+  _sprite: {fileID: 1973993981255511412, guid: 9b9e1d09d4115684eaed128c5d27b970, type: 3}
   _element: 3
   _startingSkill: {fileID: 11400000, guid: cc9c0f4519ef42b19e2e1dec79563a65, type: 2}
   _ownSkills:

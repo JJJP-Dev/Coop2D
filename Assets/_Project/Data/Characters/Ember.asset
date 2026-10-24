@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
   _id: ember
   _displayName: Brasa
+  _sprite: {fileID: 1973993981255511412, guid: 242639295508069409ba59d110a3d682, type: 3}
   _element: 1
   _startingSkill: {fileID: 11400000, guid: 8f1df0d50c97486397ca7ccee1cb43a5, type: 2}
   _ownSkills:

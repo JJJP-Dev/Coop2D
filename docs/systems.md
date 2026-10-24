@@ -187,7 +187,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 - `Code/Player/Characters/`: `CharacterDefinition` (la ficha de un personaje: id, nombre, elemento y habilidades de inicio), `PlayerCharacters` (todos los personajes y el de cada hueco) y `PlayerCharacter` (en el jugador: cuál juega).
 - `Code/Player/Elements/PlayerElement.cs`: el elemento del jugador, que sale de su personaje.
 
-**Dónde está montado.** `Prefabs/Player/Player.prefab` (capa Player). Lleva: NetworkObject, NetworkTransform, PlayerInputReader, PlayerMovement, PlayerIdentity, PlayerCharacter, PlayerColorMarker, Health, PlayerAutoAttack, PlayerElement, PlayerSkillSlots, PlayerSkills, PlayerSkillProjectiles, PlayerSkillPlacements, HitFlash, PlayerDowned, PlayerDownedView, PlayerRevive, PlayerUpgrades, PlayerOffers, PlayerChoosingView, PlayerStats y PlayerUpgradeEvents. Hijos: `Visual` (sprite), `SlotMarker` (punto de color), `HealthLabel`, `DownedLabel` y `ChoosingLabel`.
+**Dónde está montado.** `Prefabs/Player/Player.prefab` (capa Player). Lleva: NetworkObject, NetworkTransform, PlayerInputReader, PlayerMovement, PlayerIdentity, PlayerCharacter, PlayerCharacterView, PlayerColorMarker, Health, PlayerAutoAttack, PlayerElement, PlayerSkillSlots, PlayerSkills, PlayerSkillProjectiles, PlayerSkillPlacements, HitFlash, PlayerDowned, PlayerDownedView, PlayerRevive, PlayerUpgrades, PlayerOffers, PlayerChoosingView, PlayerStats y PlayerUpgradeEvents. Hijos: `Visual` (sprite: lo pone `PlayerCharacterView` según el personaje), `SlotMarker` (punto de color), `HealthLabel`, `DownedLabel` y `ChoosingLabel`.
 
 **Cómo funciona.**
 1. Cuando una conexión ha cargado la escena, `PlayerSpawnService` le da el primer hueco libre, crea el jugador en su punto de aparición y le pone el hueco **antes de crearlo en la red** (así el hueco llega a todos con el jugador).
@@ -205,6 +205,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 | Color de cada hueco | `Data/Players/PlayerColors.asset` | rojo, azul, verde, amarillo |
 | Personaje de cada hueco, y la lista de personajes | `Data/Players/PlayerCharacters.asset` | Brasa, Marea, Voltio, Brasa |
 | Nombre, elemento, habilidad inicial y kit de cada personaje | `Data/Characters/Ember.asset`, `Tide.asset`, `Volt.asset` | Brasa fuego, empieza con Llamarada y su kit es Muro ígneo + Llovizna · Marea agua, Ola y Burbuja prisión + Chispa · Voltio electricidad, Rayo y Bobina + Cortocircuito |
+| Aspecto de cada personaje | *Sprite* de `Ember.asset`, `Tide.asset`, `Volt.asset` | `Chr_Fire_idle`, `Chr_water_idle`, `Chr_Volt_idle` (recoloreados provisionales). Vacío: el sprite del prefab. Lo aplica `PlayerCharacterView` en todos los PCs; como solo cambia el sprite, el destello de golpe y el derribado siguen igual |
 
 **Cuidado con.** Máximo 4 jugadores (`PlayerSlots.MaxPlayers`); el quinto se desconecta. Los puntos de aparición están en `PlayerSpawnPoints` de cada escena: sin ellos, todos aparecen en el origen.
 - **Un personaje que no está en la lista *Characters* de `PlayerCharacters` no se puede jugar**: los demás PCs reciben su id y no encontrarían su ficha. El asset avisa en consola si das a un hueco uno que no está.

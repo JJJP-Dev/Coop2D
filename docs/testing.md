@@ -455,6 +455,7 @@ Arena_Test, con el host y tres clientes. Hasta la sala de espera (#173) el perso
 | Habilidad inicial | En cada ventana, mira la barra de habilidades y lanza la del clic izquierdo. | Brasa tiene Llamarada, Marea Ola y Voltio Rayo, y los otros dos huecos están vacíos (se llenan con las ofertas, sección 26). Sin avisos en la consola del host. |
 | Entrar tarde | Con la partida empezada, une a otro cliente con 100 ms de latencia. | Recibe el personaje de su hueco y ve a los demás con el elemento correcto desde el principio. |
 | Volver al hueco | J2 sale y vuelve a entrar. | Vuelve a ser Marea. |
+| Aspecto | Mira a los tres en todas las ventanas. | Brasa se ve con el sprite de fuego, Marea con el de agua y Voltio con el eléctrico, igual en todas, también quien entra tarde. Al recibir un golpe destellan en blanco y al caer se aclaran, como antes. |
 | Datos | En `Data/Players/PlayerCharacters.asset`, pon Voltio en el hueco 0 (*By Slot*, elemento 0) y hospeda. Devuélvelo a Brasa. | El host juega Voltio, con electricidad, y su Q es Cortocircuito. |
 | Mejoras de personaje | Sube hasta el nivel 12 con cada personaje. | No sale ninguna de las 6 de personaje (no tienen efecto todavía). |
 | Reiniciar | Con habilidades dadas con F1, pierde y reinicia. | Cada uno sigue con su personaje y su elemento, y solo con su habilidad inicial, lista para lanzar. |

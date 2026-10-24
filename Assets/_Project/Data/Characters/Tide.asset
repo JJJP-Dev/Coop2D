@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
   _id: tide
   _displayName: Marea
+  _sprite: {fileID: 1973993981255511412, guid: 0db04eb8a89043a408f068fbdac5cb6e, type: 3}
   _element: 2
   _startingSkill: {fileID: 11400000, guid: 8e42cc26d8494f11916645f3acce4a76, type: 2}
   _ownSkills:

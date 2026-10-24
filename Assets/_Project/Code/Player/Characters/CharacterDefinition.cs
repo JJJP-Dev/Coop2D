@@ -13,6 +13,10 @@ public class CharacterDefinition : ScriptableObject
     [Tooltip("Shown to players: Brasa, Marea, Voltio.")]
     [SerializeField] private string _displayName;
 
+    [Tooltip("How the character looks: its idle sprite, until it has animations. Empty keeps the sprite of " +
+             "the player prefab.")]
+    [SerializeField] private Sprite _sprite;
+
     [Tooltip("The character's main element: the one of its basic attack and of the skills that take the caster's element.")]
     [SerializeField] private ElementType _element;
 
@@ -26,6 +30,7 @@ public class CharacterDefinition : ScriptableObject
     public string Id => _id;
     public string DisplayName => _displayName;
     public ElementType Element => _element;
+    public Sprite Sprite => _sprite;
 
     public SkillDefinition StartingSkill => _startingSkill;
     public IReadOnlyList<SkillDefinition> OwnSkills => _ownSkills;
