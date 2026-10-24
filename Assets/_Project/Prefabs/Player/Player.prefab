@@ -597,6 +597,7 @@ GameObject:
   - component: {fileID: 5825478223105688158}
   - component: {fileID: 4484037113358846217}
   - component: {fileID: 3073239409922572927}
+  - component: {fileID: 4144324120830163036}
   - component: {fileID: 9179136649709530141}
   - component: {fileID: 1604297359816126803}
   - component: {fileID: 3391208299126440683}
@@ -1029,6 +1030,21 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 3332554340608108226}
   _networkObjectCache: {fileID: 0}
   _library: {fileID: 11400000, guid: 0751abc74f1241ef96838ae427052874, type: 2}
+--- !u!114 &4144324120830163036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4950291352465746428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afc7c38704ba4fe9be9bdaeb2a66c676, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillProjectiles
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 3332554340608108226}
+  _networkObjectCache: {fileID: 0}
 --- !u!114 &9179136649709530141
 MonoBehaviour:
   m_ObjectHideFlags: 0
