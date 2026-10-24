@@ -1,66 +1,160 @@
 {
-  "id": "pre2-0.0.4",
-  "title": "Misiones de la 0.0.4",
-  "intro": "Jugad en grupo. Lo que consigáis se marca solo; lo hecho con trucos o en el laboratorio no cuenta.",
-  "minGameVersion": "0.0.4-prototype.2",
-  "startsUtc": "2026-10-20T19:00:00+01:00",
-  "endsUtc": "2026-10-31T23:59:00+01:00",
+  "id": "pre3-0.0.5",
+  "title": "Misiones de la 0.0.5",
+  "intro": "La primera build del Pre 3: personajes, habilidades, mejoras y una partida de 10 minutos. Jugad solos y en grupo; lo que consigáis se marca solo, y lo hecho con trucos no cuenta.",
+  "minGameVersion": "0.0.5-prototype.3",
+  "startsUtc": "2026-10-25T00:00:00+01:00",
+  "endsUtc": "2026-11-08T23:59:00+00:00",
   "missions": [
     {
-      "id": "entrar-de-fuera",
-      "title": "Únete a alguien de fuera de tu casa",
-      "hint": "Con la IP pública del host o por la VPN. El juego comprueba que tengáis la misma versión.",
-      "goal": { "event": "join_result", "where": { "result": "ok", "target": ["public", "vpn"] } }
+      "id": "sobrevivir",
+      "title": "Sobrevivid a las 15 oleadas",
+      "hint": "Diez minutos de partida. Al morir el último enemigo sale «¡Habéis sobrevivido!».",
+      "goal": {
+        "event": "match_over",
+        "where": {
+          "result": "victory"
+        },
+        "scope": "match"
+      },
+      "check": "¿Se notó que la partida había terminado y por qué?"
+    },
+    {
+      "id": "nivel-10",
+      "title": "Llegad al nivel 10 en una partida",
+      "hint": "La experiencia es de todo el grupo: recoged los orbes.",
+      "goal": {
+        "event": "level_up",
+        "where": {
+          "level": {
+            ">=": 10
+          }
+        },
+        "scope": "match"
+      }
+    },
+    {
+      "id": "kit-completo",
+      "title": "Consigue las dos habilidades de tu kit",
+      "hint": "Salen aseguradas en los niveles 2 y 6, en la segunda fila de la oferta.",
+      "goal": {
+        "event": "skill_gained",
+        "where": {
+          "ability_level": 1
+        },
+        "count": 2,
+        "scope": "match"
+      }
+    },
+    {
+      "id": "habilidad-nivel-3",
+      "title": "Sube una habilidad a nivel 3",
+      "hint": "Los niveles salen en la primera fila de la oferta.",
+      "goal": {
+        "event": "skill_gained",
+        "where": {
+          "ability_level": 3
+        }
+      }
+    },
+    {
+      "id": "muro-o-bobina",
+      "title": "Usa el Muro ígneo o la Bobina 5 veces",
+      "hint": "Brasa y Voltio los consiguen en las ofertas. Se quedan en el suelo unos segundos.",
+      "goal": {
+        "event": "ability_cast",
+        "where": {
+          "ability": [
+            "ember_firewall",
+            "volt_coil"
+          ]
+        },
+        "count": 5,
+        "scope": "set"
+      },
+      "check": "¿Se veía cuánto tiempo le quedaba y cuándo golpeaba?"
+    },
+    {
+      "id": "duos",
+      "title": "Provocad 10 reacciones en dúo",
+      "hint": "Uno deja el aura (el muro, la torreta o la burbuja son ideales) y el otro la detona.",
+      "allowSolo": false,
+      "goal": {
+        "event": "reaction",
+        "where": {
+          "duo": true,
+          "me": [
+            "aura",
+            "detonator"
+          ]
+        },
+        "count": 10,
+        "scope": "set"
+      }
+    },
+    {
+      "id": "reanimar",
+      "title": "Reanima a un compañero",
+      "hint": "Quédate a su lado unos segundos. Si te golpean, dejas de ayudar un momento.",
+      "allowSolo": false,
+      "goal": {
+        "event": "player_revived",
+        "where": {
+          "by": "me"
+        }
+      }
     },
     {
       "id": "entrar-tarde",
       "title": "Únete a una partida ya empezada",
-      "hint": "Que el host lleve al menos 10 segundos jugando antes de que entres.",
-      "goal": { "event": "match_joined", "where": { "role": "client", "late": true } }
+      "hint": "Las oleadas se hacen más grandes al entrar más jugadores.",
+      "goal": {
+        "event": "match_joined",
+        "where": {
+          "role": "client",
+          "late": true
+        }
+      }
     },
     {
-      "id": "cinco-duos",
-      "title": "Provocad 5 reacciones en dúo",
-      "hint": "Las auras duran más que en la 0.0.3: uno marca y el otro detona con una habilidad.",
-      "allowSolo": false,
-      "goal": { "event": "reaction", "where": { "duo": true, "me": ["aura", "detonator"] }, "count": 5, "scope": "set" }
-    },
-    {
-      "id": "tres-reacciones",
-      "title": "Participa en las tres reacciones",
-      "hint": "Vapor, Electrocución y Sobrecarga, poniendo el aura o detonándola.",
+      "id": "reroll-descarte",
+      "title": "Usa un reroll y un descarte",
+      "hint": "F vuelve a tirar la oferta; X y un número descarta una opción para toda la partida.",
       "goal": {
         "all": [
-          { "event": "reaction", "where": { "variant": "vapor_*", "me": { "!=": "none" } }, "scope": "set" },
-          { "event": "reaction", "where": { "variant": "electrocution_*", "me": { "!=": "none" } }, "scope": "set" },
-          { "event": "reaction", "where": { "variant": "overload_*", "me": { "!=": "none" } }, "scope": "set" }
+          {
+            "event": "offer_action",
+            "where": {
+              "action": "reroll"
+            },
+            "scope": "set"
+          },
+          {
+            "event": "offer_action",
+            "where": {
+              "action": "banish"
+            },
+            "scope": "set"
+          }
         ]
       }
     },
     {
-      "id": "grupo-de-tres",
-      "title": "Detona una reacción sobre 3 enemigos a la vez",
-      "hint": "Marca un grupo de perseguidores y lanza la habilidad en medio.",
-      "goal": { "event": "reaction", "where": { "me": ["detonator", "both"], "targets": { ">=": 3 } } },
-      "check": "¿Se vio un solo titular grande y la pantalla tembló lo justo?"
-    },
-    {
-      "id": "oleadas-completas",
-      "title": "Llegad al final de las oleadas",
-      "hint": "Tres minutos de partida sin salir.",
-      "allowSolo": false,
-      "goal": { "event": "waves_finished", "scope": "match" }
-    },
-    {
-      "id": "recarga-hud",
-      "title": "¿La recarga del HUD coincide con la de verdad?",
-      "hint": "Lanza una habilidad nada más vaciarse el reloj de su hueco: debería salir siempre.",
+      "id": "leer-habilidades",
+      "title": "¿Distingues qué detona y de quién es cada habilidad?",
+      "hint": "Las que detonan tienen borde claro; las tuyas se ven más fuertes y cada una lleva el contorno del color de su jugador.",
       "manual": true
     },
     {
-      "id": "variantes",
-      "title": "¿Distingues las dos variantes de cada reacción?",
-      "hint": "Fuego y luego agua no hace lo mismo que agua y luego fuego. Si no notas la diferencia, márcala como «Falló» y dinos cuál.",
+      "id": "avisos-habilidad",
+      "title": "¿Sabías qué tecla tenía cada habilidad nueva?",
+      "hint": "Al conseguir una habilidad o un nivel sale un aviso con lo que cambia y su tecla.",
+      "manual": true
+    },
+    {
+      "id": "anillo-alcance",
+      "title": "¿El anillo de alcance te ayuda a apuntar?",
+      "hint": "Aleja el cursor más allá de donde llegan Llovizna, Cortocircuito, el muro o la torreta.",
       "manual": true
     }
   ]

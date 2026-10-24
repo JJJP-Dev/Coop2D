@@ -1,7 +1,7 @@
 {
-  "id": "pre2-0.0.3-test",
-  "title": "Tu opinión sobre la 0.0.3 · Prototipo 2",
-  "intro": "Esta versión da más vida a los enemigos, añade temblor de pantalla y busca el origen de los tirones de la última prueba.\nSi notaste congelaciones, dinos cuándo: junto con los registros del juego, nos dirá qué falla.",
+  "id": "pre3-0.0.5",
+  "title": "Tu opinión sobre la 0.0.5 · Pre 3",
+  "intro": "La primera build del Pre 3: personajes con sus habilidades, mejoras y una partida de 10 minutos con final.\nCuéntanos qué se entendía, qué se hizo largo y qué te gustó.",
   "askAfterSession": true,
   "minSessionMinutes": 10,
   "minHoursBetweenPrompts": 12,
@@ -14,35 +14,99 @@
       "required": true
     },
     {
-      "id": "crowd-reactions",
+      "id": "how-ended",
       "type": "choice",
-      "text": "En los grupos grandes de enemigos, ¿conseguíais provocar varias reacciones seguidas?",
+      "text": "¿Cómo acabó tu última partida?",
+      "required": true,
       "options": [
-        "Sí, muchas",
-        "Alguna",
-        "Casi nunca",
-        "No lo probamos"
+        "¡Sobrevivimos a las 15 oleadas!",
+        "Caímos antes del minuto 3",
+        "Caímos entre el 3 y el 7",
+        "Caímos después del 7",
+        "No la terminamos"
       ]
     },
     {
-      "id": "enemy-toughness",
+      "id": "players",
+      "type": "choice",
+      "text": "¿Cuántos jugabais?",
+      "options": [
+        "Solo",
+        "Dos",
+        "Tres",
+        "Cuatro"
+      ]
+    },
+    {
+      "id": "match-length",
       "type": "scale",
-      "text": "¿Cuánto aguantan los enemigos?",
+      "text": "La partida dura unos 10 minutos. ¿Cómo se te hizo?",
+      "min": 1,
+      "max": 5,
+      "minLabel": "Muy corta",
+      "maxLabel": "Muy larga"
+    },
+    {
+      "id": "difficulty",
+      "type": "scale",
+      "text": "¿Qué tal la dificultad?",
       "hint": "El 3 es lo justo.",
       "min": 1,
       "max": 5,
-      "minLabel": "Caen enseguida",
-      "maxLabel": "Aguantan demasiado"
+      "minLabel": "Muy fácil",
+      "maxLabel": "Muy difícil"
     },
     {
-      "id": "camera-shake",
+      "id": "character",
       "type": "choice",
-      "text": "¿Qué te pareció el temblor de pantalla al provocar reacciones?",
+      "text": "¿Con qué personaje jugaste más?",
       "options": [
-        "Está bien así",
-        "Se nota poco",
-        "Es demasiado",
-        "No lo noté"
+        "Brasa (fuego)",
+        "Marea (agua)",
+        "Voltio (electricidad)"
+      ]
+    },
+    {
+      "id": "favorite-skill",
+      "type": "choice",
+      "text": "¿Qué habilidad te gustó más?",
+      "options": [
+        "Llamarada",
+        "Muro ígneo",
+        "Llovizna",
+        "Ola",
+        "Burbuja prisión",
+        "Chispa",
+        "Rayo",
+        "Bobina",
+        "Cortocircuito",
+        "No me fijé"
+      ]
+    },
+    {
+      "id": "readability",
+      "type": "multi",
+      "text": "En medio de la pelea, ¿qué se entendía bien?",
+      "hint": "Marca todo lo que se veía claro.",
+      "options": [
+        "De quién era cada habilidad",
+        "Cuáles provocan reacciones",
+        "Cuánto le queda al muro o la torreta",
+        "Hasta dónde llega una habilidad",
+        "Qué enemigos están aturdidos",
+        "La tecla de cada habilidad nueva",
+        "Ninguna"
+      ]
+    },
+    {
+      "id": "offers",
+      "type": "choice",
+      "text": "¿Las ofertas al subir de nivel te hacían pensar qué elegir?",
+      "options": [
+        "Casi siempre",
+        "A veces",
+        "Casi nunca: elegía cualquiera",
+        "Al final solo salía Respiro"
       ]
     },
     {
@@ -55,23 +119,8 @@
         "El juego se cerró",
         "Va lento o a tirones",
         "Fallos visuales",
+        "Algo no se entendía",
         "Controles incómodos",
-        "Ninguno"
-      ]
-    },
-    {
-      "id": "stutter-when",
-      "type": "multi",
-      "text": "Si notaste tirones o congelaciones, ¿cuándo pasaban?",
-      "required": true,
-      "hint": "Marca todos los momentos que recuerdes. Si no notaste ninguno, marca «Ninguno».",
-      "options": [
-        "Con muchos enemigos en pantalla",
-        "Al provocar reacciones en un grupo",
-        "Al morir muchos enemigos a la vez",
-        "Justo después de usar el panel de trucos",
-        "Tras mucho rato de partida",
-        "Sin motivo claro",
         "Ninguno"
       ]
     },
@@ -90,7 +139,7 @@
       "type": "text",
       "text": "¿Qué notaste raro o qué cambiarías?",
       "maxLength": 1000,
-      "placeholder": "Un fallo, algo que no se entendía, lo que te frustró… Si hubo una congelación, ¿a qué hora más o menos?"
+      "placeholder": "Una habilidad que no se entendía, un momento en que todo se complicó, lo que echaste de menos…"
     }
   ]
 }
