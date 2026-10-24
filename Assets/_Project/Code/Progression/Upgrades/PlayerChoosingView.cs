@@ -3,10 +3,11 @@ using UnityEngine;
 
 // Above a player while they have the upgrade panel open (#77), so the group knows they're looking at
 // the strip and not at the fight. A label until the icon's art exists. Every client shows it from what
-// PlayerUpgrades received.
+// PlayerOffers received.
 public class PlayerChoosingView : MonoBehaviour
 {
-    [SerializeField] private PlayerUpgrades _upgrades;
+    [Tooltip("Optional: empty, it's looked up on the player this view is part of.")]
+    [SerializeField] private PlayerOffers _offers;
 
     [Tooltip("Above the player, higher than the downed label: a downed player can choose too.")]
     [SerializeField] private TMP_Text _label;
@@ -15,9 +16,12 @@ public class PlayerChoosingView : MonoBehaviour
 
     private void Awake()
     {
-        if (_upgrades == null || _label == null)
+        if (_offers == null)
+            _offers = GetComponentInParent<PlayerOffers>();
+
+        if (_offers == null || _label == null)
         {
-            Debug.LogError("[PlayerChoosingView] Upgrades or label is not assigned.", this);
+            Debug.LogError("[PlayerChoosingView] No PlayerOffers on the player, or the label is not assigned.", this);
             enabled = false;
             return;
         }
@@ -28,7 +32,7 @@ public class PlayerChoosingView : MonoBehaviour
     // One value per player, and it also catches the one a late joiner receives with the spawn.
     private void Update()
     {
-        bool choosing = _upgrades.IsChoosing;
+        bool choosing = _offers.IsChoosing;
         if (_shownChoosing == choosing)
             return;
 

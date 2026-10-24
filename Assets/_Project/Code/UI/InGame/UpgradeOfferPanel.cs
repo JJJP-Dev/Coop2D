@@ -5,7 +5,7 @@ using UnityEngine;
 // The strip at the bottom of the HUD where the local player chooses their upgrades (#77), without
 // pausing anything: they keep moving and the basic attack keeps firing.
 //   1, 2, 3 or a click pick; F rerolls; X and then a number banishes; C skips; Tab hides and shows it.
-// It only shows the offer the host sent to this player and sends back what they chose (PlayerUpgrades).
+// It only shows the offer the host sent to this player and sends back what they chose (PlayerOffers).
 // When it's hidden and offers are waiting, a line of the HUD says how many.
 public class UpgradeOfferPanel : MonoBehaviour
 {
@@ -39,6 +39,7 @@ public class UpgradeOfferPanel : MonoBehaviour
 
     private InputService _input;
     private PlayerIdentity _boundIdentity;
+    private PlayerOffers _offers;
     private PlayerUpgrades _player;
 
     // What is on screen, so it's only redrawn when something changes.
@@ -86,7 +87,7 @@ public class UpgradeOfferPanel : MonoBehaviour
 
         BindLocalPlayer();
 
-        ReceivedOffer offer = _player != null ? _player.CurrentOffer : null;
+        ReceivedOffer offer = _offers != null ? _offers.CurrentOffer : null;
         bool over = MatchFlow.Current != null && MatchFlow.Current.Phase == MatchPhase.Over;
 
         // A new offer after none: it opens by itself, even if the player had hidden the last one.
@@ -101,8 +102,8 @@ public class UpgradeOfferPanel : MonoBehaviour
 
         visible = offer != null && !_hiddenByPlayer && !over;
 
-        if (_player != null)
-            _player.SetChoosing(visible);
+        if (_offers != null)
+            _offers.SetChoosing(visible);
 
         Refresh(offer, visible);
     }
@@ -139,7 +140,7 @@ public class UpgradeOfferPanel : MonoBehaviour
 
     private void OnRowClicked(int index)
     {
-        ReceivedOffer offer = _player != null ? _player.CurrentOffer : null;
+        ReceivedOffer offer = _offers != null ? _offers.CurrentOffer : null;
         if (offer != null && !offer.IsAnswered)
             Choose(offer, index);
     }
@@ -162,7 +163,7 @@ public class UpgradeOfferPanel : MonoBehaviour
     private void Send(OfferAnswer answer, int index)
     {
         _banishMode = false;
-        _player.Answer(answer, index);
+        _offers.Answer(answer, index);
         _dirty = true;
     }
 
@@ -174,24 +175,25 @@ public class UpgradeOfferPanel : MonoBehaviour
             return;
 
         _boundIdentity = identity;
-        Bind(identity != null ? identity.GetComponent<PlayerUpgrades>() : null);
+        Bind(identity != null ? identity.GetComponent<PlayerOffers>() : null);
     }
 
-    private void Bind(PlayerUpgrades player)
+    private void Bind(PlayerOffers offers)
     {
-        if (_player != null)
+        if (_offers != null)
         {
-            _player.OfferChanged -= OnOfferChanged;
+            _offers.OfferChanged -= OnOfferChanged;
             _player.UpgradesChanged -= OnOfferChanged;
         }
 
-        _player = player;
+        _offers = offers;
+        _player = offers != null ? offers.Upgrades : null;
         _banishMode = false;
         _dirty = true;
 
-        if (_player != null)
+        if (_offers != null)
         {
-            _player.OfferChanged += OnOfferChanged;
+            _offers.OfferChanged += OnOfferChanged;
             _player.UpgradesChanged += OnOfferChanged;
         }
     }
@@ -205,7 +207,7 @@ public class UpgradeOfferPanel : MonoBehaviour
     // Only when something it shows changed, so the canvas isn't rebuilt every frame.
     private void Refresh(ReceivedOffer offer, bool visible)
     {
-        int pending = _player != null ? _player.PendingOffers : 0;
+        int pending = _offers != null ? _offers.PendingOffers : 0;
         int thirds = _player != null ? _player.Rerolls * 3 + _player.RerollThirdsOver : 0;
         int banishes = _player != null ? _player.BanishesLeft : 0;
         bool answered = offer != null && offer.IsAnswered;

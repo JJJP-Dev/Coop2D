@@ -5,7 +5,7 @@ using UnityEngine;
 
 // The upgrade offers of the match in this scene (#78). On the host it hands every player an offer for
 // each level up of the group, draws them with each player's own stream of the seed and gives the
-// timed rerolls; each player's PlayerUpgrades keeps their queue and talks to its owner.
+// timed rerolls; each player's PlayerOffers keeps their queue and talks to its owner.
 // On the clients it only lends the pool, to read the ids that arrive. One per match scene, next to
 // RunExperience. Without it in a scene (ReactionLab) nobody gets offers.
 public class UpgradeOffers : NetworkBehaviour
@@ -23,7 +23,7 @@ public class UpgradeOffers : NetworkBehaviour
     [SerializeField] private MatchClock _clock;
 
     // Server side.
-    private readonly List<PlayerUpgrades> _players = new();
+    private readonly List<PlayerOffers> _players = new();
     private OfferGenerator _generator;
     private int _timedRerollsGiven;
     private float _nextRerollCheck;
@@ -96,14 +96,14 @@ public class UpgradeOffers : NetworkBehaviour
     /// Server only. A player arrived: they start like everyone did and get an offer for every level the
     /// group already went through, so joining late doesn't leave them with fewer upgrades.
     /// </summary>
-    public void Register(PlayerUpgrades player)
+    public void Register(PlayerOffers player)
     {
         if (!IsServerInitialized || player == null || _players.Contains(player) || _settings == null)
             return;
 
         _players.Add(player);
         player.ResetForNewRun(_settings.Banishes);
-        player.EarnRerollThirds(3 * _timedRerollsGiven, _settings.MaxRerollThirds);
+        player.Upgrades.EarnRerollThirds(3 * _timedRerollsGiven, _settings.MaxRerollThirds);
 
         int level = _experience != null ? _experience.Level : 1;
         for (int missed = 2; missed <= level; missed++)
@@ -113,7 +113,7 @@ public class UpgradeOffers : NetworkBehaviour
     /// <summary>
     /// Server only.
     /// </summary>
-    public void Unregister(PlayerUpgrades player)
+    public void Unregister(PlayerOffers player)
     {
         _players.Remove(player);
     }
@@ -128,7 +128,7 @@ public class UpgradeOffers : NetworkBehaviour
 
         _timedRerollsGiven = 0;
 
-        foreach (PlayerUpgrades player in _players)
+        foreach (PlayerOffers player in _players)
             player.ResetForNewRun(_settings.Banishes);
     }
 
@@ -140,8 +140,8 @@ public class UpgradeOffers : NetworkBehaviour
         if (!IsServerInitialized || _settings == null)
             return;
 
-        foreach (PlayerUpgrades player in _players)
-            player.EarnRerollThirds(3, _settings.MaxRerollThirds);
+        foreach (PlayerOffers player in _players)
+            player.Upgrades.EarnRerollThirds(3, _settings.MaxRerollThirds);
     }
 
     /// <summary>
@@ -187,7 +187,7 @@ public class UpgradeOffers : NetworkBehaviour
     private void OnLeveledUp(int level)
     {
         // Downed players too: choosing gives them something to do while they wait (catalog B.4).
-        foreach (PlayerUpgrades player in _players)
+        foreach (PlayerOffers player in _players)
             player.EnqueueOffer(level);
     }
 
@@ -207,8 +207,8 @@ public class UpgradeOffers : NetworkBehaviour
         {
             _timedRerollsGiven++;
 
-            foreach (PlayerUpgrades player in _players)
-                player.EarnRerollThirds(3, _settings.MaxRerollThirds);
+            foreach (PlayerOffers player in _players)
+                player.Upgrades.EarnRerollThirds(3, _settings.MaxRerollThirds);
 
             Debug.Log($"[UpgradeOffers] Timed reroll {_timedRerollsGiven} at {elapsed} s for every player.", this);
         }
@@ -221,9 +221,9 @@ public class UpgradeOffers : NetworkBehaviour
 
     private bool IsTakenByOther(UpgradeDefinition upgrade, PlayerUpgrades player)
     {
-        foreach (PlayerUpgrades other in _players)
+        foreach (PlayerOffers other in _players)
         {
-            if (other != player && other.GetStacks(upgrade.Id) > 0)
+            if (other.Upgrades != player && other.Upgrades.GetStacks(upgrade.Id) > 0)
                 return true;
         }
 
