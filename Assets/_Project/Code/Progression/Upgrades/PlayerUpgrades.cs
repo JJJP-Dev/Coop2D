@@ -55,7 +55,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     private PlayerIdentity _identity;
     private PlayerElement _element;
     private PlayerCharacter _character;
-    private PlayerSkills _skills;
+    private PlayerSkillSlots _skills;
     private PlayerStats _stats;
     private Health _health;
     private PlayerUpgradeEvents _events;
@@ -203,8 +203,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
 
         for (int slot = 0; slot < _skills.Count; slot++)
         {
-            // AttackSlot is a byte enum: an int can't be added to it, so through int and back.
-            SkillInstance skill = _skills.GetSkill((AttackSlot)((int)AttackSlot.Skill1 + slot));
+            SkillInstance skill = _skills.Get(slot);
             if (skill != null)
                 skills.Add(skill.Definition);
         }
@@ -757,9 +756,9 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         if (_skills == null || _element == null)
             return false;
 
-        for (int slot = (int)AttackSlot.Skill1; slot <= (int)AttackSlot.Skill3; slot++)
+        for (int slot = 0; slot < _skills.Count; slot++)
         {
-            SkillInstance skill = _skills.GetSkill((AttackSlot)slot);
+            SkillInstance skill = _skills.Get(slot);
             if (skill != null && skill.GetElement(_element.Current) == element)
                 return true;
         }

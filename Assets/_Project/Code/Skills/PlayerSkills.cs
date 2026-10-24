@@ -2,24 +2,21 @@ using System;
 using System.Collections.Generic;
 using FishNet.Connection;
 using FishNet.Object;
-using FishNet.Object.Synchronizing;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 // The player's skills. The owner aims and casts at once, with what it sees on its screen.
 // The host checks the cast and applies its effects, and the other clients draw it.
-// Which skills (#162): up to three, in the order they were got. The match starts with the character's
-// starting skill; the offers add new ones and levels. The host keeps them in a list every PC receives
-// (id and level), and each PC builds the same SkillInstance from it, numbers of the level included.
+// Which skills the player has is PlayerSkillSlots; this casts them.
 // Where they hit: a circle, a line or a cone (SkillArea). The owner sends where it stood and where it
 // aimed, and the host rebuilds the same area from those two points to check the targets.
 // Projectiles (#162) work like the basic attack: the owner flies its own and reports what it hits or
 // where it bursts; the host remembers each accepted launch (SkillShotRecord) to check those reports.
 [RequireComponent(typeof(PlayerElement))]
-[RequireComponent(typeof(PlayerCharacter))]
+[RequireComponent(typeof(PlayerSkillSlots))]
 public class PlayerSkills : NetworkBehaviour
 {
-    public const int SlotCount = 3;
+    private const int SlotCount = PlayerSkillSlots.SlotCount;
 
     // A line or a cone needs a direction: closer than this, the cursor is on the player and gives none.
     private const float MinAimDistance = 0.1f;
@@ -34,18 +31,8 @@ public class PlayerSkills : NetworkBehaviour
     [SerializeField] private SkillCastSettings _castSettings;
     [SerializeField] private ElementLibrary _elements;
 
-    [Tooltip("Every skill, to find the ones this player has from their ids.")]
-    [SerializeField] private SkillLibrary _library;
-
-    // The skills of this player, one per slot in the order they were got (#162). Everyone receives it:
-    // other PCs draw this player's casts with these skills and their levels.
-    private readonly SyncList<OwnedSkill> _owned = new();
-
-    // Each slot's skill as built from _owned, rebuilt when its id or level changes.
-    private readonly SkillInstance[] _instances = new SkillInstance[SlotCount];
-
     private PlayerElement _element;
-    private PlayerCharacter _character;
+    private PlayerSkillSlots _slots;
     private PlayerDowned _downed;
     private PlayerStats _stats;
     private PlayerUpgradeEvents _events;
@@ -71,13 +58,13 @@ public class PlayerSkills : NetworkBehaviour
 
     private void Awake()
     {
-        _owned.OnChange += OnOwnedChanged;
         _element = GetComponent<PlayerElement>();
-        _character = GetComponent<PlayerCharacter>();
 
-        // RequireComponent only adds it to new objects: a prefab made before #162 needs it added by hand.
-        if (_character == null)
-            Debug.LogError("[PlayerSkills] The player has no PlayerCharacter: it has no skills.", this);
+        // RequireComponent only adds it to new objects: an older prefab needs it added by hand.
+        if (!TryGetComponent(out _slots))
+            Debug.LogError("[PlayerSkills] The player has no PlayerSkillSlots: it has no skills.", this);
+        else
+            _slots.SlotReplaced += OnSlotReplaced;
 
         // Optional: without it the player can never be downed (#51).
         TryGetComponent(out _downed);
@@ -86,9 +73,9 @@ public class PlayerSkills : NetworkBehaviour
         TryGetComponent(out _stats);
         TryGetComponent(out _events);
 
-        if (_castSettings == null || _elements == null || _library == null)
+        if (_castSettings == null || _elements == null)
         {
-            Debug.LogError("[PlayerSkills] Cast settings, element library or skill library are not assigned.", this);
+            Debug.LogError("[PlayerSkills] Cast settings or element library are not assigned.", this);
             return;
         }
 
@@ -105,9 +92,6 @@ public class PlayerSkills : NetworkBehaviour
         Array.Clear(_serverReadyTimes, 0, _serverReadyTimes.Length);
         Array.Clear(_serverCastTimes, 0, _serverCastTimes.Length);
         _pendingShots.Clear();
-
-        // The character was set before Spawn, so its starting skill goes in the spawn message too.
-        ResetSkills();
     }
 
     public override void OnStartClient()
@@ -149,171 +133,26 @@ public class PlayerSkills : NetworkBehaviour
     /// </summary>
     public SkillInstance GetSkill(AttackSlot slot)
     {
-        return GetSkillAt(ToIndex(slot));
-    }
-
-    /// <summary>
-    /// Every PC. The skill list for the offers and upgrades (#162).
-    /// </summary>
-    public SkillLibrary Library => _library;
-
-    /// <summary>
-    /// Every PC. How many slots have a skill.
-    /// </summary>
-    public int Count => _owned.Count;
-
-    /// <summary>
-    /// Every PC. Whether a new skill still fits.
-    /// </summary>
-    public bool HasFreeSlot => _owned.Count < SlotCount;
-
-    /// <summary>
-    /// Every PC. The level this player has that skill at, or 0 if they don't have it.
-    /// </summary>
-    public int GetLevel(string id)
-    {
-        foreach (OwnedSkill owned in _owned)
-        {
-            if (owned.Id == id)
-                return owned.Level;
-        }
-
-        return 0;
-    }
-
-    /// <summary>
-    /// Every PC. A skill or its level changed: the HUD and the requirements of the upgrades listen.
-    /// </summary>
-    public event Action SkillsChanged;
-
-    /// <summary>
-    /// Server only. The new skill goes into the first free slot, at level 1. False if there's no room,
-    /// the player already has it, or it isn't in the library (every PC must be able to find it).
-    /// </summary>
-    public bool TryAddSkill(SkillDefinition skill)
-    {
-        if (!IsServerInitialized || _library == null || skill == null || !HasFreeSlot || GetLevel(skill.Id) > 0 ||
-            _library.Get(skill.Id) != skill)
-            return false;
-
-        _owned.Add(new OwnedSkill(skill.Id, 1));
-        return true;
-    }
-
-    /// <summary>
-    /// Server only. One more level of a skill the player has, up to its maximum.
-    /// </summary>
-    public bool TryLevelUp(string id)
-    {
-        if (!IsServerInitialized || _library == null)
-            return false;
-
-        for (int i = 0; i < _owned.Count; i++)
-        {
-            SkillDefinition skill = _library.Get(_owned[i].Id);
-            if (_owned[i].Id != id || skill == null || _owned[i].Level >= skill.MaxLevel)
-                continue;
-
-            _owned[i] = new OwnedSkill(id, (byte)(_owned[i].Level + 1));
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Server only. For the cheats panel: these skills, at level 1, in this order, replacing what the
-    /// player has. Skills missing from the library are skipped.
-    /// </summary>
-    public void SetSkills(IReadOnlyList<SkillDefinition> skills)
-    {
-        if (!IsServerInitialized || _library == null || skills == null)
-            return;
-
-        _owned.Clear();
-        foreach (SkillDefinition skill in skills)
-        {
-            if (skill != null && _owned.Count < SlotCount && _library.Get(skill.Id) == skill && GetLevel(skill.Id) == 0)
-                _owned.Add(new OwnedSkill(skill.Id, 1));
-        }
-    }
-
-    /// <summary>
-    /// Server only. Back to the character's starting skill alone, for a new match (#52).
-    /// </summary>
-    public void ResetSkills()
-    {
-        if (!IsServerInitialized)
-            return;
-
-        _owned.Clear();
-        CharacterDefinition character = _character != null ? _character.Definition : null;
-        if (character != null && character.StartingSkill != null)
-            TryAddSkill(character.StartingSkill);
+        return _slots != null ? _slots.Get(slot) : null;
     }
 
     private SkillInstance GetSkillAt(int index)
     {
-        if (index < 0 || index >= SlotCount || _library == null)
-            return null;
-
-        if (index >= _owned.Count)
-            return _instances[index] = null;
-
-        OwnedSkill owned = _owned[index];
-        SkillInstance cached = _instances[index];
-        if (cached != null && cached.Id == owned.Id && cached.Level == owned.Level)
-            return cached;
-
-        SkillDefinition skill = _library.Get(owned.Id);
-        if (skill == null)
-        {
-            // Host and clients run the same build, so this is a bug worth seeing.
-            Debug.LogError($"[PlayerSkills] Client {OwnerId} has skill «{owned.Id}», which isn't in the skill library.", this);
-            return null;
-        }
-
-        return _instances[index] = new SkillInstance(skill, owned.Level);
+        return _slots != null ? _slots.Get(index) : null;
     }
 
     // A slot that gets another skill starts ready: the cooldown of the one before isn't carried over.
-    // A level up keeps its cooldown. Runs on the host as server and on every client.
-    private void OnOwnedChanged(SyncListOperation operation, int index, OwnedSkill previous, OwnedSkill next, bool asServer)
+    private void OnSlotReplaced(int index, bool asServer)
     {
-        if (operation == SyncListOperation.Complete)
+        if (asServer)
         {
-            if (!asServer)
-                SkillsChanged?.Invoke();
-
-            return;
+            _serverReadyTimes[index] = 0;
+            _serverCastTimes[index] = 0;
         }
-
-        if (operation == SyncListOperation.Clear)
+        else
         {
-            ClearCooldowns(0, SlotCount, asServer);
-            return;
-        }
-
-        if (index < 0 || index >= SlotCount || previous.Id == next.Id)
-            return;
-
-        ClearCooldowns(index, index + 1, asServer);
-    }
-
-    private void ClearCooldowns(int from, int to, bool asServer)
-    {
-        for (int i = from; i < to; i++)
-        {
-            if (asServer)
-            {
-                _serverReadyTimes[i] = 0;
-                _serverCastTimes[i] = 0;
-            }
-            else
-            {
-                _readyTimes[i] = 0f;
-                _castTimes[i] = 0f;
-            }
+            _readyTimes[index] = 0f;
+            _castTimes[index] = 0f;
         }
     }
 
@@ -980,9 +819,8 @@ public class PlayerSkills : NetworkBehaviour
         return element != null ? element.Color : Color.white;
     }
 
-    // Skill1 is slot 0. The basic attack has no slot here.
     private static int ToIndex(AttackSlot slot)
     {
-        return (int)slot - (int)AttackSlot.Skill1;
+        return PlayerSkillSlots.ToIndex(slot);
     }
 }

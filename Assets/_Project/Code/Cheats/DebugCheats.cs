@@ -271,11 +271,11 @@ public class DebugCheats : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void ServerGiveSkill(NetworkConnection caller = null)
     {
-        if (!IsAllowed(caller) || !TryGetSkills(caller, out PlayerSkills skills))
+        if (!IsAllowed(caller) || !TryGetSkills(caller, out PlayerSkillSlots skills))
             return;
 
         IReadOnlyList<SkillDefinition> all = skills.Library.Skills;
-        SkillInstance last = skills.Count > 0 ? skills.GetSkill((AttackSlot)((int)AttackSlot.Skill1 + skills.Count - 1)) : null;
+        SkillInstance last = skills.Count > 0 ? skills.Get(skills.Count - 1) : null;
         int start = last != null ? IndexOf(all, last.Definition) + 1 : 0;
 
         SkillDefinition next = null;
@@ -297,7 +297,7 @@ public class DebugCheats : NetworkBehaviour
             // The three slots are taken: the new one replaces the last, and the others keep their place.
             List<SkillDefinition> kept = new();
             for (int slot = 0; slot < skills.Count - 1; slot++)
-                kept.Add(skills.GetSkill((AttackSlot)((int)AttackSlot.Skill1 + slot)).Definition);
+                kept.Add(skills.Get(slot).Definition);
 
             kept.Add(next);
             skills.SetSkills(kept);
@@ -312,7 +312,7 @@ public class DebugCheats : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void ServerSetTestSkills(NetworkConnection caller = null)
     {
-        if (!IsAllowed(caller) || !TryGetSkills(caller, out PlayerSkills skills))
+        if (!IsAllowed(caller) || !TryGetSkills(caller, out PlayerSkillSlots skills))
             return;
 
         skills.SetSkills(_settings.TestSkills);
@@ -321,7 +321,7 @@ public class DebugCheats : NetworkBehaviour
         ReportCheat(caller, "test_skills");
     }
 
-    private bool TryGetSkills(NetworkConnection caller, out PlayerSkills skills)
+    private bool TryGetSkills(NetworkConnection caller, out PlayerSkillSlots skills)
     {
         skills = null;
         NetworkObject player = caller.FirstObject;

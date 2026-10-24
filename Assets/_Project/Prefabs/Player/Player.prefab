@@ -589,13 +589,14 @@ GameObject:
   - component: {fileID: 8437015001066074458}
   - component: {fileID: 5902089312904148016}
   - component: {fileID: 3034973482832093673}
-  - component: {fileID: 8570078963972895824}
-  - component: {fileID: 5825478223105688158}
-  - component: {fileID: 4484037113358846217}
-  - component: {fileID: 5074802504927878542}
   - component: {fileID: 3781323485103818344}
   - component: {fileID: 4088126060001671563}
   - component: {fileID: 4992590136018386484}
+  - component: {fileID: 5074802504927878542}
+  - component: {fileID: 8570078963972895824}
+  - component: {fileID: 5825478223105688158}
+  - component: {fileID: 4484037113358846217}
+  - component: {fileID: 3073239409922572927}
   - component: {fileID: 9179136649709530141}
   - component: {fileID: 1604297359816126803}
   - component: {fileID: 3391208299126440683}
@@ -903,6 +904,66 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 3332554340608108226}
   _networkObjectCache: {fileID: 3332554340608108226}
   _settings: {fileID: 11400000, guid: 9efe088580379fc48a4969da18ccc098, type: 2}
+--- !u!114 &3781323485103818344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4950291352465746428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c72deae97d8ae8141a6812809f6437ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerDowned
+--- !u!114 &4088126060001671563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4950291352465746428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4e30ce2aeb1ed04ab342a41801370b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerDownedView
+  _downed: {fileID: 3781323485103818344}
+  _revive: {fileID: 4992590136018386484}
+  _visual: {fileID: 1516942260192534978}
+  _label: {fileID: 2152166687288444170}
+--- !u!114 &4992590136018386484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4950291352465746428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b533358a0b138b4c873e542fa5db96e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerRevive
+  _componentIndexCache: 10
+  _addedNetworkObject: {fileID: 3332554340608108226}
+  _networkObjectCache: {fileID: 3332554340608108226}
+  _settings: {fileID: 11400000, guid: fb010c19ad00fbf4fae22a851f7152a5, type: 2}
+--- !u!114 &5074802504927878542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4950291352465746428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 401eb66af04aa5e478239c34b233e439, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitFlash
+  _profile: {fileID: 11400000, guid: b6925a228ca87bc4aac7ee79b95e1681, type: 2}
+  _flashMaterial: {fileID: 2100000, guid: 80f9f97a186c95140a39422742057493, type: 2}
+  _renderers:
+  - {fileID: 1516942260192534978}
 --- !u!114 &8570078963972895824
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -952,8 +1013,7 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 3332554340608108226}
   _castSettings: {fileID: 11400000, guid: 594ecbe671e2beb429becdeabc77e0ca, type: 2}
   _elements: {fileID: 11400000, guid: 5fa0be1f25473d3449807b8a2f378e6f, type: 2}
-  _library: {fileID: 11400000, guid: 0751abc74f1241ef96838ae427052874, type: 2}
---- !u!114 &5074802504927878542
+--- !u!114 &3073239409922572927
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -962,57 +1022,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 4950291352465746428}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 401eb66af04aa5e478239c34b233e439, type: 3}
+  m_Script: {fileID: 11500000, guid: 1580e8926b764c50a3aad679c40706ea, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HitFlash
-  _profile: {fileID: 11400000, guid: b6925a228ca87bc4aac7ee79b95e1681, type: 2}
-  _flashMaterial: {fileID: 2100000, guid: 80f9f97a186c95140a39422742057493, type: 2}
-  _renderers:
-  - {fileID: 1516942260192534978}
---- !u!114 &3781323485103818344
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4950291352465746428}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c72deae97d8ae8141a6812809f6437ed, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerDowned
---- !u!114 &4088126060001671563
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4950291352465746428}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4e30ce2aeb1ed04ab342a41801370b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerDownedView
-  _downed: {fileID: 3781323485103818344}
-  _revive: {fileID: 4992590136018386484}
-  _visual: {fileID: 1516942260192534978}
-  _label: {fileID: 2152166687288444170}
---- !u!114 &4992590136018386484
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4950291352465746428}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b533358a0b138b4c873e542fa5db96e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerRevive
-  _componentIndexCache: 10
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillSlots
+  _componentIndexCache: 255
   _addedNetworkObject: {fileID: 3332554340608108226}
-  _networkObjectCache: {fileID: 3332554340608108226}
-  _settings: {fileID: 11400000, guid: fb010c19ad00fbf4fae22a851f7152a5, type: 2}
+  _networkObjectCache: {fileID: 0}
+  _library: {fileID: 11400000, guid: 0751abc74f1241ef96838ae427052874, type: 2}
 --- !u!114 &9179136649709530141
 MonoBehaviour:
   m_ObjectHideFlags: 0
