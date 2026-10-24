@@ -519,3 +519,17 @@ Arena_Test. «Dar experiencia» (F1) sube niveles. Para las comprobaciones de ni
 | Entrar tarde | Une un cliente con el grupo en el nivel 4. | Sus ofertas de los niveles 2 a 4 incluyen la habilidad garantizada del 2. |
 | Reiniciar | Con habilidades cogidas, pierde y reinicia. | Todos vuelven a su habilidad inicial a nivel 1, y la garantía del nivel 2 vuelve a ofrecer una nueva. |
 | Con ping | Con 100 ms, un cliente coge una habilidad y la lanza enseguida. | La habilidad llega con el ping; lanzarla en cuanto aparece no da `Rejected` en el host. |
+
+## 27. Reparto de habilidades y ofertas en piezas
+
+Este cambio no añade nada al juego: reparte el código de habilidades (`PlayerSkillSlots`, `PlayerSkills`, `PlayerSkillProjectiles`, `SkillHitResolver`) y el de ofertas (`PlayerUpgrades`, `PlayerOffers`, `UpgradeRequirements`) en piezas más pequeñas. Se prueba repitiendo lo que ya funcionaba. Antes de empezar, en `Player.prefab` tienen que estar los tres componentes nuevos (`PlayerSkillSlots` con su *Library*, `PlayerSkillProjectiles` y `PlayerOffers`); si falta uno, sale un error en consola al hospedar que dice cuál.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Consola limpia | Hospeda en Arena_Test y une un cliente (Multiplayer Play Mode). | Ningún error ni aviso de `PlayerSkills`, `PlayerSkillSlots`, `PlayerOffers` o `PlayerChoosingView`. |
+| Habilidades | Repite el apartado 9 y el 24. | Igual que antes. |
+| Proyectiles | Repite el apartado 25, también con 100 ms. | Igual que antes. Los avisos de rechazo salen ahora con `[PlayerSkillProjectiles]` o `[SkillHitResolver]` delante. |
+| Ofertas | Repite el 21 y el 26. | Igual que antes: elegir, reroll, descarte, saltar, la etiqueta «Eligiendo» sobre quien elige, y el contador de ofertas pendientes. |
+| Efectos | Repite el 22. | Tempo, Relevo, Asistencia, Cazador de auras y Aura expansiva hacen lo mismo. |
+| Trucos | F1 › «Dar habilidad» varias veces y «Habilidades de prueba». | Pasan por todas las habilidades y dejan Estallido y Marca, como antes. |
+| Reiniciar | Con mejoras y habilidades, pierde y reinicia. | Todos vuelven a su habilidad inicial sin mejoras, y la oferta abierta se cierra. |

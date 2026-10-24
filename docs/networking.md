@@ -113,7 +113,7 @@ Un objeto que se destruye ya no puede mandar RPCs. Si al morir hay que avisar (e
 
 ### 4.6 Hablar con el dueño después de que esté listo
 
-Un `TargetRpc` mandado justo al crear un objeto puede llegar antes de que exista en el PC del dueño, y se pierde. Por eso `PlayerUpgrades` espera a que el dueño avise desde su `OnStartClient` (`ServerOwnerReady`) antes de mandarle ninguna oferta.
+Un `TargetRpc` mandado justo al crear un objeto puede llegar antes de que exista en el PC del dueño, y se pierde. Por eso `PlayerOffers` espera a que el dueño avise desde su `OnStartClient` (`ServerOwnerReady`) antes de mandarle ninguna oferta.
 
 ### 4.7 El tiempo con ticks: mandar una vez y que cada uno calcule
 
@@ -164,7 +164,7 @@ Para que un efecto que provocas tú se note al instante (Tempo: lanzas y dispara
 | El host no podía **teletransportar** a un jugador | El `NetworkTransform` del jugador lo controla su dueño: lo que el host mueve se pisa | El host pide al dueño que se mueva (`TargetRpc`) y este usa `NetworkTransform.Teleport()` para que los demás no lo vean deslizarse |
 | Apuntar por delante a un enemigo no funcionaba en los clientes | En los clientes el cuerpo del enemigo es cinemático y su velocidad siempre es 0 | Medir la velocidad por lo que se ve moverse, fotograma a fotograma (`MotionTracker`) |
 | Contar jugadores con `ServerManager.Clients` daba de más | Incluye conexiones que aún no han entrado del todo (sin autenticar o sin jugador) | Contar solo las conexiones con `FirstObject` |
-| Un cambio de **estado elegido por el dueño** podía quedarse colgado con ping | Comparar con el valor replicado, que llega con retraso, hacía que no se mandara el «cierro» | El dueño recuerda lo último que **mandó** (`PlayerUpgrades.SetChoosing`) |
+| Un cambio de **estado elegido por el dueño** podía quedarse colgado con ping | Comparar con el valor replicado, que llega con retraso, hacía que no se mandara el «cierro» | El dueño recuerda lo último que **mandó** (`PlayerOffers.SetChoosing`) |
 | Las tiradas de la semilla se desincronizaban según dónde estuvieran los jugadores | Se tiraba un número de veces distinto según la situación | Tirar siempre el mismo número de veces, antes de mirar la situación (`WaveSpawner.PickSpawnPosition`) |
 
 ## 6. Lista rápida antes de escribir algo de red

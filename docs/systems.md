@@ -187,7 +187,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 - `Code/Player/Characters/`: `CharacterDefinition` (la ficha de un personaje: id, nombre, elemento y habilidades de inicio), `PlayerCharacters` (todos los personajes y el de cada hueco) y `PlayerCharacter` (en el jugador: cuál juega).
 - `Code/Player/Elements/PlayerElement.cs`: el elemento del jugador, que sale de su personaje.
 
-**Dónde está montado.** `Prefabs/Player/Player.prefab` (capa Player). Lleva: NetworkObject, NetworkTransform, PlayerInputReader, PlayerMovement, PlayerIdentity, PlayerCharacter, PlayerColorMarker, Health, PlayerAutoAttack, PlayerElement, PlayerSkills, HitFlash, PlayerDowned, PlayerDownedView, PlayerRevive, PlayerUpgrades, PlayerChoosingView, PlayerStats y PlayerUpgradeEvents. Hijos: `Visual` (sprite), `SlotMarker` (punto de color), `HealthLabel`, `DownedLabel` y `ChoosingLabel`.
+**Dónde está montado.** `Prefabs/Player/Player.prefab` (capa Player). Lleva: NetworkObject, NetworkTransform, PlayerInputReader, PlayerMovement, PlayerIdentity, PlayerCharacter, PlayerColorMarker, Health, PlayerAutoAttack, PlayerElement, PlayerSkillSlots, PlayerSkills, PlayerSkillProjectiles, HitFlash, PlayerDowned, PlayerDownedView, PlayerRevive, PlayerUpgrades, PlayerOffers, PlayerChoosingView, PlayerStats y PlayerUpgradeEvents. Hijos: `Visual` (sprite), `SlotMarker` (punto de color), `HealthLabel`, `DownedLabel` y `ChoosingLabel`.
 
 **Cómo funciona.**
 1. Cuando una conexión ha cargado la escena, `PlayerSpawnService` le da el primer hueco libre, crea el jugador en su punto de aparición y le pone el hueco **antes de crearlo en la red** (así el hueco llega a todos con el jugador).
@@ -274,7 +274,7 @@ Hay además dos habilidades **de prueba**, Estallido (círculo que detona) y Mar
 - **Las del personaje**: su *Starting Skill* (la inicial) y sus *Own Skills* (el resto de su kit) en `Data/Characters/`.
 - **Las genéricas** (*Generic*, catálogo E.2): las puede recibir cualquier personaje. Vacía en el Pre 3: llegan en la 0.1 (#88).
 
-**Los huecos de cada jugador viajan por la red.** `PlayerSkills` guarda una lista sincronizada (`SyncList<OwnedSkill>`: id y nivel por hueco) que reciben todos los PCs, porque todos dibujan los lanzamientos de todos. Cada PC convierte cada entrada en una `SkillInstance`: la ficha con los números de su nivel ya calculados. Así el host comprueba un lanzamiento con los mismos números que dibujan los clientes. Solo el host cambia la lista (`TryAddSkill`, `TryLevelUp`, `SetSkills`, `ResetSkills`); al reiniciar la partida vuelve a la inicial sola. Un hueco que recibe otra habilidad empieza listo: no hereda la recarga de la anterior.
+**Los huecos de cada jugador viajan por la red.** `PlayerSkillSlots` guarda una lista sincronizada (`SyncList<OwnedSkill>`: id y nivel por hueco) que reciben todos los PCs, porque todos dibujan los lanzamientos de todos. Cada PC convierte cada entrada en una `SkillInstance`: la ficha con los números de su nivel ya calculados. Así el host comprueba un lanzamiento con los mismos números que dibujan los clientes. Solo el host cambia la lista (`TryAddSkill`, `TryLevelUp`, `SetSkills`, `ResetSkills`); al reiniciar la partida vuelve a la inicial sola. Un hueco que recibe otra habilidad empieza listo: no hereda la recarga de la anterior.
 
 **Formas** (`SkillShape`):
 
@@ -285,16 +285,26 @@ Hay además dos habilidades **de prueba**, Estallido (círculo que detona) y Mar
 | *Cone* | Desde ti hacia el cursor; una cuña de *Length* de radio y *Angle* grados de abertura | Ola (3 m, 60°) |
 | *Projectile* | Vuela desde ti hacia el cursor hasta *Length*. Golpea directamente (*Impact Radius* 0) a 1 + *Pierce* enemigos, o estalla en un círculo de *Impact Radius* al tocar el primero (y al final de su recorrido, con *Burst At End*) | Rayo (directo, atraviesa a 1), Llamarada (estalla 1,5 m), Burbuja (estalla 1,5 m y atrapa) |
 
-**Piezas.** `Code/Skills/PlayerSkills.cs`, `SkillDefinition`, `SkillLevelModifier` (lo que cambia un nivel), `SkillInstance` (una habilidad con su nivel), `OwnedSkill` (lo que viaja de cada hueco), `SkillLibrary`, `SkillShape`, `SkillArea` (la zona de un lanzamiento ya colocada, con sus cuentas), `SkillCastSettings`, `SkillShapeVisual` (el dibujo provisional) y `Prefabs/Skills/SkillShapeVisual.prefab`; para los proyectiles, `SkillProjectile` (lo que vuela) con `Prefabs/Skills/SkillProjectile.prefab` y `SkillShotRecord` (lo que recuerda el host de cada uno); en el HUD, `Code/UI/InGame/SkillSlotView.cs`.
+**Piezas.** Tres componentes en el jugador y una clase normal, cada uno con una tarea:
+
+| Pieza | Qué hace | Dónde corre |
+|---|---|---|
+| `PlayerSkillSlots` | Qué habilidades tiene el jugador y a qué nivel (la lista sincronizada) | Todos la leen; solo el host la cambia |
+| `PlayerSkills` | Lanzar: leer la tecla, apuntar, las recargas, comprobar un lanzamiento en el host, dibujarlo | Dueño y host |
+| `PlayerSkillProjectiles` | Las que vuelan: lanzar, avisar de golpes y estallidos, recordar cada lanzamiento en el host | Dueño y host |
+| `SkillHitResolver` | Qué le pasa a un enemigo al que le da una habilidad: aura, daño, empuje, atrapar, el anillo de Aura expansiva. No es un componente: lo crea `PlayerSkills` y se lo presta a quien lo necesite | Host (salvo `FindTargets`, en el dueño) |
+
+Así cualquier cosa que golpee con una habilidad (un proyectil, y más adelante una zona o una torreta) pasa por las mismas reglas. Además: `SkillDefinition`, `SkillLevelModifier` (lo que cambia un nivel), `SkillInstance` (una habilidad con su nivel), `OwnedSkill` (lo que viaja de cada hueco), `SkillLibrary`, `SkillShape`, `SkillArea` (la zona de un lanzamiento ya colocada, con sus cuentas), `SkillCastSettings`, `SkillShapeVisual` (el dibujo provisional) y `Prefabs/Skills/SkillShapeVisual.prefab`; para los proyectiles, `SkillProjectile` (lo que vuela) con `Prefabs/Skills/SkillProjectile.prefab` y `SkillShotRecord` (lo que recuerda el host de cada uno); en el HUD, `Code/UI/InGame/SkillSlotView.cs`.
 
 **Cómo funciona.**
 1. El dueño pulsa. El juego toma **desde dónde** lanza (su posición) y **hacia dónde** (el cursor; un círculo se queda a su alcance, una línea o un cono solo usan la dirección) y arma la zona (`SkillArea`). Busca los enemigos que la tocan **en su pantalla** y la dibuja al momento.
 2. Manda al host el hueco, el origen, el punto apuntado y la lista de objetivos (`ServerCast`).
 3. El host comprueba que el origen está cerca de donde él ve al jugador (*Position Tolerance*), que el punto cuadra con la forma, la recarga, y **arma la misma zona con esos dos puntos**. Cada objetivo tiene que tocarla, con un margen (*Target Tolerance*) porque los enemigos se mueven mientras llega el mensaje. Aplica primero el **aura fuerte** (que puede detonar una reacción), después el daño y, si la habilidad empuja (Ola, 0,5 casillas), el empuje, siempre alejándolo de donde estaba el lanzador. Los muñecos no se mueven.
+   - Todo eso lo hace `SkillHitResolver.ApplyArea`.
    - **Con Aura expansiva**, después el host busca él mismo enemigos hasta 1 m por fuera de la zona, sea cual sea su forma, y les pone el aura de la habilidad, hasta 8: **sin daño y sin detonar nunca** (regla 6 del motor). Sirve para marcar a un grupo sin provocar reacciones. Los busca el host con lo que él ve, porque el aura es decisión suya; el dueño no los manda. La zona que se dibuja no cambia de tamaño.
 4. Los demás dibujan la zona (`ObserversCast`) con el origen que mandó el lanzador: una línea sale de donde estaba al lanzarla, aunque en otra pantalla se le vea un poco atrás.
 
-**Proyectiles** (Llamarada, Burbuja, Rayo). Funcionan como el ataque básico (4.5), «lo tuyo, al instante»:
+**Proyectiles** (Llamarada, Burbuja, Rayo), en `PlayerSkillProjectiles`. Funcionan como el ataque básico (4.5), «lo tuyo, al instante»:
 1. El dueño lanza: su proyectil sale al momento en su pantalla y manda al host desde dónde y hacia dónde, con un número de lanzamiento (`ServerLaunch`).
 2. El host hace las mismas comprobaciones que con una habilidad instantánea (origen, recarga) y **recuerda el lanzamiento** (`SkillShotRecord`): su recorrido como una banda del ancho del proyectil, cuántos enemigos puede golpear y hasta cuándo puede llegar un aviso (lo que tarda en volar + 1 s). Avisa a los demás para que dibujen su copia, adelantada por el tiempo que tardó el mensaje (`ObserversLaunch`). Tempo cuenta desde aquí.
 3. **Si golpea directo** (Rayo): cada enemigo que toca el proyectil del dueño se avisa (`ServerProjectileHit`). El host comprueba que el lanzamiento existe, que le quedan golpes y que el enemigo está cerca del recorrido, y le aplica aura, daño y empuje. Cada enemigo, una vez.
@@ -498,7 +508,9 @@ Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objet
 | `OfferSettings` | Todos los números de las ofertas |
 | `OfferGenerator` | Arma una oferta siguiendo las reglas del catálogo (C) |
 | `OfferContext`, `IUpgradeHolder`, `OfferOption`, `OfferPlace` | Lo que el generador necesita y lo que devuelve |
-| `PlayerUpgrades` | En el jugador: lo que tiene, sus rerolls y descartes, su cola de ofertas y la conversación con su PC |
+| `PlayerUpgrades` | En el jugador: lo que tiene (mejoras, rerolls, descartes, lo que vio en la última oferta) |
+| `PlayerOffers` | En el jugador: su cola de ofertas y la conversación con su PC (mandar la oferta, recibir la respuesta, aplicarla) |
+| `UpgradeRequirements` | Si el jugador cumple los requisitos de una mejora (`char:ember`, `skill:tide_wave@2`…). Clase normal que crea `PlayerUpgrades` |
 | `UpgradeOffers` | En `Match`: reparte una oferta a cada jugador por subida, da los rerolls por tiempo |
 | `OfferAnswer`, `ReceivedOffer` | La respuesta del jugador y la oferta tal como le llega |
 | `PlayerChoosingView` | La etiqueta «Eligiendo» |
@@ -512,10 +524,10 @@ Interfaz: `Code/UI/InGame/UpgradeOfferPanel.cs` y `UpgradeOfferRow.cs`. Datos: `
 4. **Filtros:** fuera lo que no cumple requisitos, lo excluido por algo que tienes, lo que está al máximo, lo descartado, lo que no toca por nivel o número de jugadores, lo que ya tiene otro jugador si es única, y más de una de riesgo. Lo que salió en la oferta anterior pesa la mitad.
 5. **Si no queda nada:** baja la rareza, cambia de familia, sube a rarezas permitidas en ese nivel y, por último, **Respiro**.
 
-**Habilidades en las ofertas** (#162). Una opción puede ser una mejora, una habilidad nueva (nivel 1) o el siguiente nivel de una que tienes. Por la red viajan como **claves**: el id para una mejora (`def_vitality`), `skill:tide_bubble` para una habilidad nueva y `skill:tide_wave@2` para un nivel. Lo visto y lo descartado se guarda por clave, así que descartar `skill:tide_bubble` quita esa habilidad de las ofertas, pero no los niveles de otra. Al elegirla, el host la pone en el siguiente hueco libre (`PlayerSkills.TryAddSkill`) o le sube el nivel (`TryLevelUp`), y la lista de habilidades llega a todos. **Cambia lo que da cada semilla:** desde el #162 las habilidades entran en las tiradas.
+**Habilidades en las ofertas** (#162). Una opción puede ser una mejora, una habilidad nueva (nivel 1) o el siguiente nivel de una que tienes. Por la red viajan como **claves**: el id para una mejora (`def_vitality`), `skill:tide_bubble` para una habilidad nueva y `skill:tide_wave@2` para un nivel. Lo visto y lo descartado se guarda por clave, así que descartar `skill:tide_bubble` quita esa habilidad de las ofertas, pero no los niveles de otra. Al elegirla, el host la pone en el siguiente hueco libre (`PlayerSkillSlots.TryAddSkill`) o le sube el nivel (`TryLevelUp`), y la lista de habilidades llega a todos. **Cambia lo que da cada semilla:** desde el #162 las habilidades entran en las tiradas.
 
 **El recorrido por la red:**
-1. El host sube de nivel → `UpgradeOffers` encola una oferta en el `PlayerUpgrades` de cada jugador (también derribados).
+1. El host sube de nivel → `UpgradeOffers` encola una oferta en el `PlayerOffers` de cada jugador (también derribados).
 2. La primera de la cola se genera **cuando le toca** (con lo que el jugador tiene en ese momento) y se manda **solo a su dueño** (TargetRpc con un número de oferta, el nivel y los ids).
 3. El panel la enseña al instante. El jugador pulsa 1/2/3, F, X o C y el panel manda la respuesta (ServerRpc con el número de oferta).
 4. El host comprueba que es la oferta que sigue pendiente y que la opción vale todavía. Aplica, contesta y abre la siguiente.
@@ -629,8 +641,8 @@ Cualquier truco escribe `cheat_used` para el launcher: una partida con trucos no
 | Alcance del básico | `PlayerAutoAttack` (a quién apunta y hasta dónde vuela la bala) | Dueño y host |
 | Balas por ataque (base 1, máximo 4) y abanico en grados (base 0) | `PlayerAutoAttack` (la ráfaga, 4.5) | Dueño y host |
 | Duración de tus auras fuertes y débiles (base en `DefaultAuras`, máximo el doble) | `AuraHolder.TryApply` (4.7) | Host |
-| Anillo de aura de las habilidades: metros y enemigos de más (base 0) | `PlayerSkills` (4.6) | Host |
-| Daño de las habilidades (base: el de cada habilidad) | `PlayerSkills.GetDamage` | Host |
+| Anillo de aura de las habilidades: metros y enemigos de más (base 0) | `SkillHitResolver` (4.6) | Host |
+| Daño de las habilidades (base: el de cada habilidad) | `SkillHitResolver.GetDamage` | Host |
 
 6. **Cambios con condición** (Cazador de auras). Algunos cambios solo cuentan si el objetivo del golpe cumple algo. No se suman a los demás: se guardan aparte, **solo en el host** (son siempre de daño, y el daño lo decide el host), y se piden en cada golpe con `stats.Get(StatId.SkillDamage, base, condiciones)`, diciendo qué cumple ese objetivo. La condición se mira **antes** de que el golpe cambie al enemigo (regla 10 del motor): si la habilidad detona el aura, el bonus cuenta igual.
 7. **Cambios temporales** (Tempo, Viento a favor). Duran unos segundos: se guardan con el **tick** en que empiezan y el tick en que acaban, en otra lista que también recibe solo el dueño (`TimedStatBonus`). Como el host y el dueño usan el mismo reloj de ticks, los dos dejan de contarlo a la vez sin mandarse nada más. Esta lista se manda en el siguiente tick, no cada 0,1 s como la otra: dura 2 s y cada tick de retraso se notaría.
@@ -674,7 +686,7 @@ En el editor: `Code/Core/Inspector/SubclassPickerAttribute.cs` y `Code/Editor/Su
 
 **Cómo funciona.**
 1. La lista de bloques es un campo `[SerializeReference]`: a diferencia de un campo normal, puede guardar **objetos de clases distintas** (un *Stat Modifier Block*, un *On Event Block*…). Unity no trae un botón para elegir la clase; lo añade `SubclassPickerDrawer`.
-2. Al elegir una mejora, `PlayerUpgrades` (host) crea un `EffectContext` y llama a `Acquire` de cada bloque, en orden, una vez por acumulación.
+2. Al elegir una mejora, `PlayerOffers` (host) llama a `PlayerUpgrades.Acquire`, que crea un `EffectContext` y llama a `Acquire` de cada bloque, en orden, una vez por acumulación.
 3. Los resultados llegan a todos por lo que ya viaja: las estadísticas (al dueño), la vida, los rerolls, las recargas.
 4. **Durante la partida**, `PlayerUpgradeEvents` recibe los eventos: los lanzamientos aceptados (de `PlayerSkills`) y las reacciones (de `ReactionService.Resolved`). Para cada mejora que tiene el jugador, busca sus *On Event Block* de ese evento, mira si el filtro encaja y si su enfriamiento interno ha terminado, y corre sus acciones. Una vez por evento, tenga las acumulaciones que tenga (ninguna de estas se acumula).
    - Los enfriamientos internos se cuentan en ticks desde el tick del evento. Están guardados por jugador: el bloque es del asset y lo comparten todos.
