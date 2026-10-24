@@ -549,3 +549,18 @@ Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). En la v
 | Niveles | Con «Dar experiencia», coge los niveles del muro y de la torreta. | Muro nivel 2: 5 por golpe; nivel 3: dura 4 s. Bobina nivel 2: 6 disparos; nivel 3: el alcance que enseña es de 5 m. |
 | Reiniciar | Con un muro o una torreta en el suelo, pierde y reinicia. | Desaparecen en todas las ventanas y no siguen golpeando. |
 | Con ping | Con 100 ms, un cliente pone el muro y la torreta. | Se dibujan al momento en su ventana; el daño empieza con el ping. La consola del host, sin `Rejected`. En el log del cliente, `ability_cast ability=ember_firewall` o `volt_coil`. |
+
+## 29. Legibilidad de las habilidades
+
+Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). Mira las tres ventanas a la vez.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Aviso de habilidad | Con «Dar experiencia», sube al nivel 2 y coge la habilidad nueva. | Un aviso verde «Nueva habilidad: … · tecla», solo en tu ventana. Al coger un nivel, «Nombre · nivel 2: lo que cambia». Al entrar o reiniciar no sale ninguno. |
+| Balas de color | Mira el ataque básico de cada uno. | Brasa dispara naranja, Marea azul y Voltio amarillo (los colores de los elementos), igual en las tres ventanas. Con F6, las balas nuevas cambian de color. |
+| Borde de lo que detona | Marea lanza Ola (detona) y Burbuja (no detona). | La Ola tiene un borde claro; la burbuja estalla sin borde. El muro y la torreta, sin borde. |
+| Tuyo y de otros | Lanzad habilidades a la vez. | En cada ventana, las tuyas se ven más fuertes que las de los demás. |
+| Duración | Lanza Chispa. | Destello al salir y se desvanece en medio segundo, no en un parpadeo. |
+| Proyectiles | Brasa lanza Llamarada, Marea Burbuja y Voltio Rayo. | La burbuja se ve claramente más grande y sin rastro; el rayo, fino. Si el prefab tiene rastro, Llamarada y Rayo lo dejan de su color. |
+| Atrapado | Marea atrapa a un perseguidor con Burbuja; luego Sobrecarga sobre otro. | «Aturdido» encima del enemigo mientras no se mueve, en todas las ventanas, y desaparece cuando vuelve a andar. |
+| Con ping | Repite borde, atrapado y balas con 100 ms. | Igual; «Aturdido» puede tardar el ping en aparecer. |

@@ -260,6 +260,8 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 
 **Qué ajustar.** `Data/Characters/DefaultAutoAttack.asset`: cadencia 0,6 s, alcance 6, daño 10, cuánto se adelanta (*Lead Factor*), y las tolerancias de validación. `Data/Characters/BasicProjectile.asset`: velocidad 10, radio, vida de la bala 0,8 s.
 
+**Color.** Cada bala se tiñe del color del elemento de quien dispara (`PlayerElement.Color`), en todas las pantallas: el color del prefab no cuenta. Si F6 cambia tu elemento, las balas siguientes cambian de color.
+
 **Cuidado con.** Las tolerancias existen por el ping: con 200 ms, el host ve al jugador «en el pasado». Si las bajas mucho, los clientes con ping verán golpes que no cuentan. Solo se golpea lo que está en la capa **Enemy**, para no dañar nunca a un compañero.
 - El host siempre se entera antes que el dueño de un cambio de balas (las mejoras las aplica él). Al coger Doble disparo, el cliente dispara una bala durante lo que tarda en llegarle: no pasa nada. Al reiniciar la partida es al revés: durante ese instante el cliente aún suelta dos y la segunda no cuenta (`Rejected a hit … unknown` en el host). Es esperado y pasa una sola vez.
 
@@ -342,8 +344,20 @@ Así cualquier cosa que golpee con una habilidad (un lanzamiento, un proyectil, 
 
 Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objetivos), con el suelo de la recarga devuelta (*Min Cooldown Fraction*, 0,6) y la edad máxima del tick de un lanzamiento (*Max Cast Tick Age*, 0,5 s).
 
+**Cómo se lee sin arte.** Todo es provisional, pero está pensado para que en una pelea se entienda qué pasa:
+
+| Qué | Cómo se ve | Dónde se ajusta |
+|---|---|---|
+| Habilidad nueva o nivel | Un aviso con su nombre y su tecla («Nueva habilidad: Burbuja prisión · RMB», «Ola · nivel 2: +20 % de daño (24)») | `SkillSlotView`: lo dice cada hueco del HUD al cambiar; no avisa de lo que ya tenías al entrar ni de lo que se pierde al reiniciar |
+| Detona o solo marca | Las que pueden detonar llevan **un borde claro**; las que solo marcan son solo relleno | `SkillShapeVisual.prefab`: *Edge Alpha*, *Edge Width* (0,1), *Edge Whiten* |
+| Tuya o de otro | Las tuyas, enteras; las de tus compañeros, al 55 % | *Others Opacity* en el mismo prefab |
+| Cuánto dura | Destello al aparecer y desvanecido en 0,5 s; muros y torretas se apagan hasta el final y destellan en cada golpe | *Fade Duration*, *Pulse Alpha*, *Pulse Duration*, *Lasting End Fade* |
+| Qué proyectil es | Se dibuja tan grande como choca (*Projectile Radius*: Burbuja 0,35, Llamarada 0,25, Rayo 0,15) y los rápidos dejan rastro | En cada habilidad, *Projectile Radius* y *Projectile Trail*; en `SkillProjectile.prefab`, el *Trail Renderer* y *Trail Width* |
+| Enemigo atrapado o aturdido | «Aturdido» encima, sobre la línea del aura | `EnemyStatus` (el tick en que acaba viaja) y `AuraDebugLabel` |
+
 **Cuidado con.**
 - `SkillShape` se guarda como número en los assets: formas nuevas, **al final**.
+- Cambiar *Projectile Radius* cambia también con qué choca y cuánto margen da el host en su recorrido: es el mismo número para el dibujo y para los golpes.
 - **Muros y torretas:** sin Aura expansiva (golpean muchas veces y marcarían media arena). Los ve y decide el host, así que con ping un cliente puede ver a un enemigo «dentro» del muro sin que le dé: es el host quien lo ve en otro sitio. Quien entra a mitad de partida no ve los que ya estaban en el suelo (duran unos segundos).
 - **Redondeo del daño por nivel:** las mitades redondean hacia arriba (+50 % de 3 son 5). El catálogo dice 9 por segundo para el nivel 2 del muro; con golpes enteros cada 0,5 s salen 10.
 - **Proyectiles:** Aura expansiva funciona con los que estallan (anillo alrededor del círculo), no con los de golpe directo (Rayo). Burbuja también estalla al final de su recorrido si no toca a nadie (*Burst At End*): moja la zona, pero no atrapa a nadie. Un proyectil no lo para una pared: solo choca con la capa Enemy, como el básico.
@@ -405,7 +419,7 @@ Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objet
 - **Perseguidor** (`chaser`): el básico.
 - **Dron** (`arc`): un ojo volador con hélice, más rápido y frágil, que aparece desde el minuto 0:46. Por ahora se mueve y ataca como el perseguidor (es su mismo prefab con otros datos); su movimiento a distancia y su ataque propio llegarán con la base de ataques de enemigo.
 
-**Piezas.** `Code/Enemies/`: `Enemy` (lo común: su ficha, morir y soltar el orbe), `EnemyDefinition` (la ficha), `ChaserMovement` (cómo se mueve), `EnemyStatus` (frenado, aturdido, empujado), `Attacks/EnemyContactAttack` + `ContactAttackSettings` (cómo ataca), `TrainingDummy` (muñeco que revive).
+**Piezas.** `Code/Enemies/`: `Enemy` (lo común: su ficha, morir y soltar el orbe), `EnemyDefinition` (la ficha), `ChaserMovement` (cómo se mueve), `EnemyStatus` (frenado, aturdido, empujado; el aturdimiento viaja como el tick en que acaba, para que todos lo vean), `Attacks/EnemyContactAttack` + `ContactAttackSettings` (cómo ataca), `TrainingDummy` (muñeco que revive).
 
 **Dónde está montado.** `Prefabs/Enemies/Chaser.prefab` (capa Enemy): NetworkObject, NetworkTransform, Enemy, EnemyStatus, Health, ChaserMovement, MotionTracker, AuraHolder, collider, Rigidbody2D, HitFlash, EnemyContactAttack. Hijos: `Visual`, `HealthLabel`, `AuraLabel`.
 
