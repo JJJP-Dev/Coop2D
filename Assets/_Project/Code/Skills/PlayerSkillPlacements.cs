@@ -76,12 +76,12 @@ public class PlayerSkillPlacements : NetworkBehaviour
         {
             // Its reach shows once, when it's placed, so everyone knows where it will shoot.
             SkillShapeVisual reach = Instantiate(skill.Visual, area.Point, Quaternion.identity);
-            reach.Show(area, color);
+            reach.Show(area, color, false, IsOwner);
             area = SkillArea.Circle(area.Point, _postRadius);
         }
 
         SkillShapeVisual lasting = Instantiate(skill.Visual, area.Origin, Quaternion.identity);
-        lasting.ShowLasting(area, color, skill.Duration, skill.HitInterval);
+        lasting.ShowLasting(area, color, skill.Duration, skill.HitInterval, skill.CanDetonate, IsOwner);
         _shown[index].Add(lasting);
     }
 
@@ -135,7 +135,7 @@ public class PlayerSkillPlacements : NetworkBehaviour
 
         SkillArea line = SkillArea.Band(from, to, _shotWidth * 0.5f);
         SkillShapeVisual visual = Instantiate(skill.Visual, from, Quaternion.identity);
-        visual.Show(line, _skills.GetSkillColor(skill));
+        visual.Show(line, _skills.GetSkillColor(skill), false, IsOwner);
     }
 
     // A slot that gets another skill, or every slot on a restart: what the old skill left goes with it.

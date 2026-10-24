@@ -424,7 +424,8 @@ public class PlayerSkills : NetworkBehaviour
     }
 
     /// <summary>
-    /// Every PC. Draws the skill's shape where it landed.
+    /// Every PC. Draws the skill's shape where it landed: with an edge if it can detonate, and weaker on
+    /// the PCs that aren't its caster's.
     /// </summary>
     public void ShowCast(SkillInstance skill, SkillArea area)
     {
@@ -432,7 +433,7 @@ public class PlayerSkills : NetworkBehaviour
             return;
 
         SkillShapeVisual visual = Instantiate(skill.Visual, area.Origin, Quaternion.identity);
-        visual.Show(area, GetSkillColor(skill));
+        visual.Show(area, GetSkillColor(skill), skill.CanDetonate, IsOwner);
     }
 
     /// <summary>

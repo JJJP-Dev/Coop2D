@@ -103,5 +103,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eef91d93e71e42f09b71f2adf9837044, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkillShapeVisual
-  _fadeDuration: 0.3
+  _fadeDuration: 0.5
   _startAlpha: 0.5
