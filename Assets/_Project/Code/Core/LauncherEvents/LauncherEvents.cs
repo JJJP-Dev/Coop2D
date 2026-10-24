@@ -109,7 +109,7 @@ public static class LauncherEvents
                                   ("level", level), ("match_time", matchTime));
     }
 
-    /// <param name="result">defeat. Others (victory) come with the boss.</param>
+    /// <param name="result">defeat (everyone downed) or victory (the last wave cleared).</param>
     /// <param name="waves">Waves that had started.</param>
     public static void MatchOver(string result, int matchTime, int waves)
     {

@@ -2251,6 +2251,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameOverPanel
   _window: {fileID: 178279726}
+  _titleLabel: {fileID: 1059420591}
+  _lostTitle: "Hab\xE9is ca\xEDdo"
+  _wonTitle: "\xA1Hab\xE9is sobrevivido!"
   _statsLabel: {fileID: 1531175716}
   _restartButton: {fileID: 1503380082}
   _waitingLabel: {fileID: 167089641}
@@ -4275,6 +4278,7 @@ MonoBehaviour:
   _epicColor: {r: 0.78, g: 0.49, b: 1, a: 1}
   _specialColor: {r: 1, g: 0.84, b: 0, a: 1}
   _fallbackColor: {r: 0.63, g: 0.63, b: 0.63, a: 1}
+  _skillColor: {r: 0.4, g: 0.9, b: 0.75, a: 1}
   _descriptionColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
 --- !u!1 &669052775
 GameObject:
@@ -4374,8 +4378,8 @@ RectTransform:
   - {fileID: 1055359642}
   - {fileID: 2070745687}
   - {fileID: 168068465}
-  - {fileID: 394473251}
   - {fileID: 643215050}
+  - {fileID: 394473251}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

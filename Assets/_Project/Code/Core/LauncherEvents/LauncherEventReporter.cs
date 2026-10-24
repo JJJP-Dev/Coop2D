@@ -241,7 +241,7 @@ public class LauncherEventReporter : MonoBehaviour
             return;
 
         _reportedMatchOver = true;
-        LauncherEvents.MatchOver("defeat", flow.EndSeconds, flow.EndWaves);
+        LauncherEvents.MatchOver(flow.Won ? "victory" : "defeat", flow.EndSeconds, flow.EndWaves);
     }
 
     private static int MatchTime()

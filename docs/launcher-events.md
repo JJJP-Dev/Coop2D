@@ -264,11 +264,11 @@ Cuando el jugador local coge de su oferta una habilidad nueva o un nivel de una 
 
 #### `match_over` · Obligatorio
 
-Una vez por partida, cuando termina (#52), en todas las ventanas. Ahora solo hay derrota: todos los jugadores derribados.
+Una vez por partida, cuando termina (#52), en todas las ventanas: derrota (todos los jugadores derribados) o victoria (acaba el horario de oleadas y muere su último enemigo).
 
 | Campo | Tipo | Valor |
 |---|---|---|
-| `result` | id | `defeat`. La victoria llegará con el jefe (#93) |
+| `result` | id | `defeat` o `victory` |
 | `match_time` | entero | Segundos que duró la partida, iguales en todas las ventanas |
 | `waves` | entero | Oleadas que habían empezado |
 

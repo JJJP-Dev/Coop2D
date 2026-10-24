@@ -506,7 +506,7 @@ En total, con un jugador, 249 perseguidores y 94 drones: 437 de experiencia si s
 
 ### 4.13 La partida: reloj, fin y reinicio
 
-**Qué hace.** Cuenta el tiempo de partida, la termina cuando todos están derribados («Habéis caído») y deja al host reiniciarla para todos con una semilla nueva.
+**Qué hace.** Cuenta el tiempo de partida y la termina de una de dos formas: **derrota** cuando todos están derribados («Habéis caído») o **victoria** cuando se acaba el horario de oleadas y muere su último enemigo («¡Habéis sobrevivido!»). En las dos, el panel enseña oleadas, tiempo y nivel, y el host puede reiniciar para todos con una semilla nueva. No hay todavía pantalla de resultados con estadísticas (#98).
 
 **Piezas.** `Code/Networking/MatchClock.cs`, `MatchFlow.cs`, `MatchPhase.cs`; `Code/UI/InGame/GameOverPanel.cs`.
 
@@ -514,7 +514,7 @@ En total, con un jugador, 249 perseguidores y 94 drones: 437 de experiencia si s
 
 **Cómo funciona.**
 1. `MatchClock` guarda el tick en que empezó; cada PC calcula los segundos con su copia del tick.
-2. `MatchFlow` (host) mira cada 0,25 s si todos los jugadores están derribados. Si es así, congela el tiempo y las oleadas para el panel y pausa el `WaveSpawner`.
+2. `MatchFlow` (host) mira cada 0,25 s si todos los jugadores están derribados (derrota) o si el `WaveSpawner` ha terminado y no le quedan enemigos vivos (victoria). Al acabar, congela el tiempo y las oleadas para el panel, guarda el resultado (`Won`, SyncVar) y pausa el `WaveSpawner`. El panel elige el título con `Won` (*Title Label*, *Lost Title*, *Won Title* en `GameOverPanel`).
 3. **Reinicio sin recargar la escena** (FishNet no recarga una escena global ya cargada y los jugadores viven en ella). `MatchFlow.RestartMatch` deja cada pieza como al empezar, en un solo fotograma y en este orden:
    1. Quita los enemigos sin «matarlos» (así no hay números, muertes ni eventos).
    2. Cura los muñecos y les quita el aura, y quita las nubes.

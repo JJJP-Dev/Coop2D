@@ -339,6 +339,8 @@ Con el host y dos clientes, en local y otra vez con 100 ms de latencia. Para aca
 | Salir desde la pantalla | Con la pantalla de fin, un cliente pulsa «Salir». | Vuelve al menú como con el botón de salir de siempre. |
 | Entrar con la partida acabada | Con la pantalla de fin, une a otro cliente. Repite con un cliente que sale y vuelve a entrar. | Aparece derribado (cuerpo aclarado, «Sin reanimaciones» o «Derribado») y ve la pantalla de fin con los mismos datos. Ningún enemigo lo persigue ni le pega, y nadie escribe `player_downed` por él. Al reiniciar, se levanta con los demás. |
 | Evento de fin | Mira los logs al caer todos. | Un solo `match_over result=defeat match_time=… waves=…`, igual en todas las ventanas. |
+| Victoria | Con F1, pulsa «Siguiente oleada» hasta «No quedan más oleadas», espera a que pase el minuto 10:00 y pulsa «Matar a todos». | En todas las ventanas, «¡Habéis sobrevivido!» con oleadas (15), tiempo y nivel. Un solo `match_over result=victory`. «Reiniciar» funciona igual que tras perder. |
+| Victoria con alguien derribado | Repite con un jugador derribado y otro de pie. | También es victoria: el panel sale para todos. |
 | Solo el host reinicia | Con la pantalla de fin abierta, mira las tres ventanas. | El host ve «Reiniciar» y «Salir»; los clientes, «Esperando al host…» y «Salir». |
 | Reiniciar | El host pulsa «Reiniciar». | En todas las ventanas: se cierra la pantalla, todos de pie con 100 de vida en su punto de aparición (los demás saltan allí, sin deslizarse), sin enemigos, el reloj vuelve a 0:00 y la primera oleada sale como al empezar. F1 muestra una semilla nueva, igual en todas, y las reanimaciones completas (2/2 con dos jugadores, 3/3 con tres). En el host, `[MatchFlow] Match restarted (1)`. |
 | Tres veces seguidas | Perded y reiniciad tres veces seguidas, una de ellas con 100 ms de latencia. | Todo igual la tercera vez que la primera. En la *Hierarchy* del host no queda ningún `Chaser(Clone)` justo después de reiniciar, y la consola sigue limpia. |
@@ -574,7 +576,7 @@ Partidas reales, sin trucos. Apunta lo que pase: es lo que la build quiere medir
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
-| Solo | Juega una partida solo hasta el final. | 15 oleadas en 10 minutos con respiros (tras la horda de 3:10 y antes de 7:00). Pasado el 10:00 no salen más. Apunta el nivel final (se espera 9-10) y el minuto si caes. |
+| Solo | Juega una partida solo hasta el final. | 15 oleadas en 10 minutos con respiros (tras la horda de 3:10 y antes de 7:00). Si sobrevives, «¡Habéis sobrevivido!» hacia el 10:00-10:30. Apunta el nivel final (se espera 9-10) y el minuto si caes. |
 | Más jugadores | Juega con 2-3 jugadores. | Salen más enemigos por oleada (×1,5 con dos, ×1,9 con tres), más seguidos y con más vida (un perseguidor de 72 con dos, 81 con tres). El nivel final debería ser parecido al de solo. |
 | Vida de las tardías | Desde el minuto 4, mira la vida de un perseguidor (etiqueta de vida). | 72 en vez de 60 (×1,2); hacia el 9:10, 90. |
 | Contar oleadas | Mira `wave_started` en el log. | Uno por oleada (15), aunque una oleada traiga perseguidores y drones a la vez. |

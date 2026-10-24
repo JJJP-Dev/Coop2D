@@ -4,8 +4,9 @@ using FishNet.Object.Synchronizing;
 using UnityEngine;
 
 // Whether the match in this scene is being played or over, the same on every client.
-// The host ends it when every player is downed: nobody is left to revive anyone, so the charges
-// don't matter. The clients only show it. One per match scene, next to MatchClock.
+// The host ends it in one of two ways, and the clients only show it. One per match scene, next to MatchClock.
+//   Lost: every player is downed. Nobody is left to revive anyone, so the charges don't matter.
+//   Won: the waves are over (their schedule's time is up) and their last enemy is dead.
 // The host can restart it for everyone. The scene stays loaded: FishNet doesn't load a global scene
 // that is already loaded, and the players live in it. Instead the host puts every part of the match
 // back to its start in one frame, and each client sees it through the values it already receives.
@@ -16,7 +17,8 @@ public class MatchFlow : NetworkBehaviour
 
     [SerializeField] private MatchClock _clock;
 
-    [Tooltip("Optional. Stopped when the match ends, so no more enemies come while the panel is up.")]
+    [Tooltip("Optional. Stopped when the match ends, so no more enemies come while the panel is up. " +
+             "Without it the match can only be lost.")]
     [SerializeField] private WaveSpawner _waves;
 
     [Tooltip("Optional. Its charges come back on a restart.")]
@@ -36,6 +38,7 @@ public class MatchFlow : NetworkBehaviour
     // What the panel and the launcher show, frozen when the match ends so every client says the same.
     private readonly SyncVar<int> _endSeconds = new();
     private readonly SyncVar<int> _endWaves = new();
+    private readonly SyncVar<bool> _won = new();
 
     // Grows by one on each restart, so every client can tell a new match started in the same scene.
     private readonly SyncVar<int> _runNumber = new();
@@ -59,6 +62,11 @@ public class MatchFlow : NetworkBehaviour
     /// Waves that had started when it ended. 0 while it's being played.
     /// </summary>
     public int EndWaves => _endWaves.Value;
+
+    /// <summary>
+    /// Whether the match that is over was survived. False while it's being played.
+    /// </summary>
+    public bool Won => _won.Value;
 
     /// <summary>
     /// 0 for the first match of the scene, then one more on each restart.
@@ -93,6 +101,7 @@ public class MatchFlow : NetworkBehaviour
         _phase.Value = MatchPhase.Playing;
         _endSeconds.Value = 0;
         _endWaves.Value = 0;
+        _won.Value = false;
         _runNumber.Value = 0;
         _nextCheckTime = 0f;
     }
@@ -108,19 +117,23 @@ public class MatchFlow : NetworkBehaviour
         _nextCheckTime = Time.time + CheckInterval;
 
         if (AreAllPlayersDowned())
-            EndMatch();
+            EndMatch(false);
+        else if (_waves != null && _waves.WavesFinished && _waves.AliveEnemies == 0)
+            EndMatch(true);
     }
 
-    private void EndMatch()
+    private void EndMatch(bool won)
     {
         _endSeconds.Value = _clock != null ? _clock.ElapsedSeconds : 0;
         _endWaves.Value = _waves != null ? _waves.WavesStarted : 0;
+        _won.Value = won;
         _phase.Value = MatchPhase.Over;
 
         if (_waves != null)
             _waves.SetPaused(true);
 
-        Debug.Log($"[MatchFlow] Every player is downed. Match over after {_endSeconds.Value} s and {_endWaves.Value} waves.", this);
+        string how = won ? "The last wave is cleared" : "Every player is downed";
+        Debug.Log($"[MatchFlow] {how}. Match over after {_endSeconds.Value} s and {_endWaves.Value} waves.", this);
     }
 
     /// <summary>
@@ -184,6 +197,7 @@ public class MatchFlow : NetworkBehaviour
 
         _endSeconds.Value = 0;
         _endWaves.Value = 0;
+        _won.Value = false;
         _runNumber.Value++;
         _phase.Value = MatchPhase.Playing;
 

@@ -3,6 +3,6 @@ public enum MatchPhase : byte
 {
     Playing,
 
-    // Every player is downed. Waves stop until the host restarts.
+    // Lost (every player is downed) or won (MatchFlow.Won). Waves stop until the host restarts.
     Over,
 }
