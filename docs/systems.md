@@ -440,17 +440,36 @@ Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objet
 
 ### 4.10 Oleadas
 
-**Qué hace.** Saca enemigos según un horario: 6 oleadas en 3 minutos, con un tope de 40 vivos a la vez, siempre lejos de los jugadores.
+**Qué hace.** Saca enemigos según un horario: **15 oleadas en 10 minutos**, con un tope de 40 vivos a la vez, siempre lejos de los jugadores. Con más jugadores salen más (×1,5 con dos, ×1,9 con tres, ×2,2 con cuatro, como la experiencia) y con más vida (×1,2, ×1,35, ×1,5), y las oleadas tardías traen además enemigos más duros. Cuando se acaba el horario y muere el último, el grupo **ha sobrevivido** (4.13).
 
 **Piezas.** `Code/Enemies/Waves/WaveSpawner.cs`, `WaveSchedule`, `WaveEntry`.
 
 **Dónde está montado.** `Arena_Test` › `WaveSpawner`, con su horario y sus puntos de aparición (`SpawnerPoints`).
 
-**Cómo funciona.** Cada fotograma (en el host) avanza su reloj y saca los enemigos que tocan mientras haya sitio. Elige el punto con una tirada de la semilla entre los que están a ≥ 8 casillas de todos (o el más lejano). Cuenta las oleadas empezadas y si se han acabado (SyncVars, para el launcher). `MatchFlow` lo pausa al perder y lo reinicia al reiniciar.
+**Cómo funciona.** Cada fotograma (en el host) avanza su reloj y saca los enemigos que tocan mientras haya sitio. Elige el punto con una tirada de la semilla entre los que están a ≥ 8 casillas de todos (o el más lejano). Cuenta las oleadas empezadas y si se han acabado (SyncVars, para el launcher). `MatchFlow` lo pausa al acabar y lo reinicia al reiniciar.
+- **Una oleada son todos los grupos que empiezan en el mismo segundo**: perseguidores y drones a la vez cuentan como una (para el panel de fin y para `wave_started`).
+- **Por jugadores:** cada grupo trae *Count* × el multiplicador de *Count By Players* según los jugadores que hay **cuando le toca salir a cada enemigo**, y salen más seguidos para acabar a la vez que con uno solo. Si alguien entra a mitad de oleada, el resto de esa oleada es más grande.
+- **Vida:** un grupo con *Health Multiplier* 1,5 saca perseguidores de 90 en vez de 60; con jugadores de más se multiplica además por *Health By Players* (1,5 × 1,2 = 108 con dos). Se pone antes de crearlos (`Health.SetStartingMax`), así todos los PCs los reciben ya con esa vida.
+- `AliveEnemies` (host) cuenta los vivos de las oleadas; los de los trucos no cuentan.
 
-**Qué ajustar.** `Data/Enemies/Waves/ArenaTestWaves.asset`: duración (180 s), tope de vivos (40), distancia mínima (8) y la lista de oleadas (segundo de inicio, prefab, cantidad e intervalo). Los drones salen a los 46, 76, 106 y 141 s (2, 5, 7 y 10), entre las tandas de perseguidores.
+**Qué ajustar.** `Data/Enemies/Waves/ArenaTestWaves.asset`: duración (600 s), tope de vivos (40), distancia mínima (8), multiplicadores de cantidad y de vida por jugadores y la lista de grupos (segundo de inicio, prefab, cantidad con un jugador, intervalo y multiplicador de vida).
 
-**Cuidado con.** El ritmo de experiencia depende de cuántos enemigos salen: ahora las oleadas llevan al nivel 3-4 en 3 minutos, cuando el catálogo espera el 7. Toca ajustarlas junto con la curva de experiencia.
+**El horario de la 0.0.5** (cantidades con un jugador; P = perseguidor, D = dron):
+
+| Tramo | Oleadas (segundo: grupos) | Idea |
+|---|---|---|
+| Calentamiento, 0:00-1:30 | 3: 5 P · 25: 8 P · 50: 10 P + 2 D · 80: 12 P + 4 D | Aprender a moverse; nivel 2 hacia el segundo 35 y la primera habilidad nueva |
+| Primeras variaciones, 1:55-3:10 | 115: 10 D (enjambre) · 150: 16 P + 4 D · 190: 24 P (horda) | Un enjambre de drones rápidos y una primera horda; después, 50 s de respiro para elegir mejoras |
+| Medio, 4:00-6:15 (vida ×1,2-1,25) | 240: 14 P + 8 D · 285: 20 P + 6 D · 330: 12 D + 10 P · 375: 28 P | A los 4:00 llega el reroll por tiempo; los enemigos aguantan más |
+| Presión, 7:00-8:30 (vida ×1,35-1,4) | 420: 18 P + 10 D · 465: 30 P + 6 D · 510: 16 D + 14 P | Reroll a los 8:00; mezclas que obligan a usar las habilidades de área |
+| Final, 9:10 (vida ×1,5) | 550: 40 P + 16 D | La horda final; al morir el último, victoria |
+
+En total, con un jugador, 249 perseguidores y 94 drones: 437 de experiencia si se recoge todo. Con lo que se escapa, un jugador solo debería acabar hacia el **nivel 9-10** (el 9 pide 304 en total y el 10, 378), justo donde se acaba la reserva de mejoras.
+
+**Cuidado con.**
+- Es un primer horario sin probar en partida real: **la build 0.0.5 es para medirlo** (nivel al acabar, a qué minuto se cae, si el respiro de 3:10 se nota). Lo fácil de tocar son las cantidades, los multiplicadores de vida y los huecos entre oleadas.
+- El tope de 40 vivos manda al final: con cuatro jugadores la horda final (88 perseguidores y 35 drones) sale a medida que mueren los de delante, así que dura más.
+- El horario cambia lo que da cada semilla (las tiradas de aparición son una por enemigo): las semillas de pruebas anteriores ya no dan lo mismo.
 
 ### 4.11 Semilla y azar
 

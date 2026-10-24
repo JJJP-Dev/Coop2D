@@ -99,7 +99,7 @@ Desde el #51 los perseguidores hacen daño al tocar. En las pruebas de persecuci
 | Contacto e invulnerable | Pulsa «Invulnerable» y deja que te alcancen. | La vida no baja. |
 | Disparo anticipado | Con *Range* en 6, un jugador se deja perseguir y otro, quieto a un lado, dispara a los perseguidores que pasan. Para comparar, repítelo con *Lead Factor* a 0 en `DefaultAutoAttack` y devuélvelo a 1. | Con 1, sus proyectiles salen por delante del perseguidor y casi todos aciertan, también con latencia. Con 0 fallan casi todos. |
 | Sale el perseguido | Con perseguidores detrás de un cliente, ese cliente sale de la partida. | En menos de medio segundo van a por otro jugador, sin errores. |
-| Oleadas | Hospeda, une a un cliente y jugad los 3 minutos con *Range* en 6. | Los enemigos salen por los puntos de los bordes, lejos de los jugadores, en tandas que crecen con el tiempo. Pasados los 3 minutos no sale ninguno más. Todo igual en todas las ventanas. |
+| Oleadas | Hospeda, une a un cliente y jugad los 10 minutos con *Range* en 6 (o salta con «Siguiente oleada»). | Los enemigos salen por los puntos de los bordes, lejos de los jugadores, en tandas que crecen con el tiempo. Pasados los 10 minutos no sale ninguno más. Todo igual en todas las ventanas. |
 | Tope de enemigos | Con *Range* a 0, deja correr las oleadas sin matar a nadie. Luego vuelve a ponerlo en 6. | Nunca hay más de 40 enemigos vivos: cuenta los `Chaser(Clone)` de la escena de la arena en la *Hierarchy* del host. Al matar alguno, salen los que esperaban. |
 | Drones | Juega hasta el minuto 1:00 con *Range* en 6. | A los 0:46 salen 2 drones, más rápidos que los perseguidores; caen antes (45 de vida) y dejan orbes que valen 2. Al tocarte quitan 8 cada 0,7 s. Igual en todas las ventanas. |
 | Generar dron | En F1, «Generar Arc» y «Generar 10 Arc». | Salen junto a quien lo pide, en todas las ventanas. `cheat_used cheat=spawn_arc` y `spawn_arc_10`. |
@@ -283,7 +283,7 @@ Select-String -Path "$env:USERPROFILE\AppData\LocalLow\PalitoGames\Coop2D\Player
 | El host cierra | El host pulsa salir; repítelo cerrando la ventana del host. | En el cliente, toast «El host ha cerrado la partida» y `match_left reason=host_closed` las dos veces. |
 | Se corta la red | Con un cliente en la partida, mata el proceso del host desde el Administrador de tareas. | Al rato, en el cliente, toast «Se ha perdido la conexión con el host» y `match_left reason=disconnected`. |
 | Derribado y reanimado | En el host, deja que derriben al cliente y reanímalo con el host. Después, derriba al host y levántalo con «Curar a todos». | En el cliente: `player_downed slot=2 me=true` y `player_revived slot=2 me=true by=ally left=1`; en el host, `me=false`, `by=me` y el mismo `left`. Con el truco, `player_revived slot=1 … by=none left=1` en las dos ventanas: no gasta. |
-| Fin de oleadas derribado | Quédate derribado cuando acaben los 3 minutos de oleadas. | `waves_finished … alive=false` en tu ventana y `alive=true` en la de quien sigue en pie. |
+| Fin de oleadas derribado | Quédate derribado cuando acaben los 10 minutos de oleadas. | `waves_finished … alive=false` en tu ventana y `alive=true` en la de quien sigue en pie. |
 | Consola limpia | Repasa la consola del editor tras una partida. | Ningún aviso de `LauncherEventWriter`: si sale, esa línea no cumple el contrato. |
 
 ## 16. Semilla
@@ -567,3 +567,15 @@ Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). Mira la
 | Proyectiles | Brasa lanza Llamarada, Marea Burbuja y Voltio Rayo. | La burbuja se ve claramente más grande y sin rastro; el rayo, fino. Si el prefab tiene rastro, Llamarada y Rayo lo dejan de su color. |
 | Atrapado | Marea atrapa a un perseguidor con Burbuja; luego Sobrecarga sobre otro. | «Aturdido» encima del enemigo mientras no se mueve, en todas las ventanas, y desaparece cuando vuelve a andar. |
 | Con ping | Repite borde, atrapado y balas con 100 ms. | Igual; «Aturdido» puede tardar el ping en aparecer. |
+
+## 30. Oleadas de la 0.0.5
+
+Partidas reales, sin trucos. Apunta lo que pase: es lo que la build quiere medir.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Solo | Juega una partida solo hasta el final. | 15 oleadas en 10 minutos con respiros (tras la horda de 3:10 y antes de 7:00). Pasado el 10:00 no salen más. Apunta el nivel final (se espera 9-10) y el minuto si caes. |
+| Más jugadores | Juega con 2-3 jugadores. | Salen más enemigos por oleada (×1,5 con dos, ×1,9 con tres), más seguidos y con más vida (un perseguidor de 72 con dos, 81 con tres). El nivel final debería ser parecido al de solo. |
+| Vida de las tardías | Desde el minuto 4, mira la vida de un perseguidor (etiqueta de vida). | 72 en vez de 60 (×1,2); hacia el 9:10, 90. |
+| Contar oleadas | Mira `wave_started` en el log. | Uno por oleada (15), aunque una oleada traiga perseguidores y drones a la vez. |
+| Entrar a mitad | Un cliente entra en el minuto 5. | La oleada en curso se alarga con él; la siguiente sale ya con el multiplicador de dos. |

@@ -7,6 +7,8 @@ using UnityEngine;
 
 // Spawns the enemies of a WaveSchedule over time. Only the host runs it: FishNet
 // gives every client the enemies it spawns, so the waves match everywhere.
+// Each group brings more enemies with more players, and tougher ones, counted when each enemy is due, so
+// someone joining mid-wave makes the rest of it bigger. A group can also come with more health of its own.
 public class WaveSpawner : NetworkBehaviour
 {
     [SerializeField] private WaveSchedule _schedule;
@@ -39,6 +41,11 @@ public class WaveSpawner : NetworkBehaviour
     /// True once the schedule's time is up and no more enemies will come.
     /// </summary>
     public bool WavesFinished => _wavesFinished.Value;
+
+    /// <summary>
+    /// Server side. Enemies of the waves still alive; the cheats' don't count.
+    /// </summary>
+    public int AliveEnemies => _aliveEnemies;
     private float _elapsed;
     private int _aliveEnemies;
 
@@ -110,9 +117,10 @@ public class WaveSpawner : NetworkBehaviour
 
         CountStartedWaves();
 
+        int players = CountPlayers();
         IReadOnlyList<WaveEntry> waves = _schedule.Waves;
         for (int i = 0; i < waves.Count; i++)
-            SpawnDueEnemies(waves[i], i);
+            SpawnDueEnemies(waves[i], i, players);
     }
 
     /// <summary>
@@ -152,7 +160,7 @@ public class WaveSpawner : NetworkBehaviour
         for (int i = 0; i < waves.Count; i++)
         {
             if (waves[i].StartTime < next)
-                _spawnedPerWave[i] = waves[i].Count;
+                _spawnedPerWave[i] = int.MaxValue;
         }
 
         _elapsed = next;
@@ -201,29 +209,53 @@ public class WaveSpawner : NetworkBehaviour
                 continue;
 
             _counted[i] = true;
-            _wavesStarted.Value++;
+
+            // Groups that start together are one wave.
+            if (!StartedTogetherWithCounted(i))
+                _wavesStarted.Value++;
         }
+    }
+
+    private bool StartedTogetherWithCounted(int index)
+    {
+        IReadOnlyList<WaveEntry> waves = _schedule.Waves;
+        for (int i = 0; i < waves.Count; i++)
+        {
+            if (i != index && _counted[i] && waves[i].EnemyPrefab != null &&
+                Mathf.Approximately(waves[i].StartTime, waves[index].StartTime))
+                return true;
+        }
+
+        return false;
     }
 
     // Spawns every enemy of the wave whose time has come, while there is room.
     // Those held back by the cap come out as soon as others die.
-    private void SpawnDueEnemies(WaveEntry wave, int index)
+    private void SpawnDueEnemies(WaveEntry wave, int index, int players)
     {
         if (wave.EnemyPrefab == null)
             return;
 
-        while (_spawnedPerWave[index] < wave.Count
-               && _elapsed >= wave.StartTime + _spawnedPerWave[index] * wave.SpawnInterval
+        int count = _schedule.GetCount(wave, players);
+
+        // With more players the same group comes faster, so it still ends when it would alone.
+        float interval = wave.SpawnInterval * wave.Count / count;
+
+        while (_spawnedPerWave[index] < count
+               && _elapsed >= wave.StartTime + _spawnedPerWave[index] * interval
                && _aliveEnemies < _schedule.MaxAliveEnemies)
         {
-            SpawnEnemy(wave.EnemyPrefab);
+            SpawnEnemy(wave.EnemyPrefab, _schedule.GetHealthMultiplier(wave, players));
             _spawnedPerWave[index]++;
         }
     }
 
-    private void SpawnEnemy(Enemy prefab)
+    private void SpawnEnemy(Enemy prefab, float healthMultiplier)
     {
         Enemy enemy = Instantiate(prefab, PickSpawnPosition(), Quaternion.identity);
+
+        if (!Mathf.Approximately(healthMultiplier, 1f) && enemy.TryGetComponent(out Health health))
+            health.SetStartingMax(Mathf.RoundToInt(health.BaseMax * healthMultiplier));
 
         // Into the arena's scene, so the enemies go away with it.
         Spawn(enemy.gameObject, null, gameObject.scene);
@@ -283,6 +315,19 @@ public class WaveSpawner : NetworkBehaviour
         }
 
         return chosen != null ? chosen.position : transform.position;
+    }
+
+    // Players, not connections: one still being let in has no player yet. At least 1.
+    private int CountPlayers()
+    {
+        int players = 0;
+        foreach (NetworkConnection connection in ServerManager.Clients.Values)
+        {
+            if (connection.FirstObject != null)
+                players++;
+        }
+
+        return Mathf.Max(1, players);
     }
 
     private float SqrDistanceToNearestPlayer(Vector2 position)

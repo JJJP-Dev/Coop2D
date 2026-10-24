@@ -212,7 +212,7 @@ Al empezar cada oleada, en todas las ventanas (también al saltar con trucos).
 
 #### `waves_finished` · Obligatorio
 
-Una vez por partida, cuando ya no quedan oleadas por salir (pasados los 3 minutos).
+Una vez por partida, cuando ya no quedan oleadas por salir (pasados los 10 minutos del horario).
 
 | Campo | Tipo | Valor |
 |---|---|---|

@@ -148,6 +148,23 @@ public class Health : NetworkBehaviour
     }
 
     /// <summary>
+    /// Before spawning only: starts with this maximum, full. For a tougher enemy of a late wave; set before
+    /// Spawn so every client receives it with the enemy and its bar never jumps.
+    /// </summary>
+    public void SetStartingMax(int max)
+    {
+        if (IsSpawned)
+        {
+            Debug.LogWarning("[Health] SetStartingMax only works before the object is spawned.", this);
+            return;
+        }
+
+        max = Mathf.Max(1, max);
+        _max.Value = max;
+        _current.Value = max;
+    }
+
+    /// <summary>
     /// Server only. Gets a downed player up with this much health, and ignores hits for a few
     /// seconds so the enemies around it can't drop it again at once. Does nothing unless it's at 0.
     /// </summary>
