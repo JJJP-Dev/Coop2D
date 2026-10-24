@@ -17,4 +17,5 @@ MonoBehaviour:
   _element: 3
   _startingSkill: {fileID: 11400000, guid: cc9c0f4519ef42b19e2e1dec79563a65, type: 2}
   _ownSkills:
+  - {fileID: 11400000, guid: 97c5f2dda7b0478f8e39e026800f8287, type: 2}
   - {fileID: 11400000, guid: a35a2d4e59e5418eba14e94007bfca6c, type: 2}

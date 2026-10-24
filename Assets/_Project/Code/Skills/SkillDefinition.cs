@@ -33,23 +33,25 @@ public class SkillDefinition : ScriptableObject
     [Tooltip("Seconds.")]
     [SerializeField, Min(0.1f)] private float _cooldown = 7f;
 
-    [Tooltip("Circle only: how far from the caster it can land, in units. Aiming farther drops it at this " +
-             "distance. Lines and cones start at the caster, so their reach is their Length.")]
+    [Tooltip("Circle, Wall and Turret: how far from the caster it can land, in units. Aiming farther drops it " +
+             "at this distance. Lines and cones start at the caster, so their reach is their Length.")]
     [SerializeField, Min(0f)] private float _castRange = 7f;
 
     [Header("Shape")]
     [Tooltip("Circle: where you aim. Line and Cone: from you towards the cursor, always at full length. " +
-             "Projectile: flies from you towards the cursor, up to Length.")]
+             "Projectile: flies from you towards the cursor, up to Length. Wall and Turret: placed where you " +
+             "aim, and they stay (see Placed).")]
     [SerializeField] private SkillShape _shape = SkillShape.Circle;
 
-    [Tooltip("Circle only: radius in units. The catalog asks for at least 1.5.")]
+    [Tooltip("Circle: radius in units; the catalog asks for at least 1.5. Turret: how far it reaches.")]
     [SerializeField, Min(0.1f)] private float _radius = 1.5f;
 
-    [Tooltip("Line and Cone: how far they reach from the caster, in units. Projectile: how far it flies.")]
+    [Tooltip("Line and Cone: how far they reach from the caster, in units. Projectile: how far it flies. " +
+             "Wall: how long the wall is.")]
     [SerializeField, Min(0.1f)] private float _length = 5f;
 
-    [Tooltip("Line only: total width of the band, in units. Nothing asks for more precision than the basic " +
-             "attack, so keep it at 0.5 or more.")]
+    [Tooltip("Line and Wall: total width of the band, in units. Nothing asks for more precision than the " +
+             "basic attack, so keep it at 0.5 or more.")]
     [SerializeField, Min(0.1f)] private float _width = 0.5f;
 
     [Tooltip("Cone only: full opening in degrees, from one edge to the other. At most 180.")]
@@ -79,7 +81,15 @@ public class SkillDefinition : ScriptableObject
     [Tooltip("What flies. Only the picture: every PC flies its own copy, and only the caster's reports hits.")]
     [SerializeField] private SkillProjectile _projectilePrefab;
 
+    [Header("Placed (Wall, Turret)")]
+    [Tooltip("Seconds it stays.")]
+    [SerializeField, Min(0.1f)] private float _duration = 3f;
+
+    [Tooltip("Seconds between its hits. Damage is per hit: a wall of 3 every 0.5 s burns 6 per second.")]
+    [SerializeField, Min(0.1f)] private float _hitInterval = 0.5f;
+
     [Header("Effect")]
+    [Tooltip("Per hit: each enemy a cast or a projectile hits, or each hit of a wall or a turret.")]
     [SerializeField, Min(0)] private int _damage = 16;
 
     [Tooltip("Units each enemy hit is pushed straight away from the caster. 0: no push. Bosses and " +
@@ -132,15 +142,23 @@ public class SkillDefinition : ScriptableObject
     public float TrapDuration => _trapDuration;
     public SkillProjectile ProjectilePrefab => _projectilePrefab;
     public bool IsProjectile => _shape == SkillShape.Projectile;
+    public float Duration => _duration;
+    public float HitInterval => _hitInterval;
+
+    /// <summary>
+    /// Walls and turrets: placed where you aim, they stay and the host makes them hit.
+    /// </summary>
+    public bool IsPlaced => _shape == SkillShape.Wall || _shape == SkillShape.Turret;
     public int Damage => _damage;
     public float Knockback => _knockback;
     public float KnockbackDuration => _knockbackDuration;
     public SkillShapeVisual Visual => _visual;
 
     /// <summary>
-    /// Lines and cones start at the caster and point at the cursor; a circle lands on it.
+    /// Lines, cones and projectiles start at the caster and point at the cursor; circles, walls and turrets
+    /// land on it.
     /// </summary>
-    public bool IsAimedByDirection => _shape != SkillShape.Circle;
+    public bool IsAimedByDirection => _shape == SkillShape.Line || _shape == SkillShape.Cone || _shape == SkillShape.Projectile;
 
     public ElementType GetElement(ElementType casterElement)
     {

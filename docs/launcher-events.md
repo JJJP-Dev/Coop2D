@@ -91,7 +91,7 @@ id nuevo** en esta tabla; no reutilices uno existente para otra cosa.
 | `slot` | `1`, `2`, `3`, `4` | Hueco del jugador (J1…J4) |
 | `element` | `fire`, `water`, `electric` | |
 | `character` | `ember`, `tide`, `volt` | Brasa, Marea y Voltio (#162). Los ids del catálogo de progresión; Filo será `blade` |
-| `ability` | `basic`, `burst`, `mark`, `ember_flare`, `ember_drizzle`, `tide_wave`, `tide_bubble`, `tide_spark`, `volt_bolt`, `volt_short` | Estallido = `burst`, Marca = `mark` (de prueba). Las demás, con los ids del catálogo (#162): Llamarada, Llovizna, Ola, Burbuja prisión, Chispa, Rayo y Cortocircuito. Cada habilidad nueva añade el suyo |
+| `ability` | `basic`, `burst`, `mark`, `ember_flare`, `ember_firewall`, `ember_drizzle`, `tide_wave`, `tide_bubble`, `tide_spark`, `volt_bolt`, `volt_coil`, `volt_short` | Estallido = `burst`, Marca = `mark` (de prueba). Las demás, con los ids del catálogo (#162): Llamarada, Muro ígneo, Llovizna, Ola, Burbuja prisión, Chispa, Rayo, Bobina y Cortocircuito. Cada habilidad nueva añade el suyo |
 | `variant` | `vapor_fire_water`, `vapor_water_fire`, `electrocution_water_electric`, `electrocution_electric_water`, `overload_electric_fire`, `overload_fire_electric` | Los mismos ids que ya usa `CombatEventLogger` |
 | `me` | `aura`, `detonator`, `both`, `none` | Papel del jugador local en una reacción. `both` = reacción en solitario propia |
 | `enemy` | `chaser`, `arc`, `dummy` | `arc` es el dron |

@@ -33,6 +33,9 @@ public class SkillLevelModifier
     [Tooltip("Enemies more a direct projectile goes through.")]
     [SerializeField] private int _pierceAdd;
 
+    [Tooltip("Seconds added to how long a wall or a turret stays.")]
+    [SerializeField] private float _durationAdd;
+
     public string Description => _description;
     public float DamagePercent => _damagePercent;
     public float CooldownPercent => _cooldownPercent;
@@ -42,4 +45,5 @@ public class SkillLevelModifier
     public float ImpactRadiusAdd => _impactRadiusAdd;
     public float TrapDurationAdd => _trapDurationAdd;
     public int PierceAdd => _pierceAdd;
+    public float DurationAdd => _durationAdd;
 }

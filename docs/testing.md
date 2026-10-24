@@ -503,7 +503,7 @@ Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). Llamara
 
 ## 26. Habilidades en las ofertas (#162)
 
-Arena_Test. «Dar experiencia» (F1) sube niveles. Para las comprobaciones de nivel, mira la recarga en el HUD y los números flotantes. Marea tiene dos habilidades que conseguir (Burbuja prisión y Chispa); Brasa y Voltio solo una cada uno hasta que lleguen Muro ígneo y Bobina.
+Arena_Test. «Dar experiencia» (F1) sube niveles. Para las comprobaciones de nivel, mira la recarga en el HUD y los números flotantes. Cada personaje tiene dos habilidades que conseguir: Brasa, Muro ígneo y Llovizna; Marea, Burbuja prisión y Chispa; Voltio, Bobina y Cortocircuito.
 
 | Prueba | Pasos | Resultado esperado |
 |---|---|---|
@@ -533,3 +533,19 @@ Este cambio no añade nada al juego: reparte el código de habilidades (`PlayerS
 | Efectos | Repite el 22. | Tempo, Relevo, Asistencia, Cazador de auras y Aura expansiva hacen lo mismo. |
 | Trucos | F1 › «Dar habilidad» varias veces y «Habilidades de prueba». | Pasan por todas las habilidades y dejan Estallido y Marca, como antes. |
 | Reiniciar | Con mejoras y habilidades, pierde y reinicia. | Todos vuelven a su habilidad inicial sin mejoras, y la oferta abierta se cierra. |
+
+## 28. Muros y torretas
+
+Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). En la ventana de Brasa y en la de Voltio, F1 › «Dar habilidad» hasta tener Muro ígneo o Bobina (es la primera que sale con cada uno). Haz las pruebas sin ping y luego con 100 ms.
+
+| Prueba | Pasos | Resultado esperado |
+|---|---|---|
+| Colocar el muro | Con Brasa, apunta a 4 m y pulsa su tecla. | Aparece al instante una banda naranja de 4 m **de través** a tu dirección, centrada en el cursor. Si apuntas más lejos de 6 m, se queda a 6. Las otras ventanas la ven en el mismo sitio. |
+| El muro quema | Pon el muro sobre un grupo de perseguidores. | Destella cada medio segundo; los enemigos que lo tocan reciben 3 en cada destello y quedan con aura de fuego. A los 3 s se apaga del todo. |
+| El muro no detona | Pon el muro sobre enemigos mojados (Marea). | No hay reacción del muro: el aura de agua se queda. Si Marea detona después con Ola sobre el fuego del muro, sí sale la reacción. |
+| Colocar la torreta | Con Voltio, apunta y pulsa su tecla. | Un círculo pequeño amarillo donde apuntas y, un momento, su alcance de 4 m. En todas las ventanas. |
+| La torreta dispara | Deja que lleguen enemigos a su alcance. | Una línea amarilla del poste al enemigo más cercano cada segundo, 8 de daño y aura eléctrica, también en las otras ventanas. Sin enemigos cerca no dispara. A los 5 s desaparece. |
+| Reacción en equipo | Torreta de Voltio sobre enemigos; Brasa lanza Llamarada encima. | Sobrecarga: el aura eléctrica de la torreta la detona el fuego de Brasa. |
+| Niveles | Con «Dar experiencia», coge los niveles del muro y de la torreta. | Muro nivel 2: 5 por golpe; nivel 3: dura 4 s. Bobina nivel 2: 6 disparos; nivel 3: el alcance que enseña es de 5 m. |
+| Reiniciar | Con un muro o una torreta en el suelo, pierde y reinicia. | Desaparecen en todas las ventanas y no siguen golpeando. |
+| Con ping | Con 100 ms, un cliente pone el muro y la torreta. | Se dibujan al momento en su ventana; el daño empieza con el ping. La consola del host, sin `Rejected`. En el log del cliente, `ability_cast ability=ember_firewall` o `volt_coil`. |

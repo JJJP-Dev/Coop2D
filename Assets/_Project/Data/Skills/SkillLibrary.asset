@@ -14,11 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkillLibrary
   _skills:
   - {fileID: 11400000, guid: 8f1df0d50c97486397ca7ccee1cb43a5, type: 2}
+  - {fileID: 11400000, guid: 24d54c308e1641a99a84614fb45772e8, type: 2}
   - {fileID: 11400000, guid: 8ef15eaa04134953b25c4d853791dd31, type: 2}
   - {fileID: 11400000, guid: 8e42cc26d8494f11916645f3acce4a76, type: 2}
   - {fileID: 11400000, guid: 1aec1d7a817441b8a0f9d7509d449018, type: 2}
   - {fileID: 11400000, guid: b9fec794270c4ae089686b2bee85b058, type: 2}
   - {fileID: 11400000, guid: cc9c0f4519ef42b19e2e1dec79563a65, type: 2}
+  - {fileID: 11400000, guid: 97c5f2dda7b0478f8e39e026800f8287, type: 2}
   - {fileID: 11400000, guid: a35a2d4e59e5418eba14e94007bfca6c, type: 2}
   - {fileID: 11400000, guid: 5f7fcdf2db3152c4e99348e3f155108d, type: 2}
   - {fileID: 11400000, guid: d4b84e33c2276c8469ba6b14d3b9d33f, type: 2}

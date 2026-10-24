@@ -3,6 +3,8 @@ using UnityEngine;
 // Placeholder picture of where a skill hit: its circle, line or cone, filled with the element's
 // colour, that fades out. It builds a small mesh from the cast's SkillArea, so one prefab draws every
 // shape at its exact size. Only the picture: hits are decided by SkillHitResolver.
+// A wall or a turret stays instead (ShowLasting): it dims as its time runs out, so players can tell how
+// long it has left, and flashes on the rhythm of its hits.
 // The real effects replace it with the skills' art.
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class SkillShapeVisual : MonoBehaviour
@@ -16,10 +18,21 @@ public class SkillShapeVisual : MonoBehaviour
     [Tooltip("Opacity when it appears, so what is under it stays visible.")]
     [SerializeField, Range(0f, 1f)] private float _startAlpha = 0.5f;
 
+    [Tooltip("Lasting shapes: the share of the opacity left just before they end.")]
+    [SerializeField, Range(0f, 1f)] private float _lastingEndFade = 0.4f;
+
+    [Tooltip("Lasting shapes: extra opacity of the flash on each hit, and seconds it takes to go.")]
+    [SerializeField, Range(0f, 1f)] private float _pulseAlpha = 0.35f;
+    [SerializeField, Min(0.01f)] private float _pulseDuration = 0.15f;
+
     private Mesh _mesh;
     private Color[] _colors;
     private Color _color;
     private float _elapsed;
+
+    // 0 for a cast that just fades.
+    private float _lifetime;
+    private float _pulseInterval;
 
     /// <summary>
     /// Draws that area in that colour. The object can be anywhere: the mesh is placed around the area.
@@ -44,7 +57,28 @@ public class SkillShapeVisual : MonoBehaviour
 
         _color = color;
         _elapsed = 0f;
+        _lifetime = 0f;
         SetAlpha(1f);
+    }
+
+    /// <summary>
+    /// Like Show, but it stays for that many seconds, dimming as they pass, flashes every pulseInterval
+    /// (0: never) and fades out at the end.
+    /// </summary>
+    public void ShowLasting(SkillArea area, Color color, float seconds, float pulseInterval)
+    {
+        Show(area, color);
+        _lifetime = Mathf.Max(0.01f, seconds);
+        _pulseInterval = pulseInterval;
+        SetAlpha(1f + _pulseAlpha / Mathf.Max(0.01f, _startAlpha));
+    }
+
+    /// <summary>
+    /// Ends it now, for a lasting shape whose skill went away (a restart, another skill in the slot).
+    /// </summary>
+    public void Stop()
+    {
+        Destroy(gameObject);
     }
 
     private void Update()
@@ -53,6 +87,13 @@ public class SkillShapeVisual : MonoBehaviour
             return;
 
         _elapsed += Time.deltaTime;
+
+        if (_lifetime > 0f)
+        {
+            UpdateLasting();
+            return;
+        }
+
         float progress = _elapsed / _fadeDuration;
         if (progress >= 1f)
         {
@@ -61,6 +102,34 @@ public class SkillShapeVisual : MonoBehaviour
         }
 
         SetAlpha(1f - progress);
+    }
+
+    // Steady opacity that drops towards _lastingEndFade, a flash at each hit and the usual fade after it.
+    private void UpdateLasting()
+    {
+        if (_elapsed >= _lifetime + _fadeDuration)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        if (_elapsed >= _lifetime)
+        {
+            SetAlpha(_lastingEndFade * (1f - (_elapsed - _lifetime) / _fadeDuration));
+            return;
+        }
+
+        float fade = Mathf.Lerp(1f, _lastingEndFade, _elapsed / _lifetime);
+
+        // The first hit is at once, then one every interval, the same rhythm as the host's.
+        if (_pulseInterval > 0f)
+        {
+            float sincePulse = _elapsed % _pulseInterval;
+            if (sincePulse < _pulseDuration)
+                fade += _pulseAlpha / Mathf.Max(0.01f, _startAlpha) * (1f - sincePulse / _pulseDuration);
+        }
+
+        SetAlpha(fade);
     }
 
     // The mesh was made here, so it's destroyed here: Unity doesn't free meshes made in code.
@@ -73,7 +142,7 @@ public class SkillShapeVisual : MonoBehaviour
     private void SetAlpha(float fade)
     {
         Color color = _color;
-        color.a = _startAlpha * _color.a * fade;
+        color.a = Mathf.Clamp01(_startAlpha * _color.a * fade);
 
         for (int i = 0; i < _colors.Length; i++)
             _colors[i] = color;

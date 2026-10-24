@@ -13,4 +13,12 @@ public enum SkillShape
     // Something that flies from the caster towards the cursor and hits on the way: Llamarada, Burbuja,
     // Rayo. Its path is a line as wide as the projectile; where it bursts, a circle.
     Projectile,
+
+    // A band of Length × Width centred where you aim, across the line from you to the cursor, that stays
+    // for Duration and hits everything on it every Hit Interval: Muro ígneo.
+    Wall,
+
+    // A post where you aim that stays for Duration and every Hit Interval hits the nearest enemy within
+    // Radius: Bobina.
+    Turret,
 }

@@ -7,7 +7,8 @@ using UnityEngine;
 // all end here, so every hit follows the same rules.
 // Plain C#: PlayerSkills builds one and lends it to whoever needs it.
 // FindTargets runs on the caster's PC with what it sees; everything else runs on the host only, which
-// checks those targets against its own view before applying aura, damage, push and trap.
+// checks those targets against its own view before applying aura, damage, push and trap. Walls and
+// turrets have no caster's view to check: the host finds their targets itself (HitInside, HitNearest).
 public class SkillHitResolver
 {
     private readonly NetworkBehaviour _caster;
@@ -99,6 +100,51 @@ public class SkillHitResolver
         }
 
         HitTarget(skill, slot, path, target, skill.GetElement(_element.Current));
+        return true;
+    }
+
+    /// <summary>
+    /// Host only. Every living enemy the host sees touching the area, up to MaxTargets, for one hit of a
+    /// wall. No aura ring: a wall hits many times, and the ring would mark half the arena.
+    /// </summary>
+    public void HitInside(SkillInstance skill, AttackSlot slot, SkillArea area)
+    {
+        ElementType element = skill.GetElement(_element.Current);
+        foreach (Health target in FindTargets(area))
+            HitTarget(skill, slot, area, target, element);
+    }
+
+    /// <summary>
+    /// Host only. The nearest living enemy within radius of center, for one shot of a turret. False, and
+    /// nothing hit, when there's none; otherwise where it was, to draw the shot.
+    /// </summary>
+    public bool HitNearest(SkillInstance skill, AttackSlot slot, Vector2 center, float radius, out Vector2 hitPoint)
+    {
+        hitPoint = center;
+        SkillArea reach = SkillArea.Circle(center, radius);
+        Physics2D.OverlapCircle(center, radius, _targetFilter, _candidates);
+
+        Health nearest = null;
+        float nearestDistance = float.MaxValue;
+        foreach (Collider2D candidate in _candidates)
+        {
+            Health health = candidate.GetComponentInParent<Health>();
+            if (health == null || health.IsDead)
+                continue;
+
+            float distance = ((Vector2)candidate.bounds.center - center).sqrMagnitude;
+            if (distance < nearestDistance)
+            {
+                nearest = health;
+                nearestDistance = distance;
+                hitPoint = candidate.bounds.center;
+            }
+        }
+
+        if (nearest == null)
+            return false;
+
+        HitTarget(skill, slot, reach, nearest, skill.GetElement(_element.Current));
         return true;
     }
 

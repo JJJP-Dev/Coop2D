@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 193ccb8f7f0fea348a50fe929a1b8cf8, type: 3}
+  m_Name: VoltCoil
+  m_EditorClassIdentifier: Assembly-CSharp::SkillDefinition
+  _id: volt_coil
+  _displayName: Bobina
+  _icon: {fileID: 0}
+  _description: "Torreta 5 s: dispara cada segundo a \u2264 4 m"
+  _usesCasterElement: 0
+  _element: 3
+  _canDetonate: 0
+  _auraStrength: 1
+  _cooldown: 8
+  _castRange: 6
+  _shape: 5
+  _radius: 4
+  _length: 5
+  _width: 0.5
+  _angle: 60
+  _projectileSpeed: 14
+  _projectileRadius: 0.2
+  _impactRadius: 0
+  _pierce: 0
+  _burstAtEnd: 1
+  _trapDuration: 0
+  _projectilePrefab: {fileID: 0}
+  _duration: 5
+  _hitInterval: 1
+  _damage: 8
+  _knockback: 0
+  _knockbackDuration: 0.15
+  _visual: {fileID: 5301884050686939402, guid: 70d7fecba95a40b9aa94e3da0195caab, type: 3}
+  _levels:
+  - _description: "+1 s de duraci\u00F3n (6 disparos)"
+    _damagePercent: 0
+    _cooldownPercent: 0
+    _radiusAdd: 0
+    _lengthAdd: 0
+    _angleAdd: 0
+    _impactRadiusAdd: 0
+    _trapDurationAdd: 0
+    _pierceAdd: 0
+    _durationAdd: 1
+  - _description: "+1 m de alcance (5 m)"
+    _damagePercent: 0
+    _cooldownPercent: 0
+    _radiusAdd: 1
+    _lengthAdd: 0
+    _angleAdd: 0
+    _impactRadiusAdd: 0
+    _trapDurationAdd: 0
+    _pierceAdd: 0
+    _durationAdd: 0

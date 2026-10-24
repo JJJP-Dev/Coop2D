@@ -187,7 +187,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 - `Code/Player/Characters/`: `CharacterDefinition` (la ficha de un personaje: id, nombre, elemento y habilidades de inicio), `PlayerCharacters` (todos los personajes y el de cada hueco) y `PlayerCharacter` (en el jugador: cuál juega).
 - `Code/Player/Elements/PlayerElement.cs`: el elemento del jugador, que sale de su personaje.
 
-**Dónde está montado.** `Prefabs/Player/Player.prefab` (capa Player). Lleva: NetworkObject, NetworkTransform, PlayerInputReader, PlayerMovement, PlayerIdentity, PlayerCharacter, PlayerColorMarker, Health, PlayerAutoAttack, PlayerElement, PlayerSkillSlots, PlayerSkills, PlayerSkillProjectiles, HitFlash, PlayerDowned, PlayerDownedView, PlayerRevive, PlayerUpgrades, PlayerOffers, PlayerChoosingView, PlayerStats y PlayerUpgradeEvents. Hijos: `Visual` (sprite), `SlotMarker` (punto de color), `HealthLabel`, `DownedLabel` y `ChoosingLabel`.
+**Dónde está montado.** `Prefabs/Player/Player.prefab` (capa Player). Lleva: NetworkObject, NetworkTransform, PlayerInputReader, PlayerMovement, PlayerIdentity, PlayerCharacter, PlayerColorMarker, Health, PlayerAutoAttack, PlayerElement, PlayerSkillSlots, PlayerSkills, PlayerSkillProjectiles, PlayerSkillPlacements, HitFlash, PlayerDowned, PlayerDownedView, PlayerRevive, PlayerUpgrades, PlayerOffers, PlayerChoosingView, PlayerStats y PlayerUpgradeEvents. Hijos: `Visual` (sprite), `SlotMarker` (punto de color), `HealthLabel`, `DownedLabel` y `ChoosingLabel`.
 
 **Cómo funciona.**
 1. Cuando una conexión ha cargado la escena, `PlayerSpawnService` le da el primer hueco libre, crea el jugador en su punto de aparición y le pone el hueco **antes de crearlo en la red** (así el hueco llega a todos con el jugador).
@@ -204,7 +204,7 @@ Bootstrap ──► MainMenu ──► Arena_Test          (la partida)
 | Velocidad, aceleración, frenada | `Data/Characters/DefaultPlayerMovement.asset` | 5 · 50 · 60 |
 | Color de cada hueco | `Data/Players/PlayerColors.asset` | rojo, azul, verde, amarillo |
 | Personaje de cada hueco, y la lista de personajes | `Data/Players/PlayerCharacters.asset` | Brasa, Marea, Voltio, Brasa |
-| Nombre, elemento, habilidad inicial y kit de cada personaje | `Data/Characters/Ember.asset`, `Tide.asset`, `Volt.asset` | Brasa fuego, empieza con Llamarada y su kit es Llovizna · Marea agua, Ola y Burbuja prisión + Chispa · Voltio electricidad, Rayo y Cortocircuito. Muro ígneo (Brasa) y Bobina (Voltio) entrarán en el kit cuando existan |
+| Nombre, elemento, habilidad inicial y kit de cada personaje | `Data/Characters/Ember.asset`, `Tide.asset`, `Volt.asset` | Brasa fuego, empieza con Llamarada y su kit es Muro ígneo + Llovizna · Marea agua, Ola y Burbuja prisión + Chispa · Voltio electricidad, Rayo y Bobina + Cortocircuito |
 
 **Cuidado con.** Máximo 4 jugadores (`PlayerSlots.MaxPlayers`); el quinto se desconecta. Los puntos de aparición están en `PlayerSpawnPoints` de cada escena: sin ellos, todos aparecen en el origen.
 - **Un personaje que no está en la lista *Characters* de `PlayerCharacters` no se puede jugar**: los demás PCs reciben su id y no encontrarían su ficha. El asset avisa en consola si das a un hueco uno que no está.
@@ -284,17 +284,20 @@ Hay además dos habilidades **de prueba**, Estallido (círculo que detona) y Mar
 | *Line* | Desde ti hacia el cursor, siempre a todo su largo; golpea a todos los que toca | Chispa (5 × 0,5 m) |
 | *Cone* | Desde ti hacia el cursor; una cuña de *Length* de radio y *Angle* grados de abertura | Ola (3 m, 60°) |
 | *Projectile* | Vuela desde ti hacia el cursor hasta *Length*. Golpea directamente (*Impact Radius* 0) a 1 + *Pierce* enemigos, o estalla en un círculo de *Impact Radius* al tocar el primero (y al final de su recorrido, con *Burst At End*) | Rayo (directo, atraviesa a 1), Llamarada (estalla 1,5 m), Burbuja (estalla 1,5 m y atrapa) |
+| *Wall* | Una banda de *Length* × *Width* centrada donde apuntas (como mucho a *Cast Range*), **de través** a la línea que va de ti al cursor. Se queda *Duration* segundos y golpea a todo lo que la toca cada *Hit Interval* | Muro ígneo (4 × 0,5 m, 3 s, cada 0,5 s) |
+| *Turret* | Un poste donde apuntas. Se queda *Duration* segundos y cada *Hit Interval* dispara al enemigo más cercano a menos de *Radius* | Bobina (5 s, cada 1 s, a ≤ 4 m) |
 
-**Piezas.** Tres componentes en el jugador y una clase normal, cada uno con una tarea:
+**Piezas.** Cuatro componentes en el jugador y una clase normal, cada uno con una tarea:
 
 | Pieza | Qué hace | Dónde corre |
 |---|---|---|
 | `PlayerSkillSlots` | Qué habilidades tiene el jugador y a qué nivel (la lista sincronizada) | Todos la leen; solo el host la cambia |
 | `PlayerSkills` | Lanzar: leer la tecla, apuntar, las recargas, comprobar un lanzamiento en el host, dibujarlo | Dueño y host |
 | `PlayerSkillProjectiles` | Las que vuelan: lanzar, avisar de golpes y estallidos, recordar cada lanzamiento en el host | Dueño y host |
+| `PlayerSkillPlacements` | Las que se quedan (muros y torretas): el host las hace golpear mientras duran (`SkillPlacement`) y avisa de cada disparo de torreta; todos las dibujan | Host (golpes); todos (dibujo) |
 | `SkillHitResolver` | Qué le pasa a un enemigo al que le da una habilidad: aura, daño, empuje, atrapar, el anillo de Aura expansiva. No es un componente: lo crea `PlayerSkills` y se lo presta a quien lo necesite | Host (salvo `FindTargets`, en el dueño) |
 
-Así cualquier cosa que golpee con una habilidad (un proyectil, y más adelante una zona o una torreta) pasa por las mismas reglas. Además: `SkillDefinition`, `SkillLevelModifier` (lo que cambia un nivel), `SkillInstance` (una habilidad con su nivel), `OwnedSkill` (lo que viaja de cada hueco), `SkillLibrary`, `SkillShape`, `SkillArea` (la zona de un lanzamiento ya colocada, con sus cuentas), `SkillCastSettings`, `SkillShapeVisual` (el dibujo provisional) y `Prefabs/Skills/SkillShapeVisual.prefab`; para los proyectiles, `SkillProjectile` (lo que vuela) con `Prefabs/Skills/SkillProjectile.prefab` y `SkillShotRecord` (lo que recuerda el host de cada uno); en el HUD, `Code/UI/InGame/SkillSlotView.cs`.
+Así cualquier cosa que golpee con una habilidad (un lanzamiento, un proyectil, un muro o una torreta) pasa por las mismas reglas. Además: `SkillDefinition`, `SkillLevelModifier` (lo que cambia un nivel), `SkillInstance` (una habilidad con su nivel), `OwnedSkill` (lo que viaja de cada hueco), `SkillLibrary`, `SkillShape`, `SkillArea` (la zona de un lanzamiento ya colocada, con sus cuentas), `SkillCastSettings`, `SkillShapeVisual` (el dibujo provisional) y `Prefabs/Skills/SkillShapeVisual.prefab`; para los proyectiles, `SkillProjectile` (lo que vuela) con `Prefabs/Skills/SkillProjectile.prefab` y `SkillShotRecord` (lo que recuerda el host de cada uno); en el HUD, `Code/UI/InGame/SkillSlotView.cs`.
 
 **Cómo funciona.**
 1. El dueño pulsa. El juego toma **desde dónde** lanza (su posición) y **hacia dónde** (el cursor; un círculo se queda a su alcance, una línea o un cono solo usan la dirección) y arma la zona (`SkillArea`). Busca los enemigos que la tocan **en su pantalla** y la dibuja al momento.
@@ -313,7 +316,15 @@ Así cualquier cosa que golpee con una habilidad (un proyectil, y más adelante 
 5. **El lanzamiento lleva su tick** (el reloj del host tal como lo estima el dueño). Las mejoras que escuchan lanzamientos (Tempo) cuentan desde ese tick, así que su efecto empieza y acaba en el mismo tick en el host y en el dueño. El host no acepta un tick del futuro ni de más de 0,5 s atrás.
 6. **Recarga devuelta** (Relevo, Asistencia): `RefundCooldowns` (host) quita segundos a cada recarga que esté corriendo, en el host y, con un `TargetRpc`, en el dueño; cada uno lo calcula con su reloj. Nunca deja una recarga por debajo del **60 %** de su tiempo completo desde que se lanzó (regla 1 del motor): con 7 s, como pronto a los 4,2 s.
 
-**Qué ajustar.** Cada habilidad es un asset en `Data/Skills/`: id, nombre, icono, si usa el elemento de quien la lanza (o el suyo), si detona, fuerza del aura, recarga, alcance (solo círculo), forma con sus medidas (*Radius*; *Length* y *Width*; *Length* y *Angle*), daño, empuje y el dibujo (*Visual* = `SkillShapeVisual.prefab`).
+**Muros y torretas** (Muro ígneo, Bobina), en `PlayerSkillPlacements`. Al revés que el resto, **los decide el host**: duran segundos y nadie puede avisar de lo que tocan.
+1. El dueño lanza como una habilidad instantánea, pero sin objetivos: manda el hueco, el origen y el punto (`ServerCast`) y dibuja el muro o la torreta al momento.
+2. El host hace las comprobaciones de siempre (origen, alcance, recarga) y guarda la colocación (`SkillPlacement`: habilidad con su nivel, zona, cuándo acaba y cuándo toca el siguiente golpe). Tempo cuenta desde aquí. Los demás la dibujan con el `ObserversCast` de siempre.
+3. Cada fotograma, el host mira cuáles toca golpear. **Muro:** golpea con aura y daño a todos los enemigos que **él** ve tocando la banda (`SkillHitResolver.HitInside`). **Torreta:** al enemigo vivo más cercano dentro de su alcance (`HitNearest`), y si había alguno manda el disparo a todos (`ObserversShot`, una línea del poste al enemigo). El primer golpe es en el acto; el último, antes de que acabe: Muro ígneo golpea 6 veces y Bobina dispara 5.
+4. Ninguno detona (en sus datos *Can Detonate* está apagado): dejan aura fuerte para que otro la detone. La recarga del aura (1 s por hueco) hace que un muro no la renueve más de una vez por segundo.
+5. **Dibujo:** se queda entero mientras dura, se va apagando al acercarse el final y da un destello en cada golpe (al mismo ritmo que el host, calculado en cada PC). La torreta enseña además su alcance un momento al colocarla.
+6. Si el hueco cambia de habilidad o se reinicia la partida, lo que había en el suelo desaparece en el host y en todas las pantallas.
+
+**Qué ajustar.** Cada habilidad es un asset en `Data/Skills/`: id, nombre, icono, si usa el elemento de quien la lanza (o el suyo), si detona, fuerza del aura, recarga, alcance (círculo, muro y torreta), forma con sus medidas (*Radius*; *Length* y *Width*; *Length* y *Angle*), duración y ritmo de golpes (*Placed*), daño (siempre **por golpe**), empuje y el dibujo (*Visual* = `SkillShapeVisual.prefab`). En el prefab Player, *Player Skill Placements* tiene el ancho de la línea de disparo (0,15) y el tamaño del poste provisional (0,35).
 
 | Habilidad | Asset | Elemento | Forma | Daño | Recarga | Detona | Nivel 2 · nivel 3 |
 |---|---|---|---|---|---|---|---|
@@ -324,6 +335,8 @@ Así cualquier cosa que golpee con una habilidad (un proyectil, y más adelante 
 | Chispa (Marea) | `TideSpark` | electricidad | línea 5 × 0,5 | 15 | 7 s | sí | +20 % daño · 7 m de largo |
 | Rayo (inicial de Voltio) | `VoltBolt` | electricidad | proyectil 16 m/s hasta 9, atraviesa a 1 (golpea a 2) | 22 | 4 s | sí | +20 % daño · −12,5 % recarga |
 | Cortocircuito (Voltio) | `VoltShort` | fuego | círculo 1,5, a 7 | 16 | 7 s | sí | +25 % daño · −15 % recarga |
+| Muro ígneo (Brasa) | `EmberFirewall` | fuego | muro 4 × 0,5, a 6, 3 s | 3 cada 0,5 s (6/s) | 8 s | no | +50 % daño (5 por golpe, 10/s) · 4 s |
+| Bobina (Voltio) | `VoltCoil` | electricidad | torreta a 6, 5 s, dispara cada 1 s a ≤ 4 | 8 por disparo | 8 s | no | 6 s (6 disparos) · alcance 5 |
 | Estallido (prueba) | `TestBurst` | el tuyo | círculo 1,5, a 7 | 16 | 7 s | sí | — |
 | Marca (prueba) | `TestMark` | el tuyo | círculo 2, a 7 | 10 | 7 s | no | — |
 
@@ -331,6 +344,8 @@ Las tolerancias de validación, en `DefaultSkillCast.asset` (como mucho 12 objet
 
 **Cuidado con.**
 - `SkillShape` se guarda como número en los assets: formas nuevas, **al final**.
+- **Muros y torretas:** sin Aura expansiva (golpean muchas veces y marcarían media arena). Los ve y decide el host, así que con ping un cliente puede ver a un enemigo «dentro» del muro sin que le dé: es el host quien lo ve en otro sitio. Quien entra a mitad de partida no ve los que ya estaban en el suelo (duran unos segundos).
+- **Redondeo del daño por nivel:** las mitades redondean hacia arriba (+50 % de 3 son 5). El catálogo dice 9 por segundo para el nivel 2 del muro; con golpes enteros cada 0,5 s salen 10.
 - **Proyectiles:** Aura expansiva funciona con los que estallan (anillo alrededor del círculo), no con los de golpe directo (Rayo). Burbuja también estalla al final de su recorrido si no toca a nadie (*Burst At End*): moja la zona, pero no atrapa a nadie. Un proyectil no lo para una pared: solo choca con la capa Enemy, como el básico.
 - Si el dueño se desconecta con un proyectil en el aire, su copia ya no avisa de nada: no hace daño.
 - Un cono de más de 180° no es una cuña: las cuentas de `SkillArea` lo dan por hecho (el Inspector no deja pasar de 180).

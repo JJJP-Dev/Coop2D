@@ -10,7 +10,8 @@ using UnityEngine.EventSystems;
 // Which skills the player has is PlayerSkillSlots; this casts them.
 // Where they hit: a circle, a line or a cone (SkillArea). The owner sends where it stood and where it
 // aimed, and the host rebuilds the same area from those two points to check the targets.
-// What a hit does is SkillHitResolver; skills that fly are PlayerSkillProjectiles.
+// What a hit does is SkillHitResolver; skills that fly are PlayerSkillProjectiles; walls and turrets,
+// which the host keeps making hit after the cast, are PlayerSkillPlacements.
 [RequireComponent(typeof(PlayerElement))]
 [RequireComponent(typeof(PlayerSkillSlots))]
 public class PlayerSkills : NetworkBehaviour
@@ -29,6 +30,7 @@ public class PlayerSkills : NetworkBehaviour
     private PlayerElement _element;
     private PlayerSkillSlots _slots;
     private PlayerSkillProjectiles _projectiles;
+    private PlayerSkillPlacements _placements;
     private PlayerDowned _downed;
     private PlayerStats _stats;
     private PlayerUpgradeEvents _events;
@@ -42,6 +44,9 @@ public class PlayerSkills : NetworkBehaviour
     private readonly double[] _serverReadyTimes = new double[SlotCount];
     private readonly double[] _serverCastTimes = new double[SlotCount];
 
+    // What a wall or a turret sends instead of targets: the host finds them itself, hit after hit.
+    private readonly List<Health> _noTargets = new();
+
     private void Awake()
     {
         _element = GetComponent<PlayerElement>();
@@ -54,6 +59,9 @@ public class PlayerSkills : NetworkBehaviour
 
         if (!TryGetComponent(out _projectiles))
             Debug.LogError("[PlayerSkills] The player has no PlayerSkillProjectiles: its projectile skills do nothing.", this);
+
+        if (!TryGetComponent(out _placements))
+            Debug.LogError("[PlayerSkills] The player has no PlayerSkillPlacements: its walls and turrets do nothing.", this);
 
         // Optional: without it the player can never be downed.
         TryGetComponent(out _downed);
@@ -167,7 +175,7 @@ public class PlayerSkills : NetworkBehaviour
         if (skill == null || Hits == null || Time.time < _readyTimes[index])
             return;
 
-        if (skill.IsProjectile && _projectiles == null)
+        if ((skill.IsProjectile && _projectiles == null) || (skill.IsPlaced && _placements == null))
             return;
 
         // A downed player can't cast.
@@ -197,8 +205,8 @@ public class PlayerSkills : NetworkBehaviour
         else
         {
             SkillArea area = SkillArea.For(skill, origin, point);
-            List<Health> targets = Hits.FindTargets(area);
-            ShowCast(skill, area);
+            List<Health> targets = skill.IsPlaced ? _noTargets : Hits.FindTargets(area);
+            Draw(slot, skill, area);
 
             // The host's own player runs the server's checks right here.
             if (IsServerInitialized)
@@ -256,12 +264,16 @@ public class PlayerSkills : NetworkBehaviour
             return;
 
         SkillArea area = SkillArea.For(skill, origin, point);
-        Hits.ApplyArea(skill, slot, area, targets);
+        if (skill.IsPlaced)
+            _placements.Place(slot, skill, area);
+        else
+            Hits.ApplyArea(skill, slot, area, targets);
+
         RaiseCastAccepted(tick);
 
         // The caster already drew it, so the host only draws a client's cast.
         if (!IsOwner)
-            ShowCast(skill, area);
+            Draw(slot, skill, area);
 
         ObserversCast(slot, origin, point);
     }
@@ -275,7 +287,7 @@ public class PlayerSkills : NetworkBehaviour
         skill = GetSkill(slot);
         int index = ToIndex(slot);
 
-        if (skill == null || Hits == null || skill.IsProjectile != projectile)
+        if (skill == null || Hits == null || skill.IsProjectile != projectile || (skill.IsPlaced && _placements == null))
         {
             Debug.LogWarning($"[PlayerSkills] Rejected a cast from client {OwnerId}: slot {slot} has no skill of that kind.", this);
             return false;
@@ -399,7 +411,16 @@ public class PlayerSkills : NetworkBehaviour
     {
         SkillInstance skill = GetSkill(slot);
         if (skill != null)
-            ShowCast(skill, SkillArea.For(skill, origin, point));
+            Draw(slot, skill, SkillArea.For(skill, origin, point));
+    }
+
+    // A wall or a turret stays for its whole duration; everything else flashes and fades.
+    private void Draw(AttackSlot slot, SkillInstance skill, SkillArea area)
+    {
+        if (skill.IsPlaced && _placements != null)
+            _placements.Show(slot, skill, area);
+        else
+            ShowCast(skill, area);
     }
 
     /// <summary>

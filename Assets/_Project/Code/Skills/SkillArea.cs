@@ -38,9 +38,9 @@ public readonly struct SkillArea
     }
 
     /// <summary>
-    /// The area of that skill cast from origin towards aim. A circle lands on aim (the caller clamps it to
-    /// the cast range); a line or a cone only takes the direction of aim and always has its full length.
-    /// With the skill's level, so a longer Chispa is checked as long as it is drawn.
+    /// The area of that skill cast from origin towards aim. A circle, a wall or a turret lands on aim (the
+    /// caller clamps it to the cast range); a line or a cone only takes the direction of aim and always has
+    /// its full length. With the skill's level, so a longer Chispa is checked as long as it is drawn.
     /// </summary>
     public static SkillArea For(SkillInstance skill, Vector2 origin, Vector2 aim)
     {
@@ -49,6 +49,19 @@ public readonly struct SkillArea
 
         if (skill.Shape == SkillShape.Circle)
             return new SkillArea(SkillShape.Circle, origin, aim, direction, skill.Radius, 0f, 0f, 0f);
+
+        // A turret covers the circle it reaches.
+        if (skill.Shape == SkillShape.Turret)
+            return Circle(aim, skill.Radius);
+
+        // A wall is a band centred on aim, across the line from the caster: a Line that starts at one end.
+        if (skill.Shape == SkillShape.Wall)
+        {
+            Vector2 across = new(-direction.y, direction.x);
+            Vector2 start = aim - across * (skill.Length * 0.5f);
+            return new SkillArea(SkillShape.Line, start, start + across * skill.Length, across, 0f, skill.Length,
+                                 skill.Width * 0.5f, 0f);
+        }
 
         // A projectile's area is its path: a band as wide as the projectile, as long as it flies.
         float halfWidth = skill.Shape == SkillShape.Projectile ? skill.ProjectileRadius : skill.Width * 0.5f;
@@ -63,6 +76,17 @@ public readonly struct SkillArea
     public static SkillArea Circle(Vector2 center, float radius)
     {
         return new SkillArea(SkillShape.Circle, center, center, Vector2.right, radius, 0f, 0f, 0f);
+    }
+
+    /// <summary>
+    /// A straight band from one point to another, for drawing a turret's shot.
+    /// </summary>
+    public static SkillArea Band(Vector2 from, Vector2 to, float halfWidth)
+    {
+        Vector2 toEnd = to - from;
+        float length = Mathf.Max(0.01f, toEnd.magnitude);
+        Vector2 direction = toEnd.sqrMagnitude > 0.0001f ? toEnd / length : Vector2.right;
+        return new SkillArea(SkillShape.Line, from, to, direction, 0f, length, halfWidth, 0f);
     }
 
     /// <summary>

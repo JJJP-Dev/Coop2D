@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 // A skill as one player has it: its data and its level, with the numbers of that level already
@@ -19,6 +20,7 @@ public sealed class SkillInstance
         float impactAdd = 0f;
         float trapAdd = 0f;
         int pierceAdd = 0;
+        float durationAdd = 0f;
 
         // Level 2 is the first modifier, level 3 the second; they add up.
         for (int i = 0; i < Level - 1; i++)
@@ -35,9 +37,12 @@ public sealed class SkillInstance
             impactAdd += modifier.ImpactRadiusAdd;
             trapAdd += modifier.TrapDurationAdd;
             pierceAdd += modifier.PierceAdd;
+            durationAdd += modifier.DurationAdd;
         }
 
-        Damage = Mathf.Max(0, Mathf.RoundToInt(definition.Damage * (1f + damagePercent / 100f)));
+        // Halves round up, as players expect: +50 % of 3 is 5, not the 4 that Mathf.RoundToInt gives.
+        double damage = definition.Damage * (1.0 + damagePercent / 100.0);
+        Damage = Mathf.Max(0, (int)Math.Round(damage, MidpointRounding.AwayFromZero));
         Cooldown = Mathf.Max(0.1f, definition.Cooldown * (1f + cooldownPercent / 100f));
         Radius = Mathf.Max(0.1f, definition.Radius + radiusAdd);
         Length = Mathf.Max(0.1f, definition.Length + lengthAdd);
@@ -45,6 +50,7 @@ public sealed class SkillInstance
         ImpactRadius = Mathf.Max(0f, definition.ImpactRadius + impactAdd);
         TrapDuration = Mathf.Max(0f, definition.TrapDuration + trapAdd);
         Pierce = Mathf.Max(0, definition.Pierce + pierceAdd);
+        Duration = Mathf.Max(0.1f, definition.Duration + durationAdd);
     }
 
     public SkillDefinition Definition { get; }
@@ -63,6 +69,7 @@ public sealed class SkillInstance
     public float ImpactRadius { get; }
     public float TrapDuration { get; }
     public int Pierce { get; }
+    public float Duration { get; }
 
     // Projectiles fly at their base speed, so how far they go sets how long (Chispa's +2 m is a line).
     public float FlightTime => Length / Definition.ProjectileSpeed;
@@ -85,6 +92,8 @@ public sealed class SkillInstance
     public SkillShapeVisual Visual => Definition.Visual;
     public bool IsAimedByDirection => Definition.IsAimedByDirection;
     public bool IsProjectile => Definition.IsProjectile;
+    public bool IsPlaced => Definition.IsPlaced;
+    public float HitInterval => Definition.HitInterval;
     public bool Bursts => ImpactRadius > 0f;
 
     public ElementType GetElement(ElementType casterElement)
