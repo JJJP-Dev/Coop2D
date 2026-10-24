@@ -3,7 +3,7 @@
   "title": "Misiones de la 0.0.5",
   "intro": "La primera build del Pre 3: personajes, habilidades, mejoras y una partida de 10 minutos. Jugad solos y en grupo; lo que consigáis se marca solo, y lo hecho con trucos no cuenta.",
   "minGameVersion": "0.0.5-prototype.3",
-  "startsUtc": "2026-10-25T00:00:00+01:00",
+  "startsUtc": "2026-10-24T00:00:00+01:00",
   "endsUtc": "2026-11-08T23:59:00+00:00",
   "missions": [
     {
