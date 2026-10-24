@@ -31,6 +31,11 @@ public class PlayerSkills : NetworkBehaviour
     private PlayerSkillSlots _slots;
     private PlayerSkillProjectiles _projectiles;
     private PlayerSkillPlacements _placements;
+    private PlayerColorMarker _colorMarker;
+
+    // Owner side: the ring that shows how far the point-aimed skills reach, while the cursor is beyond.
+    private SkillShapeVisual _rangeRing;
+    private float _rangeRingRadius;
     private PlayerDowned _downed;
     private PlayerStats _stats;
     private PlayerUpgradeEvents _events;
@@ -59,6 +64,9 @@ public class PlayerSkills : NetworkBehaviour
 
         if (!TryGetComponent(out _projectiles))
             Debug.LogError("[PlayerSkills] The player has no PlayerSkillProjectiles: its projectile skills do nothing.", this);
+
+        // Optional: without it casts have no outline of the player's colour.
+        TryGetComponent(out _colorMarker);
 
         if (!TryGetComponent(out _placements))
             Debug.LogError("[PlayerSkills] The player has no PlayerSkillPlacements: its walls and turrets do nothing.", this);
@@ -103,7 +111,13 @@ public class PlayerSkills : NetworkBehaviour
     {
         base.OnStopClient();
         _input = null;
+        HideRangeRing();
     }
+
+    /// <summary>
+    /// Every PC. This player's colour, for the outline of what it casts.
+    /// </summary>
+    public Color PlayerColor => _colorMarker != null ? _colorMarker.Color : Color.white;
 
     // Polled here rather than through input callbacks: the check for the mouse
     // being over the UI isn't reliable inside a callback, and Unity warns about it.
@@ -111,6 +125,8 @@ public class PlayerSkills : NetworkBehaviour
     {
         if (!IsOwner || _input == null)
             return;
+
+        UpdateRangeRing();
 
         if (_input.Skill1.WasPressedThisFrame())
             TryCast(AttackSlot.Skill1);
@@ -221,6 +237,59 @@ public class PlayerSkills : NetworkBehaviour
         // The owner shows the effects of its own cast without waiting for the host.
         if (_events != null)
             _events.PredictSkillCast(tick);
+    }
+
+    // Only on the owner's screen: while the cursor is farther than a circle, wall or turret can land, a
+    // ring of the player's colour shows where it would stop. With several, the shortest one the cursor
+    // goes past, which is where the first skill would fall short.
+    private void UpdateRangeRing()
+    {
+        Camera camera = Camera.main;
+        bool downed = _downed != null && _downed.IsDowned;
+        if (camera == null || downed)
+        {
+            HideRangeRing();
+            return;
+        }
+
+        Vector2 origin = transform.position;
+        Vector2 cursor = camera.ScreenToWorldPoint(_input.Aim.ReadValue<Vector2>());
+        float distance = Vector2.Distance(origin, cursor);
+
+        SkillInstance shortest = null;
+        for (int i = 0; i < SlotCount; i++)
+        {
+            SkillInstance skill = GetSkillAt(i);
+            if (skill == null || skill.IsAimedByDirection || skill.Visual == null || skill.CastRange >= distance)
+                continue;
+
+            if (shortest == null || skill.CastRange < shortest.CastRange)
+                shortest = skill;
+        }
+
+        if (shortest == null)
+        {
+            HideRangeRing();
+            return;
+        }
+
+        if (_rangeRing == null || !Mathf.Approximately(_rangeRingRadius, shortest.CastRange))
+        {
+            HideRangeRing();
+            _rangeRingRadius = shortest.CastRange;
+            _rangeRing = Instantiate(shortest.Visual, origin, Quaternion.identity);
+            _rangeRing.ShowHeld(SkillArea.Circle(origin, _rangeRingRadius), Color.clear, PlayerColor);
+        }
+
+        _rangeRing.Follow(origin);
+    }
+
+    private void HideRangeRing()
+    {
+        if (_rangeRing != null)
+            _rangeRing.Stop();
+
+        _rangeRing = null;
     }
 
     private bool TryGetAimPoint(SkillInstance skill, Vector2 origin, out Vector2 point)
@@ -433,7 +502,7 @@ public class PlayerSkills : NetworkBehaviour
             return;
 
         SkillShapeVisual visual = Instantiate(skill.Visual, area.Origin, Quaternion.identity);
-        visual.Show(area, GetSkillColor(skill), skill.CanDetonate, IsOwner);
+        visual.Show(area, GetSkillColor(skill), skill.CanDetonate, IsOwner, PlayerColor);
     }
 
     /// <summary>

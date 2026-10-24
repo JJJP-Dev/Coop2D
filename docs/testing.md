@@ -561,6 +561,8 @@ Arena_Test con el host (J1, Brasa) y dos clientes (J2 Marea, J3 Voltio). Mira la
 | Balas de color | Mira el ataque básico de cada uno. | Brasa dispara naranja, Marea azul y Voltio amarillo (los colores de los elementos), igual en las tres ventanas. Con F6, las balas nuevas cambian de color. |
 | Borde de lo que detona | Marea lanza Ola (detona) y Burbuja (no detona). | La Ola tiene un borde claro; la burbuja estalla sin borde. El muro y la torreta, sin borde. |
 | Tuyo y de otros | Lanzad habilidades a la vez. | En cada ventana, las tuyas se ven más fuertes que las de los demás. |
+| Contorno del jugador | J1 y J4 (los dos Brasa) lanzan Llamarada a la vez. | Cada estallido lleva un contorno fino del color de su jugador. |
+| Anillo de alcance | Con Llovizna o el muro, aleja el cursor más de 6-7 m. | Aparece un anillo de tu color a esa distancia y te sigue; desaparece al acercar el cursor. Solo lo ves tú. |
 | Duración | Lanza Chispa. | Destello al salir y se desvanece en medio segundo, no en un parpadeo. |
 | Proyectiles | Brasa lanza Llamarada, Marea Burbuja y Voltio Rayo. | La burbuja se ve claramente más grande y sin rastro; el rayo, fino. Si el prefab tiene rastro, Llamarada y Rayo lo dejan de su color. |
 | Atrapado | Marea atrapa a un perseguidor con Burbuja; luego Sobrecarga sobre otro. | «Aturdido» encima del enemigo mientras no se mueve, en todas las ventanas, y desaparece cuando vuelve a andar. |

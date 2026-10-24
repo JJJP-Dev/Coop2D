@@ -9,6 +9,11 @@ public class PlayerColorMarker : NetworkBehaviour
 
     private PlayerIdentity _identity;
 
+    /// <summary>
+    /// Every PC. This player's colour, the one of its marker, for whatever else should say whose it is.
+    /// </summary>
+    public Color Color => _colors != null && _identity != null ? _colors.GetColor(_identity.Slot) : Color.white;
+
     private void Awake()
     {
         _identity = GetComponent<PlayerIdentity>();
