@@ -81,6 +81,10 @@ public class SkillDefinition : ScriptableObject
     [Tooltip("What flies. Only the picture: every PC flies its own copy, and only the caster's reports hits.")]
     [SerializeField] private SkillProjectile _projectilePrefab;
 
+    [Tooltip("Whether it leaves a trail of its colour, if the prefab has one. Off for slow ones (Burbuja), " +
+             "so fast and slow projectiles read apart.")]
+    [SerializeField] private bool _projectileTrail = true;
+
     [Header("Placed (Wall, Turret)")]
     [Tooltip("Seconds it stays.")]
     [SerializeField, Min(0.1f)] private float _duration = 3f;
@@ -141,6 +145,7 @@ public class SkillDefinition : ScriptableObject
     public bool BurstAtEnd => _burstAtEnd;
     public float TrapDuration => _trapDuration;
     public SkillProjectile ProjectilePrefab => _projectilePrefab;
+    public bool ProjectileTrail => _projectileTrail;
     public bool IsProjectile => _shape == SkillShape.Projectile;
     public float Duration => _duration;
     public float HitInterval => _hitInterval;

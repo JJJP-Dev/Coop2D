@@ -6,6 +6,8 @@ using UnityEngine;
 // Projectile: every PC flies its own copy, and only the caster's copy reports what it hits; the host
 // checks each report against the path it remembers. It flies straight, so the host can check it.
 // It hits each enemy once, stops after its last allowed hit, and also stops at the end of its range.
+// It's drawn as big as it collides (Projectile Radius), so a bubble looks bigger than a bolt, and it can
+// leave a trail of its colour.
 [RequireComponent(typeof(SpriteRenderer))]
 public class SkillProjectile : MonoBehaviour
 {
@@ -15,6 +17,13 @@ public class SkillProjectile : MonoBehaviour
     // Nearest first, so a projectile that stops on its first hit stops on the right enemy. Cached, so
     // sorting every frame doesn't allocate.
     private static readonly Comparison<RaycastHit2D> ByDistance = (a, b) => a.distance.CompareTo(b.distance);
+
+    [Tooltip("Optional. A Trail Renderer on this object, tinted with the skill's colour. Skills whose data " +
+             "says no trail switch it off.")]
+    [SerializeField] private TrailRenderer _trail;
+
+    [Tooltip("Width of the trail where it starts, as a share of the projectile's diameter.")]
+    [SerializeField, Range(0.1f, 1f)] private float _trailWidth = 0.6f;
 
     private readonly List<RaycastHit2D> _hits = new();
     private readonly HashSet<Health> _alreadyHit = new();
@@ -29,6 +38,15 @@ public class SkillProjectile : MonoBehaviour
     private Action<Collider2D> _onHit;
     private Action<Vector2, Collider2D> _onStop;
     private bool _launched;
+    private bool _wantsTrail = true;
+
+    /// <summary>
+    /// Before Launch: whether this one leaves its trail.
+    /// </summary>
+    public void SetTrail(bool on)
+    {
+        _wantsTrail = on;
+    }
 
     /// <summary>
     /// hits is how many enemies it hits before stopping (1 for one that bursts). onHit gets each enemy it
@@ -53,7 +71,22 @@ public class SkillProjectile : MonoBehaviour
         _filter.SetLayerMask(layers);
         _filter.useTriggers = true;
 
-        GetComponent<SpriteRenderer>().color = color;
+        SpriteRenderer sprite = GetComponent<SpriteRenderer>();
+        sprite.color = color;
+
+        // The sprite's own size at scale 1, so any sprite ends up as wide as the projectile collides.
+        float spriteSize = sprite.sprite != null ? Mathf.Max(0.01f, sprite.sprite.bounds.size.x) : 1f;
+        transform.localScale = Vector3.one * (radius * 2f / spriteSize);
+
+        if (_trail != null)
+        {
+            _trail.Clear();
+            _trail.enabled = _wantsTrail;
+            _trail.widthMultiplier = radius * 2f * _trailWidth;
+            _trail.startColor = color;
+            _trail.endColor = new Color(color.r, color.g, color.b, 0f);
+        }
+
         _alreadyHit.Clear();
         _launched = true;
     }

@@ -258,6 +258,8 @@ public class PlayerSkillProjectiles : NetworkBehaviour
             return null;
         }
 
-        return Instantiate(skill.ProjectilePrefab, origin, Quaternion.identity);
+        SkillProjectile projectile = Instantiate(skill.ProjectilePrefab, origin, Quaternion.identity);
+        projectile.SetTrail(skill.Definition.ProjectileTrail);
+        return projectile;
     }
 }

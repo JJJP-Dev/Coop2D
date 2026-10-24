@@ -28,12 +28,13 @@ MonoBehaviour:
   _width: 0.5
   _angle: 60
   _projectileSpeed: 12
-  _projectileRadius: 0.2
+  _projectileRadius: 0.35
   _impactRadius: 1.5
   _pierce: 0
   _burstAtEnd: 1
   _trapDuration: 1.5
   _projectilePrefab: {fileID: 2348152440398012223, guid: 44c02f9ac2f346d4be8ae61080051bb6, type: 3}
+  _projectileTrail: 0
   _damage: 10
   _knockback: 0
   _knockbackDuration: 0.15
