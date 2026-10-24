@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 
-// Changes one stat for a few seconds (#161 and #157, catalog StatModifier with duration): Tempo is −20 %
-// of basic interval for 2 s, Viento a favor +25 % of speed for 2 s. Inside an OnEventBlock.
+// Changes one stat for a few seconds: Tempo is −20 % of basic interval for 2 s, Viento a favor +25 % of
+// speed for 2 s. Inside an OnEventBlock.
 // The host adds it with the event's tick, so it ends on the same tick on the host and on the owner. For
 // the owner's own skill cast, the owner shows it at once and the host's copy replaces it when it arrives.
 [Serializable]

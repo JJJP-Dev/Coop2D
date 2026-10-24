@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
 
-// The catalog's appearIf of an upgrade (#78): when in the match it can be offered at all.
-// Only the conditions the Pre 3 upgrades use; the duo ones (pair of elements, reactions of the pair)
-// come with the duo upgrades (#166).
+// The catalog's appearIf of an upgrade: when in the match it can be offered at all.
+// Only the conditions today's upgrades use; the duo ones (pair of elements, reactions of the pair)
+// come with the duo upgrades.
 [Serializable]
 public class UpgradeAppearIf
 {

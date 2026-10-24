@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-// What one level of a skill changes (#162, catalog E.0 rule 5): level 2 and level 3 are each one of
+// What one level of a skill changes: level 2 and level 3 are each one of
 // these, and they add up. Percentages are of the skill's base numbers; the rest add to them.
 [Serializable]
 public class SkillLevelModifier

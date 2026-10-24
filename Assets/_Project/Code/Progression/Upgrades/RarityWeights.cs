@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-// One row of the catalog's rarity table (#78, C.2): from this level on, how much each rarity weighs.
+// One row of the catalog's rarity table: from this level on, how much each rarity weighs.
 // They are weights, not percentages: they don't need to add up to 100.
 [Serializable]
 public class RarityWeights
@@ -13,7 +13,7 @@ public class RarityWeights
     [SerializeField, Min(0)] private int _rare = 20;
     [SerializeField, Min(0)] private int _epic;
 
-    [Tooltip("0 until the 0.2.")]
+    [Tooltip("0 until legendary upgrades exist.")]
     [SerializeField, Min(0)] private int _legendary;
 
     // Unity creates rows with this one when a row is added in the Inspector.

@@ -1,4 +1,4 @@
-// One bonus on one stat of a player (#157): +3 of basic range, +9 % of basic interval... Each stack of
+// One bonus on one stat of a player: +3 of basic range, +9 % of basic interval... Each stack of
 // an upgrade adds its own. A plain struct with public fields, so FishNet sends it without a serializer
 // of our own.
 public struct StatBonus

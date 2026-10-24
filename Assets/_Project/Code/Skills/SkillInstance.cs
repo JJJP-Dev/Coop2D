@@ -1,7 +1,7 @@
 using UnityEngine;
 
-// A skill as one player has it (#162): its data and its level, with the numbers of that level already
-// worked out. Every PC builds the same one from the id and level PlayerSkills syncs, so the host's checks
+// A skill as one player has it: its data and its level, with the numbers of that level already
+// worked out. Every PC builds the same one from the id and level PlayerSkillSlots syncs, so the host's checks
 // and every client's picture use the same numbers. Immutable: a new level is a new instance.
 // It reads like a SkillDefinition, so the code that casts skills only asks for the numbers.
 public sealed class SkillInstance
@@ -20,7 +20,7 @@ public sealed class SkillInstance
         float trapAdd = 0f;
         int pierceAdd = 0;
 
-        // Level 2 is the first modifier, level 3 the second; they add up (catalog E.0 rule 5).
+        // Level 2 is the first modifier, level 3 the second; they add up.
         for (int i = 0; i < Level - 1; i++)
         {
             SkillLevelModifier modifier = definition.GetLevelModifier(i + 2);

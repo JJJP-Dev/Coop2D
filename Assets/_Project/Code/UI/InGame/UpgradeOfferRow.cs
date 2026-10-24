@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// One row of the upgrade offer's strip (#77): the key that picks it, the upgrade in one line and a tag
+// One row of the upgrade offer's strip: the key that picks it, the upgrade in one line and a tag
 // (rarity, stacks). Only the picture; UpgradeOfferPanel decides what it shows and what a click does.
 public class UpgradeOfferRow : MonoBehaviour
 {

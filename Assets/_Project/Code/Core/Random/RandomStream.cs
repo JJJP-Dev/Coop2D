@@ -1,4 +1,4 @@
-// What a stream of the run's seed is for (#75). Each one has its own numbers, so drawing more from one
+// What a stream of the run's seed is for. Each one has its own numbers, so drawing more from one
 // never changes another: a new roll in the waves leaves the upgrade offers as they were.
 // The numbers are written out because they pick the stream: changing one changes what every seed gives.
 // Add new streams with new numbers; never reuse or renumber one.

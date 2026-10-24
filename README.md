@@ -70,6 +70,7 @@ Assets/
 
 - `PascalCase` para clases, métodos y archivos; `camelCase` para variables; `_camelCase` para campos privados.
 - Una clase por archivo, con el mismo nombre que el archivo.
+- **Los comentarios explican el código**: qué hace y por qué, con los datos que ayuden a entenderlo. No citan issues, apartados del catálogo ni versiones; eso va en el mensaje del commit.
 - **Nada de números mágicos.** Vida, daño, cooldowns y demás valores de ajuste van en ScriptableObjects dentro de `Data/`.
 
 ### Arte

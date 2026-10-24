@@ -5,16 +5,16 @@ using FishNet.Object.Synchronizing;
 using FishNet.Transporting;
 using UnityEngine;
 
-// The stats of one player (#157): their bonuses from upgrades and the final value of each stat.
+// The stats of one player: their bonuses from upgrades and the final value of each stat.
 // The host decides the bonuses and is the truth. Only the owner receives them too, because the owner
-// simulates its own movement and shots (#156) and must use the same numbers the host checks them with.
+// simulates its own movement and shots and must use the same numbers the host checks them with.
 // Host and owner work out every stat with the same function (PlayerStatSettings.Calculate).
 // The other players don't need them: what they see of this player (health, position) already travels.
 // The base values stay where they were (movement, basic attack, health and orb settings): each system
 // asks for its stat with its own base, Get(StatId.BasicRange, settings.Range).
 // Timed bonuses (Tempo, Viento a favor) last between two ticks of the host's clock, so the host and the
 // owner stop counting them on the same tick. For its own skill cast the owner shows them at once, before
-// the host's copy arrives (prediction, #157).
+// the host's copy arrives (prediction).
 // On the player prefab.
 public class PlayerStats : NetworkBehaviour
 {
@@ -25,7 +25,7 @@ public class PlayerStats : NetworkBehaviour
     // Every bonus the player has. Owner only: nobody else reads them.
     private readonly SyncList<StatBonus> _bonuses = new(new SyncTypeSettings(ReadPermission.OwnerOnly));
 
-    // The bonuses that only last a while (#157). Owner only too, and sent on the next tick instead of
+    // The bonuses that only last a while. Owner only too, and sent on the next tick instead of
     // every 0.1 s: they last 2 s, and every tick they arrive late is a tick the owner doesn't feel them.
     private readonly SyncList<TimedStatBonus> _timedBonuses =
         new(new SyncTypeSettings(WritePermission.ServerOnly, ReadPermission.OwnerOnly, 0f, Channel.Reliable));
@@ -41,7 +41,7 @@ public class PlayerStats : NetworkBehaviour
     private float[] _flat;
     private float[] _percent;
 
-    // Server only: the bonuses that depend on the target (#161). They don't travel, because only the
+    // Server only: the bonuses that depend on the target. They don't travel, because only the
     // host deals damage. Few, so Get goes through them every time instead of keeping sums.
     private readonly List<ConditionalBonus> _conditionalBonuses = new();
 
@@ -184,7 +184,7 @@ public class PlayerStats : NetworkBehaviour
     }
 
     /// <summary>
-    /// Owner only, on a client: the same bonus the host is about to add, shown at once (#157).
+    /// Owner only, on a client: the same bonus the host is about to add, shown at once.
     /// </summary>
     public void PredictTimedBonus(StatBonus bonus, uint startTick, float duration)
     {
@@ -196,7 +196,7 @@ public class PlayerStats : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server only. No bonuses at all, for a restarted match (#52).
+    /// Server only. No bonuses at all, for a restarted match.
     /// </summary>
     public void ClearBonuses()
     {

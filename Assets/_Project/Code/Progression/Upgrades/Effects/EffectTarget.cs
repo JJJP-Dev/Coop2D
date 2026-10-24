@@ -1,4 +1,4 @@
-// Who an action works on (#161, catalog «target»). Stored in assets: add new ones at the end.
+// Who an action works on (catalog «target»). Stored in assets: add new ones at the end.
 public enum EffectTarget
 {
     // The player who has the upgrade.

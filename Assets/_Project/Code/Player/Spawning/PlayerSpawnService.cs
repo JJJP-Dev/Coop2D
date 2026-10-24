@@ -99,11 +99,11 @@ public class PlayerSpawnService : MonoBehaviour
 
         player.GetComponent<PlayerIdentity>().SetSlot(slot);
 
-        // Its character, from the slot until the lobby lets players choose (#162, #173).
+        // Its character, from the slot until the lobby lets players choose.
         if (player.TryGetComponent(out PlayerCharacter character))
             character.SetFromSlot(slot);
 
-        // Joining a match that is already lost: downed like the rest, until the host restarts (#52).
+        // Joining a match that is already lost: downed like the rest, until the host restarts.
         MatchFlow flow = MatchFlow.Current;
         if (flow != null && flow.ShouldSpawnDowned(slot) && player.TryGetComponent(out Health health))
             health.SpawnDowned();
@@ -112,7 +112,7 @@ public class PlayerSpawnService : MonoBehaviour
     }
 
     /// <summary>
-    /// Server only. Where the player of this slot appears in that scene. The restart (#52) puts players back here.
+    /// Server only. Where the player of this slot appears in that scene. The restart puts players back here.
     /// </summary>
     public Vector3 GetSpawnPosition(Scene scene, int slot)
     {

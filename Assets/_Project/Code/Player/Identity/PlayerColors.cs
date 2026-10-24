@@ -3,7 +3,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "PlayerColors", menuName = "Coop2D/Player/Player Colors")]
 public class PlayerColors : ScriptableObject
 {
-    // Placeholders until the shared palette is frozen (#44).
+    // Placeholders until the shared palette is frozen.
     [Tooltip("One color per player slot, from slot 0 to 3.")]
     [SerializeField]
     private Color[] _colors =

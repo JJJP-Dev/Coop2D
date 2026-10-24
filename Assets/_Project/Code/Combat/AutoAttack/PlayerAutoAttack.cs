@@ -19,7 +19,7 @@ public class PlayerAutoAttack : NetworkBehaviour
     private PlayerElement _element;
     private PlayerDowned _downed;
 
-    // Optional: without it the basic attack uses its settings as they are (#157).
+    // Optional: without it the basic attack uses its settings as they are.
     private PlayerStats _stats;
 
     // Owner side.
@@ -37,7 +37,7 @@ public class PlayerAutoAttack : NetworkBehaviour
         if (!TryGetComponent(out _element))
             Debug.LogError("[PlayerAutoAttack] No PlayerElement on this player, so its shots leave no aura.", this);
 
-        // Optional: without it the player can never be downed (#51).
+        // Optional: without it the player can never be downed.
         TryGetComponent(out _downed);
         TryGetComponent(out _stats);
 
@@ -78,11 +78,11 @@ public class PlayerAutoAttack : NetworkBehaviour
         if (Time.time < _nextAttackTime)
             return;
 
-        // A downed player doesn't shoot (#51).
+        // A downed player doesn't shoot.
         if (_downed != null && _downed.IsDowned)
             return;
 
-        // The reaction test scene can switch it off, so it doesn't mark the dummies (#147).
+        // The reaction test scene can switch it off, so it doesn't mark the dummies.
         if (!ReactionLab.BasicAttackAllowed)
             return;
 
@@ -112,7 +112,7 @@ public class PlayerAutoAttack : NetworkBehaviour
         return Vector2.Lerp(position, intercept, _settings.LeadFactor);
     }
 
-    // A volley is every projectile of one attack: one without upgrades, two with Doble disparo (#161).
+    // A volley is every projectile of one attack: one without upgrades, two with Doble disparo.
     // Each projectile is a shot with its own id, so each one reports its own hit.
     private void Fire(Vector2 origin, Vector2 direction)
     {
@@ -148,7 +148,7 @@ public class PlayerAutoAttack : NetworkBehaviour
     private void FireOnServer(Vector2 origin, Vector2 direction, uint tick, ushort firstShotId, int count)
     {
         // A shot sent just before the player went down still arrives. It's honest, so there's no warning,
-        // but the host has the last word on who is downed (#51). Shots already flying still hit.
+        // but the host has the last word on who is downed. Shots already flying still hit.
         if (_downed != null && _downed.IsDowned)
             return;
 
@@ -167,7 +167,7 @@ public class PlayerAutoAttack : NetworkBehaviour
         if ((origin - expectedOrigin).sqrMagnitude > tolerance * tolerance)
             origin = expectedOrigin;
 
-        // The host's own numbers (#157). At most as many projectiles as the host says the player has:
+        // The host's own numbers. At most as many projectiles as the host says the player has:
         // asking for more never gets them, and asking for fewer (an upgrade still on its way) is fine.
         int projectiles = Mathf.Clamp(count, 1, Projectiles);
         float spread = Spread;
@@ -175,7 +175,7 @@ public class PlayerAutoAttack : NetworkBehaviour
         float timePassed = (float)TimeManager.TimePassed(tick);
 
         // One enemy is hit once per volley: Doble disparo spreads auras, it doesn't double the damage
-        // on a single target (catalog engine rule 6).
+        // on a single target.
         HashSet<Health> volleyHits = projectiles > 1 ? new HashSet<Health>() : null;
 
         for (int i = 0; i < projectiles; i++)
@@ -198,7 +198,7 @@ public class PlayerAutoAttack : NetworkBehaviour
     }
 
     // The shooter and the host already show their own copies. Reach, count and spread travel because the
-    // other clients don't have this player's stats (#157).
+    // other clients don't have this player's stats.
     [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
     private void ObserversFire(Vector2 origin, Vector2 direction, uint tick, float reach, byte count, float spread)
     {
@@ -337,7 +337,7 @@ public class PlayerAutoAttack : NetworkBehaviour
         return true;
     }
 
-    // The basic attack's stats (#157). Each one asks with its own base, which stays in AutoAttackSettings.
+    // The basic attack's stats. Each one asks with its own base, which stays in AutoAttackSettings.
 
     /// <summary>
     /// On the owner and on the host: seconds between shots, with the player's upgrades.
@@ -355,7 +355,7 @@ public class PlayerAutoAttack : NetworkBehaviour
     public int Damage => _stats != null ? Mathf.Max(1, Mathf.RoundToInt(_stats.Get(StatId.BasicDamage, _settings.Damage))) : _settings.Damage;
 
     /// <summary>
-    /// On the owner and on the host: projectiles per attack, from 1 (#161).
+    /// On the owner and on the host: projectiles per attack, from 1.
     /// </summary>
     public int Projectiles => _stats != null ? Mathf.Max(1, Mathf.RoundToInt(_stats.Get(StatId.BasicProjectiles, 1f))) : 1;
 

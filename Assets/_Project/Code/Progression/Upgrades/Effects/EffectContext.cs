@@ -1,8 +1,8 @@
 using FishNet.Object;
 
-// Who an effect block works on (#161): the player who has the upgrade, their parts and the upgrade
+// Who an effect block works on: the player who has the upgrade, their parts and the upgrade
 // itself. The host makes one each time it applies an upgrade or an event happens, so the blocks don't
-// have to look anything up. The owner makes one too when it predicts its own skill cast (#157).
+// have to look anything up. The owner makes one too when it predicts its own skill cast.
 public class EffectContext
 {
     public EffectContext(PlayerUpgrades player, PlayerStats stats, Health health, UpgradeDefinition upgrade,

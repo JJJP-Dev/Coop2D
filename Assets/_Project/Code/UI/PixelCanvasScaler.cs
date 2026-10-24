@@ -5,7 +5,7 @@ using UnityEngine.UI;
 // Scales a canvas by the same whole number as the game's pixels, so one unit of UI is one pixel
 // of the game: a 16x16 icon drawn by us looks exactly like a 16x16 sprite in the arena, at any
 // window size. It takes the reference resolution from the scene's Pixel Perfect Camera, so the
-// UI follows it when the base resolution changes (#42).
+// UI follows it when the base resolution changes.
 // It also runs outside Play mode, so the UI is edited at the size it will have in the Game view.
 [ExecuteAlways]
 [RequireComponent(typeof(Canvas), typeof(CanvasScaler))]

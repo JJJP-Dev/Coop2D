@@ -15,12 +15,11 @@ public class SceneFlowService : MonoBehaviour
     [SerializeField]
     private string _menuSceneName;
 
-    // Set for a single host, like the reaction test scene (#147). Empty: the starting scene.
+    // Set for a single host, like the reaction test scene. Empty: the starting scene.
     private string _nextHostSceneName;
 
     private void OnEnable()
     {
-        // Only the server will load Scenes
         GameServices.Instance.ConnectionService.ServerStarted += LoadStartingScene;
 
         GameServices.Instance.ConnectionService.ClientConnectionStateChanged += OnClientConnectionState;
@@ -64,7 +63,7 @@ public class SceneFlowService : MonoBehaviour
         }
 
         SceneLoadData loadData = new SceneLoadData(sceneName);
-        // If you don't replace All, Bootstrap was not loaded by FishNet so it wont be unloaded
+        // Bootstrap wasn't loaded by FishNet, so it isn't unloaded unless the replace option is All.
         loadData.ReplaceScenes = ReplaceOption.All;
         _networkManager.SceneManager.LoadGlobalScenes(loadData);
     }

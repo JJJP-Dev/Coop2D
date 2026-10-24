@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 
-// Gives the player something of the match (#161, catalog Resource): for now, thirds of a reroll, within
-// the limit of 2 per match (catalog C.5). Respiro gives one third.
+// Gives the player something of the match (catalog Resource): for now, thirds of a reroll, within
+// the limit of 2 per match. Respiro gives one third.
 [Serializable]
 public class ResourceAction : EffectAction
 {

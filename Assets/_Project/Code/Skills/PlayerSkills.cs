@@ -34,7 +34,7 @@ public class PlayerSkills : NetworkBehaviour
     private PlayerUpgradeEvents _events;
     private InputService _input;
 
-    // Owner side, in Time.time. The cast times are for the floor of a cooldown given back (#161).
+    // Owner side, in Time.time. The cast times are for the floor of a cooldown given back.
     private readonly float[] _readyTimes = new float[SlotCount];
     private readonly float[] _castTimes = new float[SlotCount];
 
@@ -55,10 +55,10 @@ public class PlayerSkills : NetworkBehaviour
         if (!TryGetComponent(out _projectiles))
             Debug.LogError("[PlayerSkills] The player has no PlayerSkillProjectiles: its projectile skills do nothing.", this);
 
-        // Optional: without it the player can never be downed (#51).
+        // Optional: without it the player can never be downed.
         TryGetComponent(out _downed);
 
-        // Optional: without them no upgrade changes the skills or hears about them (#161).
+        // Optional: without them no upgrade changes the skills or hears about them.
         TryGetComponent(out _stats);
         TryGetComponent(out _events);
 
@@ -148,7 +148,7 @@ public class PlayerSkills : NetworkBehaviour
     }
 
     /// <summary>
-    /// Owner side. Seconds until that slot can be cast again, for the HUD (#73).
+    /// Owner side. Seconds until that slot can be cast again, for the HUD.
     /// </summary>
     public float GetCooldownRemaining(AttackSlot slot)
     {
@@ -170,7 +170,7 @@ public class PlayerSkills : NetworkBehaviour
         if (skill.IsProjectile && _projectiles == null)
             return;
 
-        // A downed player can't cast (#51).
+        // A downed player can't cast.
         if (_downed != null && _downed.IsDowned)
             return;
 
@@ -187,7 +187,7 @@ public class PlayerSkills : NetworkBehaviour
         LauncherEvents.AbilityCast(skill.Id, skill.GetElement(_element.Current));
 
         // The tick goes with the cast, so a timed effect it gives (Tempo) starts and ends on the same
-        // tick on the host and here (#157).
+        // tick on the host and here.
         uint tick = TimeManager.Tick;
 
         if (skill.IsProjectile)
@@ -210,7 +210,7 @@ public class PlayerSkills : NetworkBehaviour
         if (IsServerInitialized)
             return;
 
-        // Lo tuyo, al instante: the owner shows the effects of its own cast without waiting (#157).
+        // The owner shows the effects of its own cast without waiting for the host.
         if (_events != null)
             _events.PredictSkillCast(tick);
     }
@@ -282,7 +282,7 @@ public class PlayerSkills : NetworkBehaviour
         }
 
         // A cast sent just before the player went down still arrives. It's honest, so there's no warning,
-        // but the host has the last word on who is downed (#51).
+        // but the host has the last word on who is downed.
         if (_downed != null && _downed.IsDowned)
             return false;
 
@@ -295,7 +295,7 @@ public class PlayerSkills : NetworkBehaviour
         }
 
         // The owner clamps a circle to its range and puts lines and cones at full length, so the aim point
-        // has to agree with that, from the origin it sent (#162).
+        // has to agree with that, from the origin it sent.
         float distance = Vector2.Distance(origin, point);
         bool aimFits = skill.IsAimedByDirection
             ? distance >= MinAimDistance
@@ -342,8 +342,8 @@ public class PlayerSkills : NetworkBehaviour
 
     /// <summary>
     /// Server only. Takes seconds off every cooldown that is running, on the host and on the owner
-    /// (#161, Relevo and Asistencia). Never below the floor: MinCooldownFraction of the full cooldown
-    /// after the cast (catalog engine rule 1).
+    /// (Relevo and Asistencia). Never below the floor: MinCooldownFraction of the full cooldown
+    /// after the cast.
     /// </summary>
     public void RefundCooldowns(float seconds)
     {
@@ -393,7 +393,7 @@ public class PlayerSkills : NetworkBehaviour
 
     // The caster and the host already drew it.
     // With the origin the caster sent: a line or a cone starts where it stood when it cast, not where
-    // this PC sees it now (#162).
+    // this PC sees it now.
     [ObserversRpc(ExcludeOwner = true, ExcludeServer = true)]
     private void ObserversCast(AttackSlot slot, Vector2 origin, Vector2 point)
     {

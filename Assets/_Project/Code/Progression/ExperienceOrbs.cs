@@ -5,7 +5,7 @@ using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using UnityEngine;
 
-// Every experience orb on the ground in this match (#84). The host drops them when enemies die and
+// Every experience orb on the ground in this match. The host drops them when enemies die and
 // decides who picks each one up, so no orb is ever picked up twice; the clients only draw them.
 // They aren't NetworkObjects: one synced list with id, position and value. Dropping, merging or picking
 // an orb sends a small change, and a player who arrives late gets the whole list with the scene.
@@ -42,7 +42,7 @@ public class ExperienceOrbs : NetworkBehaviour
     /// Client side, the host's client included. The list changed: read Orbs again. Also raised when
     /// this client arrives, for the orbs already on the ground.
     /// The view compares the whole list instead of following each change, because FishNet doesn't say
-    /// which orb a removal took on the host's client (#84).
+    /// which orb a removal took on the host's client.
     /// </summary>
     public event Action OrbsChanged;
 
@@ -124,7 +124,7 @@ public class ExperienceOrbs : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server only. No orbs on the ground, for a restarted match (#52).
+    /// Server only. No orbs on the ground, for a restarted match.
     /// </summary>
     public void ResetForNewRun()
     {
@@ -160,7 +160,7 @@ public class ExperienceOrbs : NetworkBehaviour
 
     // Once per batch of changes, after all of them are in the list. On the host's client FishNet doesn't
     // change the list again (the server already did) and passes an empty orb with each removal: following
-    // each removal took the wrong orb off the screen and left ghosts behind (#84).
+    // each removal took the wrong orb off the screen and left ghosts behind.
     private void OnOrbsChanged(SyncListOperation operation, int index, ExperienceOrb previous, ExperienceOrb next, bool asServer)
     {
         if (!asServer && operation == SyncListOperation.Complete)
@@ -185,7 +185,7 @@ public class ExperienceOrbs : NetworkBehaviour
         return nearest;
     }
 
-    // Each player has their own reach: Imán makes it bigger (#157).
+    // Each player has their own reach: Imán makes it bigger.
     private NetworkObject FindNearestStandingPlayer(Vector2 position)
     {
         NetworkObject nearest = null;

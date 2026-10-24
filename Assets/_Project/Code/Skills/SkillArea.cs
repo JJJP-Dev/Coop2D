@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// The ground one cast of a skill covers (#162): a circle, a line or a cone, already placed.
+// The ground one cast of a skill covers: a circle, a line or a cone, already placed.
 // The owner builds it to find its targets and draw the cast; the host builds the same one from the
 // origin and aim point the owner sent, to check those targets. Both use the same maths, so a target the
 // owner saw inside is inside for the host too, give or take how far it moved on the way (TargetTolerance).
@@ -40,7 +40,7 @@ public readonly struct SkillArea
     /// <summary>
     /// The area of that skill cast from origin towards aim. A circle lands on aim (the caller clamps it to
     /// the cast range); a line or a cone only takes the direction of aim and always has its full length.
-    /// With the skill's level (#162), so a longer Chispa is checked as long as it is drawn.
+    /// With the skill's level, so a longer Chispa is checked as long as it is drawn.
     /// </summary>
     public static SkillArea For(SkillInstance skill, Vector2 origin, Vector2 aim)
     {
@@ -58,7 +58,7 @@ public readonly struct SkillArea
     }
 
     /// <summary>
-    /// A circle of that radius around center, for where a projectile bursts (#162).
+    /// A circle of that radius around center, for where a projectile bursts.
     /// </summary>
     public static SkillArea Circle(Vector2 center, float radius)
     {
@@ -132,7 +132,7 @@ public readonly struct SkillArea
 
     /// <summary>
     /// How far the edge of that body is from the area: 0 when they touch, so a big enemy counts as soon as
-    /// any part of it is inside, as with the circle before (#162).
+    /// any part of it is inside, as with the circle before.
     /// </summary>
     public float DistanceOutside(Collider2D body)
     {

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 // A skill as data. The fields follow skills.json in the progression catalog,
-// so its entries can be turned into these assets later (#162).
+// so its entries can be turned into these assets later.
 [CreateAssetMenu(fileName = "SkillDefinition", menuName = "Coop2D/Skills/Skill Definition")]
 public class SkillDefinition : ScriptableObject
 {
@@ -12,10 +12,10 @@ public class SkillDefinition : ScriptableObject
     [Tooltip("Shown to players.")]
     [SerializeField] private string _displayName;
 
-    [Tooltip("For the HUD (#73). Optional: without it the HUD shows the first letter of the name.")]
+    [Tooltip("For the HUD. Optional: without it the HUD shows the first letter of the name.")]
     [SerializeField] private Sprite _icon;
 
-    [Tooltip("One line for the offer of a new skill (#162): «Bola que explota en 1,5 m y detona».")]
+    [Tooltip("One line for the offer of a new skill: «Bola que explota en 1,5 m y detona».")]
     [SerializeField] private string _description;
 
     [Header("Element")]
@@ -37,7 +37,7 @@ public class SkillDefinition : ScriptableObject
              "distance. Lines and cones start at the caster, so their reach is their Length.")]
     [SerializeField, Min(0f)] private float _castRange = 7f;
 
-    [Header("Shape (#162)")]
+    [Header("Shape")]
     [Tooltip("Circle: where you aim. Line and Cone: from you towards the cursor, always at full length. " +
              "Projectile: flies from you towards the cursor, up to Length.")]
     [SerializeField] private SkillShape _shape = SkillShape.Circle;
@@ -49,13 +49,13 @@ public class SkillDefinition : ScriptableObject
     [SerializeField, Min(0.1f)] private float _length = 5f;
 
     [Tooltip("Line only: total width of the band, in units. Nothing asks for more precision than the basic " +
-             "attack (catalog E.0), so keep it at 0.5 or more.")]
+             "attack, so keep it at 0.5 or more.")]
     [SerializeField, Min(0.1f)] private float _width = 0.5f;
 
     [Tooltip("Cone only: full opening in degrees, from one edge to the other. At most 180.")]
     [SerializeField, Range(10f, 180f)] private float _angle = 60f;
 
-    [Header("Projectile (#162)")]
+    [Header("Projectile")]
     [Tooltip("Units per second.")]
     [SerializeField, Min(0.1f)] private float _projectileSpeed = 14f;
 
@@ -73,7 +73,7 @@ public class SkillDefinition : ScriptableObject
     [SerializeField] private bool _burstAtEnd = true;
 
     [Tooltip("Bursts only: seconds the enemy it touched first can't move or attack (Burbuja). 0: none. " +
-             "Bosses and champions won't be held (catalog E.0 rule 10) once they exist.")]
+             "Bosses and champions won't be held once they exist.")]
     [SerializeField, Min(0f)] private float _trapDuration;
 
     [Tooltip("What flies. Only the picture: every PC flies its own copy, and only the caster's reports hits.")]
@@ -83,7 +83,7 @@ public class SkillDefinition : ScriptableObject
     [SerializeField, Min(0)] private int _damage = 16;
 
     [Tooltip("Units each enemy hit is pushed straight away from the caster. 0: no push. Bosses and " +
-             "champions won't be moved (catalog E.0 rule 10) once they exist.")]
+             "champions won't be moved once they exist.")]
     [SerializeField, Min(0f)] private float _knockback;
 
     [Tooltip("Seconds the push takes.")]
@@ -92,8 +92,8 @@ public class SkillDefinition : ScriptableObject
     [Tooltip("What players see where it lands. Only the picture: it never decides hits.")]
     [SerializeField] private SkillShapeVisual _visual;
 
-    [Header("Levels (#162)")]
-    [Tooltip("Level 2 and level 3, in that order; each adds to the one before (catalog E.0 rule 5). " +
+    [Header("Levels")]
+    [Tooltip("Level 2 and level 3, in that order; each adds to the one before. " +
              "Empty: the skill has only level 1 and its levels are never offered.")]
     [SerializeField] private SkillLevelModifier[] _levels = new SkillLevelModifier[0];
 

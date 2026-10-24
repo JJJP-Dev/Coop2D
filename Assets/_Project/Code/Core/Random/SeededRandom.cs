@@ -1,4 +1,4 @@
-// A stream of random numbers that a seed fully decides (#75): the same seed and stream give the same
+// A stream of random numbers that a seed fully decides: the same seed and stream give the same
 // numbers in every build, on every PC. It is PCG32 (pcg-random.org), written here instead of using
 // System.Random, whose algorithm .NET doesn't promise to keep, or Unity.Mathematics.Random, a struct
 // that silently forks the stream when it is copied into a variable.

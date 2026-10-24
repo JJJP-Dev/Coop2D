@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-// Above a player while they have the upgrade panel open (#77), so the group knows they're looking at
+// Above a player while they have the upgrade panel open, so the group knows they're looking at
 // the strip and not at the fight. A label until the icon's art exists. Every client shows it from what
 // PlayerOffers received.
 public class PlayerChoosingView : MonoBehaviour

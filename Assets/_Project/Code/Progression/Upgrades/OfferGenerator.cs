@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Builds the options of one upgrade offer (#78), following the progression catalog (C.1 to C.6).
+// Builds the options of one upgrade offer, following the progression catalog's rules.
 // A plain class, not a component: the host creates one and calls it with each player's context and
 // offer stream. It draws in a fixed order and goes through the pool in its order, so the same seed with
-// the same choices gives the same offers (#75). Changing that order, or the pool's, changes what a seed offers.
-// Since #162 an option can also be a new skill or the next level of one the player has.
+// the same choices gives the same offers. Changing that order, or the pool's, changes what a seed offers.
+// An option can be an upgrade, a new skill or the next level of one the player has.
 //
 // Order of the draws for a full offer:
 //   1. Place A: one weighted pick among the evolutions, or else among «yours» (upgrades and the next level
@@ -39,7 +39,7 @@ public class OfferGenerator
 
     /// <summary>
     /// Fills options with a whole offer. For a reroll, pass the offer being rerolled in options: its
-    /// evolution stays in place A (C.5). The offer can come out shorter than the settings ask when there
+    /// evolution stays in place A. The offer can come out shorter than the settings ask when there
     /// isn't even Respiro for every place: Respiro comes at most once.
     /// </summary>
     public void Generate(OfferContext context, SeededRandom random, List<OfferOption> options)
@@ -113,7 +113,7 @@ public class OfferGenerator
 
     /// <summary>
     /// Whether this option could still be offered to this player now. The host checks it again when the
-    /// player picks: another player may have taken an upgrade only one can have in the meantime (C.7).
+    /// player picks: another player may have taken an upgrade only one can have in the meantime.
     /// </summary>
     public bool IsStillOfferable(OfferContext context, OfferOption option)
     {
@@ -137,12 +137,12 @@ public class OfferGenerator
     }
 
     // An open place, or place B with a guarantee: the skill guarantee, then type, family, rarity, the
-    // weighted pick, and the way down when nothing fits (C.1): lower rarities first, then the other family,
+    // weighted pick, and the way down when nothing fits: lower rarities first, then the other family,
     // then the higher rarities the level allows, then Respiro.
     private bool TryFill(OfferContext context, SeededRandom random, List<OfferOption> options, OfferPlace place,
                          out OfferOption option)
     {
-        // C.4: a new skill on levels 2 and 6 while there's a free slot. Without one, the place is open.
+        // A new skill on levels 2 and 6 while there's a free slot. Without one, the place is open.
         if (place == OfferPlace.Guaranteed && _settings.IsSkillGuaranteeLevel(context.Level) &&
             TryPickNewSkill(context, random, options, NeedsOtherElement(context), out option))
         {
@@ -155,8 +155,8 @@ public class OfferGenerator
         UpgradeRarity guaranteed = UpgradeRarity.Common;
         bool rarityGuarantee = place == OfferPlace.Guaranteed && HasGuarantee(context.Level, out guaranteed);
 
-        // C.1: the type first, a new skill a quarter of the time. Rolled only when one could be offered, so
-        // a player with no room for skills draws exactly as before #162.
+        // The type first, a new skill a quarter of the time. Rolled only when one could be offered, so a
+        // player with no room for skills draws exactly as if skills weren't in the offers.
         if (!rarityGuarantee && HasCandidates(context, options, Kind.NewSkill) && random.Chance(_settings.NewSkillChance) &&
             TryPickNewSkill(context, random, options, false, out option))
         {
@@ -228,7 +228,7 @@ public class OfferGenerator
         return false;
     }
 
-    // A new skill, the character's weighing more than the generic ones (C.3). With otherElement, only skills
+    // A new skill, the character's weighing more than the generic ones. With otherElement, only skills
     // of another element than the player's, when there are any.
     private bool TryPickNewSkill(OfferContext context, SeededRandom random, List<OfferOption> options, bool otherElement,
                                  out OfferOption option)
@@ -239,7 +239,7 @@ public class OfferGenerator
         return TryPick(context, random, options, Kind.NewSkill, false, UpgradeRarity.Common, false, out option);
     }
 
-    // Catalog E.0 rule 1: alone, from level 6, a player without a skill of another element is only
+    // Alone, from level 6, a player without a skill of another element is only
     // guaranteed those, so they can always set off a reaction on their own.
     private bool NeedsOtherElement(OfferContext context)
     {
@@ -256,7 +256,7 @@ public class OfferGenerator
     }
 
     // From the duo level, while a duo could be offered: a 20 % chance, or for sure after 3 offers in a
-    // row without one (C.4, C.6). It takes the last place, C. Nothing happens until the pool has duos (#166).
+    // row without one. It takes the last place, C. Nothing happens until the pool has duos.
     private void TrySwapInDuo(OfferContext context, SeededRandom random, List<OfferOption> options)
     {
         if (_settings.Choices < 2 || context.Level < _settings.DuoMinLevel)
@@ -279,7 +279,7 @@ public class OfferGenerator
     }
 
     /// <summary>
-    /// Whether this offer could have had a duo, for the count of offers without one (C.4).
+    /// Whether this offer could have had a duo, for the count of offers without one.
     /// </summary>
     public bool CouldOfferDuo(OfferContext context)
     {
@@ -395,7 +395,7 @@ public class OfferGenerator
             }
         }
 
-        // Place A: the next level of each skill the player has (C.1, catalog E.0 rule 5).
+        // Place A: the next level of each skill the player has.
         if (kind == Kind.Yours)
         {
             foreach (SkillDefinition skill in _ownedSkills)
@@ -434,7 +434,7 @@ public class OfferGenerator
         return total;
     }
 
-    // What the last offer showed weighs half (C.1).
+    // What the last offer showed weighs half.
     private int AddCandidate(OfferContext context, OfferOption option, float weight)
     {
         float seen = context.Holder.WasSeen(option.Key) ? _settings.SeenWeight : 1f;
@@ -461,9 +461,9 @@ public class OfferGenerator
         };
     }
 
-    // C.1: another stack of an upgrade you have, or one that asks for something of yours: your
+    // Another stack of an upgrade you have, or one that asks for something of yours: your
     // character, a skill, your element or another upgrade. «basic:projectile» doesn't count: until the
-    // melee basic (#96) everyone has it, and it would fill place A for everybody.
+    // melee basic everyone has it, and it would fill place A for everybody.
     private static bool IsYours(OfferContext context, UpgradeDefinition upgrade)
     {
         if (context.Holder.GetStacks(upgrade.Id) > 0)
@@ -504,17 +504,17 @@ public class OfferGenerator
         return level == 1 ? has == 0 && holder.HasFreeSkillSlot : has == level - 1;
     }
 
-    // The filters of C.1: requirements, exclusions, appearIf, stacks, banishes, upgrades only one player
+    // The filters: requirements, exclusions, appearIf, stacks, banishes, upgrades only one player
     // can have and at most one risk upgrade per offer, and none without effects. options is null when
     // checking one on its own.
-    // Not yet: the cap of each stat (#157) and «what you can't use», which comes with the reaction
-    // upgrades (#89).
+    // Not yet: the cap of each stat and «what you can't use», which comes with the reaction
+    // upgrades.
     private bool IsOfferable(OfferContext context, UpgradeDefinition upgrade, List<OfferOption> options)
     {
         if (upgrade == null || string.IsNullOrEmpty(upgrade.Id) || upgrade == _pool.Fallback)
             return false;
 
-        // An upgrade with no effect blocks would do nothing if taken (#162): the character ones wait
+        // An upgrade with no effect blocks would do nothing if taken: the character ones wait
         // for their blocks. It's checked before any draw, so a seed offers what it did before.
         if (upgrade.Effects == null || upgrade.Effects.Count == 0)
             return false;

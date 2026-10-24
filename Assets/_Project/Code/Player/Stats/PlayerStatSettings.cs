@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// How a player's stats are worked out (#157): the caps of the progression catalog (A.2). The base
+// How a player's stats are worked out: the caps of the progression catalog. The base
 // values stay in each system's own settings (movement, basic attack, health, orbs), so nothing is
 // written twice.
 [CreateAssetMenu(fileName = "PlayerStatSettings", menuName = "Coop2D/Player/Stat Settings")]

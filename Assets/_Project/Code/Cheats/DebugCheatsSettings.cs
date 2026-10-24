@@ -16,10 +16,10 @@ public class DebugCheatsSettings : ScriptableObject
     [Tooltip("Health that Damage All takes from everything that has it.")]
     [SerializeField, Min(1)] private int _damageAllAmount = 10;
 
-    [Tooltip("Experience that Give XP adds to the group (#76). The first level needs 10 with one player.")]
+    [Tooltip("Experience that Give XP adds to the group. The first level needs 10 with one player.")]
     [SerializeField, Min(1)] private int _giveXpAmount = 10;
 
-    [Tooltip("What «Habilidades de prueba» leaves the player with, slot by slot (#162): Estallido and Marca, " +
+    [Tooltip("What «Habilidades de prueba» leaves the player with, slot by slot: Estallido and Marca, " +
              "which the reaction tests of testing.md use. At most 3.")]
     [SerializeField] private List<SkillDefinition> _testSkills = new();
 

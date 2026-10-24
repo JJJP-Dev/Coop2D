@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 
-// The catalog's cap of one stat (A.2): how far upgrades can take it. Multipliers are measured against
-// the base value, so they keep working when a character has other bases (#162). 0 means no limit.
+// The catalog's cap of one stat: how far upgrades can take it. Multipliers are measured against
+// the base value, so they keep working when a character has other bases. 0 means no limit.
 [Serializable]
 public class StatLimit
 {

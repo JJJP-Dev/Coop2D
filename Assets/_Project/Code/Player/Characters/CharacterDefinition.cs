@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// A character as data (#162): who you play decides your element and your skills.
-// The fields follow the progression catalog (E.4): Brasa, Marea and Voltio in the Pre 3, Filo later.
+// A character as data: who you play decides your element and your skills.
+// The fields follow the progression catalog's data: Brasa, Marea and Voltio for now, Filo later.
 [CreateAssetMenu(fileName = "CharacterDefinition", menuName = "Coop2D/Player/Character Definition")]
 public class CharacterDefinition : ScriptableObject
 {
@@ -16,10 +16,10 @@ public class CharacterDefinition : ScriptableObject
     [Tooltip("The character's main element: the one of its basic attack and of the skills that take the caster's element.")]
     [SerializeField] private ElementType _element;
 
-    [Tooltip("The skill every match starts with, in slot 1 (catalog E.0 rule 11): Llamarada, Ola, Rayo.")]
+    [Tooltip("The skill every match starts with, in slot 1: Llamarada, Ola, Rayo.")]
     [SerializeField] private SkillDefinition _startingSkill;
 
-    [Tooltip("The rest of the character's own skills, which the offers can give (#162, catalog E.1). The " +
+    [Tooltip("The rest of the character's own skills, which the offers can give. The " +
              "starting one doesn't go here. They weigh more than the generic ones in the offers.")]
     [SerializeField] private List<SkillDefinition> _ownSkills = new();
 

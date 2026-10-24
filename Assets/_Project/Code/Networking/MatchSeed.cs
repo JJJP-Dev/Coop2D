@@ -2,7 +2,7 @@ using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using UnityEngine;
 
-// The seed of the match in this scene, the same on every client (#75), so any player can read it to
+// The seed of the match in this scene, the same on every client, so any player can read it to
 // report or replay a run. The host copies it from RunRandomService; the clients only show it.
 // A SyncVar and not a message: it also reaches the host's own client, which connects after the scene
 // loads, and the players who join late. One per match scene, next to MatchClock.
@@ -57,7 +57,7 @@ public class MatchSeed : NetworkBehaviour
             Current = null;
     }
 
-    // Server side. A new run without a new scene, like a restart (#52).
+    // Server side. A new run without a new scene, like a restart.
     private void OnRunStarted(uint seed)
     {
         _seed.Value = seed;

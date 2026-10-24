@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// Placeholder picture of a circle: a reaction's burst or a Vapor cloud. Skills use SkillShapeVisual (#162).
+// Placeholder picture of a circle: a reaction's burst or a Vapor cloud. Skills use SkillShapeVisual.
 // It appears at full size, can stay a while, and fades out.
 [RequireComponent(typeof(SpriteRenderer))]
 public class SkillCircleVisual : MonoBehaviour

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
 
-// The seed of the run and the random streams that come out of it (#75). Everything random that changes
+// The seed of the run and the random streams that come out of it. Everything random that changes
 // the game (waves, rooms, upgrade offers) draws from here, so the same seed plays the same run.
 // Only the host uses it: it decides everything random and the clients see the results.
 // Effects that only look different (particles, shake, floating text) keep UnityEngine.Random, which is
@@ -60,7 +60,7 @@ public class RunRandomService : MonoBehaviour
 
     /// <summary>
     /// Server only. Starts a run with this seed: every stream begins again from it.
-    /// Hosting starts one by itself; call it to restart a run (#52), with the same seed or a new one.
+    /// Hosting starts one by itself; call it to restart a run, with the same seed or a new one.
     /// </summary>
     public void BeginRun(uint seed)
     {
@@ -79,7 +79,7 @@ public class RunRandomService : MonoBehaviour
 
     /// <summary>
     /// Server only. Starts a run with a new seed, or the fixed one of the settings in development,
-    /// exactly as hosting does. The host's restart uses it (#52).
+    /// exactly as hosting does. The host's restart uses it.
     /// </summary>
     public void BeginNewRun()
     {
@@ -97,7 +97,7 @@ public class RunRandomService : MonoBehaviour
 
     /// <summary>
     /// Server only. The upgrade offers of one player, by slot (0 to 3): each player has their own,
-    /// so what one picks never changes what the others are offered (catalog, rule 9).
+    /// so what one picks never changes what the others are offered.
     /// The slot and not the connection, because the connection id changes from run to run.
     /// </summary>
     public SeededRandom GetOfferStream(int slot)
@@ -194,7 +194,7 @@ public class RunRandomService : MonoBehaviour
     }
 
     // The first numbers of the fixed streams, from copies, so the real streams don't move.
-    // The same seed must always print the same line (#75).
+    // The same seed must always print the same line.
     private void LogPreview()
     {
         Debug.Log($"[RunRandomService] Seed {FormatSeed(Seed)} preview · " +

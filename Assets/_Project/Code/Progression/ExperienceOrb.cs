@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// One experience orb on the ground (#84), as it travels inside ExperienceOrbs' list.
+// One experience orb on the ground, as it travels inside ExperienceOrbs' list.
 // A plain struct with public fields, so FishNet writes it without a serializer of our own.
 public struct ExperienceOrb
 {

@@ -63,7 +63,7 @@ public class ChainVisual : MonoBehaviour
 
     private void Update()
     {
-        // One more jump per frame, as the design document asks.
+        // One more jump per frame, so the chain is seen travelling.
         if (_shownJumps < _jumpEnds.Count)
         {
             _shownJumps++;

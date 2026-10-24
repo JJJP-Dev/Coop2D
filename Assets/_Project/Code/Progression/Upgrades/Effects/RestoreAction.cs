@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-// Gives a player back health or cooldown (#161, catalog Restore). Vitalidad heals 20 when taken, Respiro
+// Gives a player back health or cooldown (catalog Restore). Vitalidad heals 20 when taken, Respiro
 // 30; Relevo gives back 1 s of every cooldown to whoever has it, Asistencia to the partner.
 // A downed player isn't healed: only a revive gets them up. A cooldown never ends earlier than 60 % of
-// its full time after the cast (catalog engine rule 1, in SkillCastSettings).
+// its full time after the cast (in SkillCastSettings).
 [Serializable]
 public class RestoreAction : EffectAction
 {

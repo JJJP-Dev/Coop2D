@@ -3,7 +3,7 @@ using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using UnityEngine;
 
-// Whether the match in this scene is being played or over (#52), the same on every client.
+// Whether the match in this scene is being played or over, the same on every client.
 // The host ends it when every player is downed: nobody is left to revive anyone, so the charges
 // don't matter. The clients only show it. One per match scene, next to MatchClock.
 // The host can restart it for everyone. The scene stays loaded: FishNet doesn't load a global scene
@@ -22,13 +22,13 @@ public class MatchFlow : NetworkBehaviour
     [Tooltip("Optional. Its charges come back on a restart.")]
     [SerializeField] private ReviveCharges _charges;
 
-    [Tooltip("Optional. Back to level 1 on a restart (#76).")]
+    [Tooltip("Optional. Back to level 1 on a restart.")]
     [SerializeField] private RunExperience _experience;
 
-    [Tooltip("Optional. Its orbs go away on a restart (#84).")]
+    [Tooltip("Optional. Its orbs go away on a restart.")]
     [SerializeField] private ExperienceOrbs _orbs;
 
-    [Tooltip("Optional. Every player's upgrades and offers go away on a restart (#78).")]
+    [Tooltip("Optional. Every player's upgrades and offers go away on a restart.")]
     [SerializeField] private UpgradeOffers _upgrades;
 
     private readonly SyncVar<MatchPhase> _phase = new();
@@ -125,7 +125,7 @@ public class MatchFlow : NetworkBehaviour
 
     /// <summary>
     /// Server only. Whether the player joining in this slot should arrive downed: in a match that is
-    /// over, a new player standing up would be chased by the enemies under the game over panel (#52).
+    /// over, a new player standing up would be chased by the enemies under the game over panel.
     /// </summary>
     public bool ShouldSpawnDowned(int slot)
     {

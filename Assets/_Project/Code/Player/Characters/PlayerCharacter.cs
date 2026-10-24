@@ -2,10 +2,10 @@ using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using UnityEngine;
 
-// Which character this player plays (#162). The host sets it before the player is spawned, so it
+// Which character this player plays. The host sets it before the player is spawned, so it
 // travels inside the spawn message and every PC knows it from the first frame, like the slot.
 // Only the id travels; each PC finds the character's data in the same PlayerCharacters asset.
-// The element (PlayerElement) and the skills (PlayerSkills) are read from it.
+// The element (PlayerElement) and the skills (PlayerSkillSlots) are read from it.
 [RequireComponent(typeof(PlayerIdentity))]
 public class PlayerCharacter : NetworkBehaviour
 {
@@ -28,7 +28,7 @@ public class PlayerCharacter : NetworkBehaviour
 
     /// <summary>
     /// Server only, before Spawn. The character of this player slot, until the lobby lets players
-    /// choose (#173).
+    /// choose.
     /// </summary>
     public void SetFromSlot(int slot)
     {
@@ -39,7 +39,7 @@ public class PlayerCharacter : NetworkBehaviour
             return;
         }
 
-        // Set before Spawn, the value goes inside the spawn message (networking.md 4.3). A pooled
+        // Set before Spawn, the value goes inside the spawn message. A pooled
         // player gets it again here, so it never keeps the one of its previous life.
         _id.Value = character.Id;
     }

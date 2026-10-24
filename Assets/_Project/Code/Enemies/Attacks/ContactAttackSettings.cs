@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// How hard and how often an enemy hurts the players it touches (#51). One asset per kind of enemy
+// How hard and how often an enemy hurts the players it touches. One asset per kind of enemy
 // that attacks this way; enemies that attack another way don't use it.
 [CreateAssetMenu(fileName = "ContactAttackSettings", menuName = "Coop2D/Enemies/Contact Attack Settings")]
 public class ContactAttackSettings : ScriptableObject

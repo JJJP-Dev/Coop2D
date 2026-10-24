@@ -65,8 +65,8 @@ Estado: actualizada al Pre 3 (build 0.0.5 en preparación).
 - **Arriba de cada clase** hay un comentario que dice qué hace, quién la ejecuta (el host o cada cliente) y por qué está hecha así. Empieza siempre por ahí.
 - **Cada método público** tiene un `/// <summary>` que dice si es «Server only» (solo el host puede llamarlo), «Owner side» (solo el dueño del objeto) o «Client side» (cada pantalla).
 - **Cada valor de un ScriptableObject** tiene un *Tooltip*: pasa el ratón por encima del campo en el Inspector y te dice qué es y en qué unidad.
-- **Los comentarios citan el issue** que motivó el código (`#79`). Si no entiendes por qué algo es así, busca el número en GitHub: el issue cuenta el porqué.
-- **Para encontrar algo**, busca en el proyecto (Ctrl+Shift+F en Rider o Visual Studio) el nombre de la clase, el número del issue o el texto que sale en el juego («Derribado»).
+- **Los comentarios explican el código, no su historia.** Dicen qué hace algo y por qué, y los datos que hacen falta para entenderlo (unidades, valores de referencia, el formato de un id). No citan issues, apartados del catálogo ni versiones: eso cambia y el código no. La historia de cada cambio está en el issue y en el commit (`git blame` te lleva al commit, y el commit cita su issue).
+- **Para encontrar algo**, busca en el proyecto (Ctrl+Shift+F en Rider o Visual Studio) el nombre de la clase o el texto que sale en el juego («Derribado»).
 
 **Unidades:** 1 unidad de Unity = 1 casilla = 16 píxeles del arte. Los tiempos van en segundos salvo que se diga otra cosa.
 

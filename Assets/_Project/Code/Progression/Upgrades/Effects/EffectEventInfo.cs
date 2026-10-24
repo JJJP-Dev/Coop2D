@@ -1,7 +1,7 @@
 using FishNet.Object;
 
-// What happened, for the OnEventBlocks listening (#161). The host fills it in, or the owner when it
-// predicts its own skill cast (#157).
+// What happened, for the OnEventBlocks listening. The host fills it in, or the owner when it
+// predicts its own skill cast.
 public readonly struct EffectEventInfo
 {
     public EffectEvent Event { get; }

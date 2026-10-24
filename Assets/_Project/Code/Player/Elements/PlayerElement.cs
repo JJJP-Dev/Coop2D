@@ -3,7 +3,7 @@ using FishNet.Object.Synchronizing;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// The element this player plays. The host sets it from the player's character (#162).
+// The element this player plays. The host sets it from the player's character.
 // F6 changes it in development builds, to test reactions without another player.
 [RequireComponent(typeof(PlayerCharacter))]
 public class PlayerElement : NetworkBehaviour
@@ -28,7 +28,7 @@ public class PlayerElement : NetworkBehaviour
         if (_library == null)
             Debug.LogError("[PlayerElement] Element library is not assigned.", this);
 
-        // RequireComponent only adds it to new objects: a prefab made before #162 needs it added by hand.
+        // RequireComponent only adds it to new objects: an older prefab needs it added by hand.
         if (_character == null)
             Debug.LogError("[PlayerElement] The player has no PlayerCharacter: it gets no element.", this);
     }

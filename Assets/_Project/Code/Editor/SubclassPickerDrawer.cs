@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-// Draws a [SerializeReference, SubclassPicker] field (#161): a button with the class it holds and a menu
+// Draws a [SerializeReference, SubclassPicker] field: a button with the class it holds and a menu
 // with every class it can hold, then its fields as usual. It's how an upgrade's effect blocks are added
 // in the Inspector. Editor only: it lives in a folder called Editor, so Unity leaves it out of builds.
 [CustomPropertyDrawer(typeof(SubclassPickerAttribute))]

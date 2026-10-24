@@ -1,4 +1,4 @@
-// An offer as its owner's client received it (#78): what the panel shows. The host keeps the real one;
+// An offer as its owner's client received it: what the panel shows. The host keeps the real one;
 // this copy only has what the player needs to see and to answer with.
 public class ReceivedOffer
 {
@@ -24,7 +24,7 @@ public class ReceivedOffer
     public int Level { get; }
 
     /// <summary>
-    /// Upgrades, new skills and skill levels (#162). Null for an id this build doesn't know.
+    /// Upgrades, new skills and skill levels. Null for an id this build doesn't know.
     /// </summary>
     public OfferOption?[] Options { get; }
 

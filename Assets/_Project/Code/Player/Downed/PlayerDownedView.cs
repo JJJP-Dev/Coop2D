@@ -1,9 +1,9 @@
 using TMPro;
 using UnityEngine;
 
-// Shows that a player is downed (#51), with placeholders until there is art: the body fades and a
+// Shows that a player is downed, with placeholders until there is art: the body fades and a
 // label above it says so, how far a teammate's revive has got, or that the group has no revives
-// left (#79). Only the picture: every client works it out from what it receives.
+// left. Only the picture: every client works it out from what it receives.
 public class PlayerDownedView : MonoBehaviour
 {
     // Placeholder look until the downed sprite exists.

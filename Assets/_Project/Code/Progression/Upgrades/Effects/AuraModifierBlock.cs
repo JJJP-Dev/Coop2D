@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-// Changes the auras this player applies for the rest of the match (#161, catalog AuraModifier):
+// Changes the auras this player applies for the rest of the match (catalog AuraModifier):
 //   Auras tenaces: strong auras last +1.5 s.
 //   Aura expansiva: a skill also leaves its aura up to 1 m around its circle, on up to 8 more enemies.
-// They're stats like any other, so stacks add up and the cap (an aura at most doubles its duration, A.2)
+// They're stats like any other, so stacks add up and the cap (an aura at most doubles its duration)
 // is in PlayerStatSettings. Only the host uses them: auras are always the host's decision.
 [Serializable]
 public class AuraModifierBlock : EffectBlock

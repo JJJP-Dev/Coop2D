@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// The buttons of the reaction test scene (#147) and what came out of them. Everything it does goes
+// The buttons of the reaction test scene and what came out of them. Everything it does goes
 // through ReactionLab, on the host. It lists every reaction this client sees, with who put the aura
 // and who detonated it, so the nine combinations of aura and detonator can be checked against the table.
 public class ReactionLabPanel : MonoBehaviour

@@ -3,7 +3,7 @@ using System.Text;
 using FishNet.Object;
 using UnityEngine;
 
-// The upgrade offers of the match in this scene (#78). On the host it hands every player an offer for
+// The upgrade offers of the match in this scene. On the host it hands every player an offer for
 // each level up of the group, draws them with each player's own stream of the seed and gives the
 // timed rerolls; each player's PlayerOffers keeps their queue and talks to its owner.
 // On the clients it only lends the pool, to read the ids that arrive. One per match scene, next to
@@ -19,7 +19,7 @@ public class UpgradeOffers : NetworkBehaviour
     [Tooltip("Its level ups are what create the offers.")]
     [SerializeField] private RunExperience _experience;
 
-    [Tooltip("Optional. The timed rerolls of the Pre 3 count its time; without it there are none.")]
+    [Tooltip("Optional. The timed rerolls count its time; without it there are none.")]
     [SerializeField] private MatchClock _clock;
 
     // Server side.
@@ -119,7 +119,7 @@ public class UpgradeOffers : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server only. Every player back to no upgrades and no offers, for a restarted match (#52).
+    /// Server only. Every player back to no upgrades and no offers, for a restarted match.
     /// </summary>
     public void ResetForNewRun()
     {
@@ -186,12 +186,12 @@ public class UpgradeOffers : NetworkBehaviour
 
     private void OnLeveledUp(int level)
     {
-        // Downed players too: choosing gives them something to do while they wait (catalog B.4).
+        // Downed players too: choosing gives them something to do while they wait.
         foreach (PlayerOffers player in _players)
             player.EnqueueOffer(level);
     }
 
-    // +1 reroll for everyone at 4 and 8 minutes, only while the match is being played (catalog G.1).
+    // +1 reroll for everyone at 4 and 8 minutes, only while the match is being played.
     // They're counted, so someone joining later gets the ones already given.
     private void GiveTimedRerolls()
     {
@@ -230,7 +230,7 @@ public class UpgradeOffers : NetworkBehaviour
         return false;
     }
 
-    // Each player's own stream (#75): what one does never changes what another is offered.
+    // Each player's own stream: what one does never changes what another is offered.
     private static SeededRandom GetStream(PlayerUpgrades player)
     {
         return GameServices.Instance.RunRandomService.GetOfferStream(player.Slot);

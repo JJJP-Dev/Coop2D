@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-// Changes one of the player's stats for the rest of the match (#161, catalog StatModifier): Cañón largo
+// Changes one of the player's stats for the rest of the match (catalog StatModifier): Cañón largo
 // gives +3 of basic range, Imán +50 % of pickup radius. Each stack adds it again. PlayerStats sums
 // them and applies the caps.
 [Serializable]

@@ -1,9 +1,9 @@
 using UnityEngine;
 
-// Placeholder picture of where a skill hit (#162): its circle, line or cone, filled with the element's
+// Placeholder picture of where a skill hit: its circle, line or cone, filled with the element's
 // colour, that fades out. It builds a small mesh from the cast's SkillArea, so one prefab draws every
-// shape at its exact size. Only the picture: hits are decided by PlayerSkills.
-// The real effects (catalog E.5 families) replace it with the skills' art.
+// shape at its exact size. Only the picture: hits are decided by SkillHitResolver.
+// The real effects replace it with the skills' art.
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class SkillShapeVisual : MonoBehaviour
 {

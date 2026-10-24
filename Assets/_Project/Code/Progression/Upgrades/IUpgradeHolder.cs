@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-// What the offer generator needs to know about the player it draws for (#78). PlayerUpgrades is the
+// What the offer generator needs to know about the player it draws for. PlayerUpgrades is the
 // real one; being an interface keeps the generator plain C#, so it can be checked without a match.
 public interface IUpgradeHolder
 {
@@ -19,19 +19,19 @@ public interface IUpgradeHolder
     bool MeetsRequirement(string requirement);
 
     /// <summary>
-    /// rarity_luck. 0 until player stats exist (#157).
+    /// rarity_luck. 0 until player stats exist.
     /// </summary>
     int Luck { get; }
 
     /// <summary>
-    /// Offers in a row that could have had a duo and didn't (C.4).
+    /// Offers in a row that could have had a duo and didn't.
     /// </summary>
     int OffersWithoutDuo { get; }
 
-    // --- Skills (#162) ---
+    // --- Skills ---
 
     /// <summary>
-    /// The player's main element, for the solo rule of the level 6 guarantee (catalog E.0 rule 1).
+    /// The player's main element, for the solo rule of the level 6 guarantee.
     /// </summary>
     ElementType Element { get; }
 

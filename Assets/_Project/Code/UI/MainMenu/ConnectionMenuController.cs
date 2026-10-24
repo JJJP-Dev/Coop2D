@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ConnectionMenuController : MonoBehaviour
 {
-    // Where the last address someone tried to join is kept between sessions (#38).
+    // Where the last address someone tried to join is kept between sessions.
     // In the Windows registry, under the company and product names of the Player settings.
     private const string LastAddressKey = "LastJoinAddress";
 
@@ -24,7 +24,7 @@ public class ConnectionMenuController : MonoBehaviour
     [SerializeField]
     private Button _clientBtn;
 
-    [Tooltip("Optional. Hosts straight into the reaction test scene (#147). Hidden outside development builds.")]
+    [Tooltip("Optional. Hosts straight into the reaction test scene. Hidden outside development builds.")]
     [SerializeField]
     private Button _reactionLabBtn;
 

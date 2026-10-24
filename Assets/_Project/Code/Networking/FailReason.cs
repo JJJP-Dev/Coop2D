@@ -5,6 +5,6 @@ public enum FailReason
     ServerFailed,
     Unreachable,
 
-    // The host let us in at the transport, then rejected our version (#24).
+    // The host let us in at the transport, then rejected our version.
     VersionMismatch
 }

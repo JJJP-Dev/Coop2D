@@ -3,16 +3,16 @@ using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using UnityEngine;
 
-// Gets this player up when it's downed and living teammates stay close long enough (#51).
+// Gets this player up when it's downed and living teammates stay close long enough.
 // The host decides everything: who is close, how fast it goes and when it ends. Each revive takes
-// longer than the last one of the match, and every extra teammate close makes it faster (#79).
+// longer than the last one of the match, and every extra teammate close makes it faster.
 // A teammate who takes a hit stops helping for a moment, so protecting whoever revives matters.
 // The clients don't receive the progress itself but a line: where it was at a tick and how fast it
 // grows from there. Each one works out the progress with its own copy of the tick, which FishNet
 // keeps in step with the host's, like MatchClock. So the label fills smoothly everywhere, and the
 // host only sends something when the speed changes: someone arrives, leaves or a revive ends.
 // It also tells every client when this player goes down and gets up, for the launcher's events.
-// Each revive uses one of the group's charges (#79): with none left, nobody can get this player up.
+// Each revive uses one of the group's charges: with none left, nobody can get this player up.
 [RequireComponent(typeof(PlayerDowned))]
 public class PlayerRevive : NetworkBehaviour
 {
@@ -99,7 +99,7 @@ public class PlayerRevive : NetworkBehaviour
 
         int helpers = CountHelpers(out _reviver);
 
-        // Nobody helping: the progress is lost (#51), so a revive is a choice to stay.
+        // Nobody helping: the progress is lost, so a revive is a choice to stay.
         if (helpers == 0)
         {
             StopReviving();
@@ -128,7 +128,7 @@ public class PlayerRevive : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server only. Call it right after restoring this player's health for a restarted match (#52):
+    /// Server only. Call it right after restoring this player's health for a restarted match:
     /// it forgets the revive and that the player was down, so getting up there isn't reported as a cheat.
     /// </summary>
     public void ResetForNewRun()

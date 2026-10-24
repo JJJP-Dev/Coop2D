@@ -27,25 +27,25 @@ public class DebugCheatsPanel : MonoBehaviour
     [SerializeField] private Button _damageAllButton;
     [SerializeField] private Button _healAllButton;
 
-    [Tooltip("Optional. Gives the group experience (#76).")]
+    [Tooltip("Optional. Gives the group experience.")]
     [SerializeField] private Button _giveXpButton;
 
-    [Tooltip("Optional. Gives every player a reroll, within the limit of 2 per match (#78).")]
+    [Tooltip("Optional. Gives every player a reroll, within the limit of 2 per match.")]
     [SerializeField] private Button _giveRerollButton;
 
-    [Tooltip("Optional (#162). The next skill you don't have.")]
+    [Tooltip("Optional. The next skill you don't have.")]
     [SerializeField] private Button _giveSkillButton;
 
-    [Tooltip("Optional (#162). Estallido and Marca, for the reaction tests.")]
+    [Tooltip("Optional. Estallido and Marca, for the reaction tests.")]
     [SerializeField] private Button _testSkillsButton;
 
-    [Tooltip("Optional. Shows the match's seed (#75), to write it in RunRandomSettings and play the same run again.")]
+    [Tooltip("Optional. Shows the match's seed, to write it in RunRandomSettings and play the same run again.")]
     [SerializeField] private TMP_Text _seedLabel;
 
-    [Tooltip("Optional. Shows the group's revives left out of its total (#79).")]
+    [Tooltip("Optional. Shows the group's revives left out of its total.")]
     [SerializeField] private TMP_Text _reviveLabel;
 
-    [Tooltip("Optional. Shows your player's stats as your own PC works them out (#157), to see an upgrade change them.")]
+    [Tooltip("Optional. Shows your player's stats as your own PC works them out, to see an upgrade change them.")]
     [SerializeField] private TMP_Text _statsLabel;
 
     private InputService _inputService;

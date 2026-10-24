@@ -23,10 +23,10 @@ public class LauncherEventReporter : MonoBehaviour
     private int _reportedWaves;
     private bool _reportedWavesFinished;
 
-    // The group's level already written in this match (#76).
+    // The group's level already written in this match.
     private int _reportedLevel;
 
-    // Whether match_over was written for this match (#52), and which restart of the scene it is.
+    // Whether match_over was written for this match, and which restart of the scene it is.
     private bool _reportedMatchOver;
     private int _reportedRunNumber;
 
@@ -117,7 +117,7 @@ public class LauncherEventReporter : MonoBehaviour
         // The scene's seed arrived with the scene, before our player, so it's already here.
         string seed = MatchSeed.Current != null ? MatchSeed.Current.SeedText : null;
 
-        // The character arrived with the player, like the slot (#162).
+        // The character arrived with the player, like the slot.
         CharacterDefinition character = null;
         if (player.TryGetComponent(out PlayerCharacter playerCharacter))
             character = playerCharacter.Definition;
@@ -189,7 +189,7 @@ public class LauncherEventReporter : MonoBehaviour
             LauncherEvents.WaveStarted(_reportedWaves, MatchTime());
         }
 
-        // Alive means not downed (#51): players don't die, they go down and wait for a teammate.
+        // Alive means not downed: players don't die, they go down and wait for a teammate.
         if (waves.WavesFinished && !_reportedWavesFinished)
         {
             _reportedWavesFinished = true;
@@ -199,7 +199,7 @@ public class LauncherEventReporter : MonoBehaviour
         }
     }
 
-    // A restart is a new match for the launcher (#52): the old one ends and the new one begins, with its
+    // A restart is a new match for the launcher: the old one ends and the new one begins, with its
     // own seed, so a cheat used before the restart doesn't count against the next one.
     // match_joined goes one frame later, like when joining, so the new seed has arrived too.
     private void ReportRestart()

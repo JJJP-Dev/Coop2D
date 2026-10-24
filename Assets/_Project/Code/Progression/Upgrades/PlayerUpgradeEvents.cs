@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using FishNet.Object;
 using UnityEngine;
 
-// Tells this player's upgrades what happens during the match (#161, catalog OnEvent): a skill cast or a
+// Tells this player's upgrades what happens during the match (OnEventBlock): a skill cast or a
 // reaction they take part in. For each OnEventBlock of the upgrades they have that listens to it, it checks
 // the block's internal cooldowns and runs its actions.
 //   On the host: the real thing. Skill casts come from PlayerSkills once the host accepts them; reactions
 //   from ReactionService, as soon as one resolves.
-//   On the owner: its own skill cast only, to show timed effects at once (Tempo, #157). Only the actions
+//   On the owner: its own skill cast only, to show timed effects at once (Tempo). Only the actions
 //   that predict do anything; the host's answer replaces them.
 // The cooldowns are counted in ticks of the host's clock, from the tick of the event, so the host and the
 // owner agree on when a block is ready again.
@@ -62,7 +62,7 @@ public class PlayerUpgradeEvents : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server only. Every block ready again, for a restarted match (#52).
+    /// Server only. Every block ready again, for a restarted match.
     /// </summary>
     public void ResetForNewRun()
     {
@@ -125,14 +125,14 @@ public class PlayerUpgradeEvents : NetworkBehaviour
         }
     }
 
-    // Once per event, whatever the stacks: none of the Pre 3 event upgrades stacks.
+    // Once per event, whatever the stacks: no event upgrade stacks.
     private void TryRun(OnEventBlock block, UpgradeDefinition upgrade, EffectEventInfo info, UpgradeOffers offers, bool predict)
     {
         Dictionary<OnEventBlock, uint> readyTicks = predict ? _predictedReadyTicks : _readyTicks;
         if (readyTicks.TryGetValue(block, out uint readyTick) && info.Tick < readyTick)
             return;
 
-        // Asistencia: the same partner gets it at most every few seconds (catalog «recipientCooldown»).
+        // Asistencia: the same partner gets it at most every few seconds.
         (OnEventBlock, int) partnerKey = (block, info.Partner != null ? info.Partner.ObjectId : -1);
         if (!predict && block.RecipientCooldown > 0f)
         {

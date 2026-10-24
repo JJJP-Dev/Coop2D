@@ -1,9 +1,9 @@
-// One option of an offer (#78): an upgrade, a new skill or the next level of one of the player's skills
-// (#162, catalog C.1), and the place it fills.
+// One option of an offer: an upgrade, a new skill or the next level of one of the player's skills,
+// and the place it fills.
 public readonly struct OfferOption
 {
     // How a skill's option travels and is remembered (seen, banished): «skill:ember_flare» for the new
-    // skill, «skill:ember_flare@2» for its level 2. An upgrade's key is its id, as before #162.
+    // skill, «skill:ember_flare@2» for its level 2. An upgrade's key is its id.
     public const string SkillPrefix = "skill:";
 
     public readonly UpgradeDefinition Upgrade;
@@ -46,7 +46,7 @@ public readonly struct OfferOption
     public string Key => IsSkill ? SkillKey(Skill.Id, SkillLevel) : Upgrade != null ? Upgrade.Id : "";
 
     /// <summary>
-    /// An evolution stays through rerolls and can't be banished (catalog C.4).
+    /// An evolution stays through rerolls and can't be banished.
     /// </summary>
     public bool IsLocked => Place == OfferPlace.Evolution;
 

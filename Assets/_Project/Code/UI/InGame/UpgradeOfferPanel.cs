@@ -2,7 +2,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 
-// The strip at the bottom of the HUD where the local player chooses their upgrades (#77), without
+// The strip at the bottom of the HUD where the local player chooses their upgrades, without
 // pausing anything: they keep moving and the basic attack keeps firing.
 //   1, 2, 3 or a click pick; F rerolls; X and then a number banishes; C skips; Tab hides and shows it.
 // It only shows the offer the host sent to this player and sends back what they chose (PlayerOffers).
@@ -24,14 +24,14 @@ public class UpgradeOfferPanel : MonoBehaviour
     [Tooltip("Outside the strip. Shown while it's hidden and offers are waiting.")]
     [SerializeField] private TMP_Text _queueLabel;
 
-    [Header("Colors of the names, until the HUD art (#43)")]
+    [Header("Colors of the names, until the HUD art")]
     [SerializeField] private Color _commonColor = new(0.91f, 0.91f, 0.91f);
     [SerializeField] private Color _rareColor = new(0.35f, 0.66f, 1f);
     [SerializeField] private Color _epicColor = new(0.78f, 0.49f, 1f);
     [SerializeField] private Color _specialColor = new(1f, 0.84f, 0f);
     [SerializeField] private Color _fallbackColor = new(0.63f, 0.63f, 0.63f);
 
-    [Tooltip("Name of a new skill or a skill level in the offer (#162).")]
+    [Tooltip("Name of a new skill or a skill level in the offer.")]
     [SerializeField] private Color _skillColor = new(0.4f, 0.9f, 0.75f);
     [SerializeField] private Color _descriptionColor = new(0.75f, 0.75f, 0.75f);
 
@@ -258,7 +258,7 @@ public class UpgradeOfferPanel : MonoBehaviour
         }
     }
 
-    // A skill shows its own description when new, and what the level changes otherwise (#162).
+    // A skill shows its own description when new, and what the level changes otherwise.
     private string FormatText(OfferOption option)
     {
         string name;

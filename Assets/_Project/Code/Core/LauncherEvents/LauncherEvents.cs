@@ -39,8 +39,8 @@ public static class LauncherEvents
     // --- Match ---
 
     /// <param name="slot">From 1 to 4, as players count them.</param>
-    /// <param name="seed">The match's seed in 8 hexadecimal characters (#75). Null writes none.</param>
-    /// <param name="character">The local player's character id: ember, tide, volt (#162). Null writes none.</param>
+    /// <param name="seed">The match's seed in 8 hexadecimal characters. Null writes none.</param>
+    /// <param name="character">The local player's character id: ember, tide, volt. Null writes none.</param>
     public static void MatchJoined(bool isHost, int slot, int players, int matchTime, bool late, string seed,
                                    string character)
     {
@@ -76,13 +76,13 @@ public static class LauncherEvents
         LauncherEventWriter.Write("waves_finished", ("match_time", matchTime), ("alive", alive));
     }
 
-    /// <param name="level">The group's new level, from 2 (#76).</param>
+    /// <param name="level">The group's new level, from 2.</param>
     public static void LevelUp(int level, int matchTime)
     {
         LauncherEventWriter.Write("level_up", ("level", level), ("match_time", matchTime));
     }
 
-    /// <param name="upgrade">Its id, as in the catalog (#78). econ_breather is Respiro.</param>
+    /// <param name="upgrade">Its id, as in the catalog. econ_breather is Respiro.</param>
     /// <param name="rarity">common, rare, epic, legendary, duo or evolution.</param>
     /// <param name="level">Level of the level up whose offer it came from.</param>
     public static void UpgradePicked(string upgrade, string rarity, int level, int matchTime)
@@ -91,9 +91,9 @@ public static class LauncherEvents
                                   ("match_time", matchTime));
     }
 
-    /// <param name="action">reroll, banish or skip (#78).</param>
+    /// <param name="action">reroll, banish or skip.</param>
     /// <param name="upgrade">The banished upgrade's id. Null writes none: reroll and skip have none.</param>
-    /// <param name="ability">With banish, the skill banished from an offer (#162); null otherwise writes none.</param>
+    /// <param name="ability">With banish, the skill banished from an offer; null otherwise writes none.</param>
     public static void OfferAction(string action, string upgrade, int level, int matchTime, string ability = null)
     {
         LauncherEventWriter.Write("offer_action", ("action", action), ("upgrade", upgrade), ("level", level),
@@ -101,7 +101,7 @@ public static class LauncherEvents
     }
 
     /// <param name="ability">The skill's id: tide_bubble, ember_flare...</param>
-    /// <param name="abilityLevel">1 for a new skill, 2 or 3 for a level of one the player has (#162).</param>
+    /// <param name="abilityLevel">1 for a new skill, 2 or 3 for a level of one the player has.</param>
     /// <param name="level">Level of the group's level up the offer came from.</param>
     public static void SkillGained(string ability, int abilityLevel, int level, int matchTime)
     {
@@ -109,7 +109,7 @@ public static class LauncherEvents
                                   ("level", level), ("match_time", matchTime));
     }
 
-    /// <param name="result">defeat. Others (victory) come with the boss (#93).</param>
+    /// <param name="result">defeat. Others (victory) come with the boss.</param>
     /// <param name="waves">Waves that had started.</param>
     public static void MatchOver(string result, int matchTime, int waves)
     {
@@ -126,7 +126,7 @@ public static class LauncherEvents
     /// <param name="slot">The revived player's, from 1 to 4.</param>
     /// <param name="me">True when it's the local player.</param>
     /// <param name="by">me, ally or none (a cheat).</param>
-    /// <param name="chargesLeft">The group's revives left after this one (#79). Negative writes none.</param>
+    /// <param name="chargesLeft">The group's revives left after this one. Negative writes none.</param>
     public static void PlayerRevived(int slot, bool me, string by, int chargesLeft)
     {
         LauncherEventWriter.Write("player_revived", ("slot", slot), ("me", me), ("by", by),
@@ -135,7 +135,7 @@ public static class LauncherEvents
 
     // --- Combat ---
 
-    /// <param name="source">character (the character's own element, #162), debug_key (F6), or slot (before #162).</param>
+    /// <param name="source">character (the character's own element), debug_key (F6), or slot (older builds).</param>
     public static void ElementSet(ElementType element, string source)
     {
         LauncherEventWriter.Write("element_set", ("element", ElementId(element)), ("source", source));

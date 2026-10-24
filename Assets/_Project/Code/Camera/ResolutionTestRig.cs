@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
 
-// Test bench for choosing the base resolution (#42). In a scene of its own, without network: it fills
+// Test bench for choosing the base resolution. In a scene of its own, without network: it fills
 // the screen with 4 player stand-ins and 30 wandering enemies, and switches the Pixel Perfect Camera
 // between 480×270 and 640×360 with keys, so both can be compared at 1080p and 1440p. Another key
 // draws the stand-ins bigger on the same 16 px grid, to judge larger characters before drawing them.

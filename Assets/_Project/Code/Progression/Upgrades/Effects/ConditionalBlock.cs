@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Stat changes that only count on hits whose target meets a condition (#161, catalog Conditional):
-// Cazador de auras is +15 % of skill damage against enemies with an aura. Today it holds stat changes
-// only, which is all the Pre 3 needs. The host checks the condition on each hit, before the hit
-// changes the target (catalog engine rule 10): a skill that detonates the aura still gets the bonus.
+// Stat changes that only count on hits whose target meets a condition (catalog Conditional):
+// Cazador de auras is +15 % of skill damage against enemies with an aura. It holds stat changes only.
+// The host checks the condition on each hit, before the hit changes the target: a skill that detonates
+// the aura still gets the bonus.
 [Serializable]
 public class ConditionalBlock : EffectBlock
 {

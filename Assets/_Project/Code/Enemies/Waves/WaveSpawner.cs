@@ -42,7 +42,7 @@ public class WaveSpawner : NetworkBehaviour
     private float _elapsed;
     private int _aliveEnemies;
 
-    // Server side. While paused the schedule's clock stops and nothing spawns (#52).
+    // Server side. While paused the schedule's clock stops and nothing spawns.
     private bool _paused;
 
     private void Awake()
@@ -117,7 +117,7 @@ public class WaveSpawner : NetworkBehaviour
 
     /// <summary>
     /// Server only. Stops the schedule where it is, or lets it go on. MatchFlow pauses it when the match
-    /// ends (#52), so no more enemies come while everyone is downed.
+    /// ends, so no more enemies come while everyone is downed.
     /// </summary>
     public void SetPaused(bool paused)
     {
@@ -177,7 +177,7 @@ public class WaveSpawner : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server only. The schedule from the beginning, for a restarted match (#52). Call it after
+    /// Server only. The schedule from the beginning, for a restarted match. Call it after
     /// despawning every enemy: despawned enemies never die, so the count of living ones starts at 0.
     /// </summary>
     public void ResetForNewRun()
@@ -239,7 +239,7 @@ public class WaveSpawner : NetworkBehaviour
     }
 
     // A random spawn point far enough from every player, or the farthest one if none is.
-    // The roll comes from the run's seed (#75), and always one per enemy, drawn before looking at the
+    // The roll comes from the run's seed, and always one per enemy, drawn before looking at the
     // players: where they stand changes which points are far enough, but never how many numbers are
     // used, so two runs with the same seed stay in step even when the players move differently.
     private Vector2 PickSpawnPosition()

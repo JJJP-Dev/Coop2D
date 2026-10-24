@@ -21,7 +21,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     private readonly SyncVar<int> _banishesLeft = new();
 
     // Server side. Earned counts every third ever received in this match, spent ones included, so the
-    // limit of 2 rerolls per match holds whatever the order of earning and spending (catalog C.5).
+    // limit of 2 rerolls per match holds whatever the order of earning and spending.
     private int _earnedThirds;
     private int _spentThirds;
     private readonly HashSet<string> _banished = new();
@@ -52,12 +52,12 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     public int BanishesLeft => _banishesLeft.Value;
 
     /// <summary>
-    /// rarity_luck, which moves weight from common to rare and epic. 0 until player stats exist (#157).
+    /// rarity_luck, which moves weight from common to rare and epic. 0 until player stats exist.
     /// </summary>
     public int Luck => 0;
 
     /// <summary>
-    /// Server only. Offers in a row that could have had a duo and didn't (catalog C.4).
+    /// Server only. Offers in a row that could have had a duo and didn't.
     /// </summary>
     public int OffersWithoutDuo => _offersWithoutDuo;
 
@@ -94,7 +94,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         return !string.IsNullOrEmpty(id) && _stacks.TryGetValue(id, out int stacks) ? stacks : 0;
     }
 
-    // --- Skills in the offers (#162) ---
+    // --- Skills in the offers ---
 
     public ElementType Element => _element != null ? _element.Current : ElementType.None;
 
@@ -144,14 +144,14 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
         _stacks.Clear();
         _banished.Clear();
 
-        // What the upgrades gave goes with them (#157), and their internal cooldowns too (#161).
+        // What the upgrades gave goes with them, and their internal cooldowns too.
         if (_stats != null)
             _stats.ClearBonuses();
 
         if (_events != null)
             _events.ResetForNewRun();
 
-        // Back to the starting skill alone: the others come from the offers (#162).
+        // Back to the starting skill alone: the others come from the offers.
         if (_skills != null)
             _skills.ResetSkills();
 
@@ -245,7 +245,7 @@ public class PlayerUpgrades : NetworkBehaviour, IUpgradeHolder
     }
 
     /// <summary>
-    /// Server only. Whether it was in the last offer this player saw: it weighs half in the next (C.1).
+    /// Server only. Whether it was in the last offer this player saw: it weighs half in the next.
     /// </summary>
     public bool WasSeen(string id)
     {

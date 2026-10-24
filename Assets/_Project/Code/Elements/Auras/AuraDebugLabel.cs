@@ -2,7 +2,7 @@ using FishNet.Object;
 using TMPro;
 using UnityEngine;
 
-// Temporary view of an enemy's aura and who put it there, until the aura icons exist (#68).
+// Temporary view of an enemy's aura and who put it there, until the aura icons exist.
 public class AuraDebugLabel : MonoBehaviour
 {
     [SerializeField] private AuraHolder _aura;

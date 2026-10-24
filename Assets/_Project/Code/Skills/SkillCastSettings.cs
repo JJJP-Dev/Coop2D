@@ -23,7 +23,7 @@ public class SkillCastSettings : ScriptableObject
     [SerializeField] private LayerMask _targetLayers;
 
     [Tooltip("Cooldown given back (Relevo, Asistencia) never ends a skill's cooldown earlier than this " +
-             "part of its full time after the cast. 0.6 is the catalog's floor (engine rule 1).")]
+             "part of its full time after the cast. 0.6 is the design's floor.")]
     [SerializeField, Range(0f, 1f)] private float _minCooldownFraction = 0.6f;
 
     [Tooltip("Seconds in the past a client's cast tick may be. Older ones count from this far back, so a " +

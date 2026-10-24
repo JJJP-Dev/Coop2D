@@ -4,7 +4,7 @@ using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using UnityEngine;
 
-// The group's shared experience and level in this match (#76), the same on every client. Everyone
+// The group's shared experience and level in this match, the same on every client. Everyone
 // fills one bar and goes up together, so nobody competes for orbs; the build is still each player's own.
 // The host adds the experience and decides the levels; the clients only show them.
 // One per match scene, next to MatchClock.
@@ -39,7 +39,7 @@ public class RunExperience : NetworkBehaviour
     public float Fraction => _required.Value > 0 ? Mathf.Clamp01((float)_xp.Value / _required.Value) : 0f;
 
     /// <summary>
-    /// Server only. The group reached this level. Each level up will give every player an offer (#77).
+    /// Server only. The group reached this level. Each level up will give every player an offer.
     /// </summary>
     public event Action<int> LeveledUp;
 
@@ -105,7 +105,7 @@ public class RunExperience : NetworkBehaviour
             xp -= required;
             level++;
 
-            // Fixed now, with the players there are now (#76): someone joining or leaving changes the
+            // Fixed now, with the players there are now: someone joining or leaving changes the
             // next level, not the one the bar is filling.
             required = _curve.GetRequired(level, players);
 
@@ -118,7 +118,7 @@ public class RunExperience : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server only. Back to level 1 with nothing, for a restarted match (#52).
+    /// Server only. Back to level 1 with nothing, for a restarted match.
     /// </summary>
     public void ResetForNewRun()
     {

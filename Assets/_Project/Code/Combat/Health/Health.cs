@@ -10,17 +10,17 @@ public class Health : NetworkBehaviour
     private readonly SyncVar<int> _current = new();
     private readonly SyncVar<bool> _invulnerable = new();
 
-    // The maximum travels too: a player's upgrades change it (#157), and everyone shows their health.
+    // The maximum travels too: a player's upgrades change it, and everyone shows their health.
     private readonly SyncVar<int> _max = new();
 
-    // Players only: their stats change the maximum and the damage they take (#157).
+    // Players only: their stats change the maximum and the damage they take.
     private PlayerStats _stats;
 
     private float _invulnerableUntil;
 
     /// <summary>
     /// Server only. Time.time of the last hit it took, rejected hits not counted. Revives use it:
-    /// a teammate who was just hit stops helping for a moment (#79).
+    /// a teammate who was just hit stops helping for a moment.
     /// </summary>
     public float LastDamagedAt { get; private set; } = float.NegativeInfinity;
 
@@ -92,7 +92,7 @@ public class Health : NetworkBehaviour
         if (amount <= 0 || IsDead || _invulnerable.Value || Time.time < _invulnerableUntil)
             return false;
 
-        // A player's damage_taken (#157): Piel gruesa takes 10 % off. Never below 1, so a hit is a hit.
+        // A player's damage_taken: Piel gruesa takes 10 % off. Never below 1, so a hit is a hit.
         if (_stats != null)
             amount = Mathf.Max(1, Mathf.RoundToInt(amount * _stats.Get(StatId.DamageTaken, 1f)));
 
@@ -133,7 +133,7 @@ public class Health : NetworkBehaviour
 
     /// <summary>
     /// Server only, before Spawn. It appears at 0 health: a player who joins a match that is already
-    /// over arrives downed, like everyone else (#52). Set before spawning, so the 0 travels with the spawn
+    /// over arrives downed, like everyone else. Set before spawning, so the 0 travels with the spawn
     /// and nobody sees it fall.
     /// </summary>
     public void SpawnDowned()
@@ -148,7 +148,7 @@ public class Health : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server only. Gets a downed player up (#51) with this much health, and ignores hits for a few
+    /// Server only. Gets a downed player up with this much health, and ignores hits for a few
     /// seconds so the enemies around it can't drop it again at once. Does nothing unless it's at 0.
     /// </summary>
     public void Revive(int health, float invulnerableSeconds)
@@ -167,7 +167,7 @@ public class Health : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server only. Changes the maximum (#157). The current health stays, unless it's now above the
+    /// Server only. Changes the maximum. The current health stays, unless it's now above the
     /// maximum: gaining maximum health doesn't heal by itself, a Heal does (Vitalidad has both).
     /// </summary>
     public void SetMaxHealth(int max)
@@ -188,7 +188,7 @@ public class Health : NetworkBehaviour
 
     /// <summary>
     /// Server only. Gives back health, up to the maximum. A downed player isn't healed: only a revive
-    /// gets it up (catalog rule 0.3.5).
+    /// gets it up.
     /// </summary>
     public void Heal(int amount)
     {
@@ -206,7 +206,7 @@ public class Health : NetworkBehaviour
 
     /// <summary>
     /// Server only. Ignores hits for a few seconds from now, or longer if it already did. Choosing an
-    /// upgrade uses it (#77): the player looked away from the fight to pick.
+    /// upgrade uses it: the player looked away from the fight to pick.
     /// </summary>
     public void AddInvulnerability(float seconds)
     {

@@ -1,4 +1,4 @@
-// The area a skill hits (#162). Saved in the skill assets as a number: add new shapes at the end.
+// The area a skill hits. Saved in the skill assets as a number: add new shapes at the end.
 public enum SkillShape
 {
     // A circle where you aim, up to the cast range: Estallido, Marca, Llovizna, Cortocircuito.

@@ -118,7 +118,7 @@ public class AuraHolder : NetworkBehaviour
         return result;
     }
 
-    // The base from AuraSettings, with the upgrades of the player who applies it (#161, Auras tenaces).
+    // The base from AuraSettings, with the upgrades of the player who applies it (Auras tenaces).
     // The host has every player's stats, and auras are only decided on the host.
     private float GetDuration(AuraStrength strength, NetworkObject source)
     {
@@ -171,7 +171,7 @@ public class AuraHolder : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server only, for the reaction test scene (#147): no aura, no lockout and no cooldowns,
+    /// Server only, for the reaction test scene: no aura, no lockout and no cooldowns,
     /// as if the enemy had just appeared.
     /// </summary>
     public void ResetForTesting()

@@ -9,7 +9,7 @@ public class ConnectionService : MonoBehaviour
 {
     [SerializeField] private NetworkManager _networkManager;
 
-    [Tooltip("The one on the NetworkManager's object. It tells this client when the host rejects its version (#24).")]
+    [Tooltip("The one on the NetworkManager's object. It tells this client when the host rejects its version.")]
     [SerializeField] private VersionAuthenticator _versionAuthenticator;
 
     [SerializeField]
@@ -50,7 +50,7 @@ public class ConnectionService : MonoBehaviour
         _hostPending = true;
 
         // Every attempt starts in Connecting, so a second failure in a row
-        // is still a change of state and listeners hear about it (#150).
+        // is still a change of state and listeners hear about it.
         SetState(SessionState.Connecting);
         StartServer();
     }

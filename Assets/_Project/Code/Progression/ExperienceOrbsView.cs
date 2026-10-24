@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using FishNet.Object;
 using UnityEngine;
 
-// Draws the experience orbs this client received (#84) and makes the picked ones fly to whoever took
+// Draws the experience orbs this client received and makes the picked ones fly to whoever took
 // them. Only the picture: the host already gave the experience to the group when the orb was picked.
 // The sprites are pooled, since orbs come and go all match long.
 public class ExperienceOrbsView : MonoBehaviour
 {
-    // Orbs worth this much or more look bigger, so merged ones stand out. Placeholder until the orb art (#83).
+    // Orbs worth this much or more look bigger, so merged ones stand out. Placeholder until the orb art.
     private const int BigOrbValue = 10;
     private const float BigOrbScale = 1.5f;
 

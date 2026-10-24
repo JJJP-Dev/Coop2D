@@ -3,7 +3,7 @@ using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using UnityEngine;
 
-// The revives the whole group has left in this match (#79), the same on every client.
+// The revives the whole group has left in this match, the same on every client.
 // The host counts the players, decides how many charges there are and spends them; the clients only
 // show them. One per match scene, next to MatchClock. A scene without it has no limit, like ReactionLab.
 public class ReviveCharges : NetworkBehaviour
@@ -57,7 +57,7 @@ public class ReviveCharges : NetworkBehaviour
     {
         base.OnStartServer();
 
-        // A new match starts with every charge, whatever the last one used (#52 will restart here).
+        // A new match starts with every charge, whatever the last one used.
         _mostPlayers = 0;
         _nextCountTime = 0f;
         _used.Value = 0;
@@ -78,13 +78,13 @@ public class ReviveCharges : NetworkBehaviour
         if (players <= _mostPlayers)
             return;
 
-        // Only up: someone leaving keeps the charges their arrival gave (#79).
+        // Only up: someone leaving keeps the charges their arrival gave.
         _mostPlayers = players;
         _total.Value = _settings.GetCharges(players);
     }
 
     /// <summary>
-    /// Server only. Every charge back, for a restarted match (#52). The players who are here now are
+    /// Server only. Every charge back, for a restarted match. The players who are here now are
     /// the most it has had: someone who left before the restart no longer counts.
     /// </summary>
     public void ResetForNewRun()

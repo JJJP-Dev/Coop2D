@@ -26,7 +26,7 @@ public class Projectile : MonoBehaviour
     /// <summary>
     /// onHit receives the first collider it hits. Leave it null for a copy that is only the picture.
     /// reach multiplies how far it flies: the basic attack passes its range against the base one, so a
-    /// longer range (#157) doesn't fire at enemies the shot can't reach.
+    /// longer range doesn't fire at enemies the shot can't reach.
     /// </summary>
     public void Launch(Vector2 direction, float timePassed, Action<Collider2D> onHit = null, float reach = 1f)
     {

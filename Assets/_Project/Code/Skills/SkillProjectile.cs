@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// What a projectile skill throws (#162): Llamarada, Burbuja, Rayo. It works like the basic attack's
+// What a projectile skill throws: Llamarada, Burbuja, Rayo. It works like the basic attack's
 // Projectile: every PC flies its own copy, and only the caster's copy reports what it hits; the host
 // checks each report against the path it remembers. It flies straight, so the host can check it.
 // It hits each enemy once, stops after its last allowed hit, and also stops at the end of its range.

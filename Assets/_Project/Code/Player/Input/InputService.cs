@@ -15,7 +15,7 @@ public class InputService : MonoBehaviour
     public InputAction CycleElement => _actions.Debug.CycleElement;
     public InputAction ToggleCheats => _actions.Debug.ToggleCheats;
 
-    // The upgrade offer's panel (#77). The reroll is F and not R, which #77 keeps for a skill.
+    // The upgrade offer's panel. The reroll is F and not R, which is kept for a skill.
     public InputAction OfferChoose1 => _actions.Offer.Choose1;
     public InputAction OfferChoose2 => _actions.Offer.Choose2;
     public InputAction OfferChoose3 => _actions.Offer.Choose3;

@@ -2,7 +2,7 @@ using FishNet.Object;
 using UnityEngine;
 
 // Slows, stuns and pushes on an enemy, decided by the host. A simple version until the
-// common crowd control rules (#164). Movement components read it.
+// common crowd control rules. Movement components read it.
 public class EnemyStatus : NetworkBehaviour
 {
     // The catalog's cap: no slow takes more than 60 % of an enemy's speed.

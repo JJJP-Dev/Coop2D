@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// The window that says the match is over (#52), on every client. It only shows what MatchFlow
+// The window that says the match is over, on every client. It only shows what MatchFlow
 // received from the host: how long it lasted and how many waves started. The host also gets the
 // button that restarts the match for everyone; the others are told they're waiting for it.
 public class GameOverPanel : MonoBehaviour

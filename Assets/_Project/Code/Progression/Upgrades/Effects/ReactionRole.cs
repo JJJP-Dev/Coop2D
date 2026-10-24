@@ -1,4 +1,4 @@
-// Which part of a reaction an OnEventBlock listens to (#161, catalog filter «role»). Stored in assets:
+// Which part of a reaction an OnEventBlock listens to (the catalog's «role» filter). Stored in assets:
 // add new ones at the end.
 public enum ReactionRole
 {

@@ -4,7 +4,7 @@ using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using UnityEngine;
 
-// The reaction test scene (#147): put a weak or strong aura of any element on any dummy, detonate it
+// The reaction test scene: put a weak or strong aura of any element on any dummy, detonate it
 // with any element, and start over. Any player can use it, and the host carries it out with the
 // real AuraHolder and ReactionService, so what comes out is what the game would do.
 // The aura and the detonation count as the player who pressed the button, so two players can test duos.
@@ -14,7 +14,7 @@ public class ReactionLab : NetworkBehaviour
     [Tooltip("The dummies in this scene, in the order the panel lists them.")]
     [SerializeField] private AuraHolder[] _dummies;
 
-    // The same on every client: each player's own client decides its shots (#156), so each one has to know.
+    // The same on every client: each player's own client decides its shots, so each one has to know.
     private readonly SyncVar<bool> _basicAttackEnabled = new(false);
 
     /// <summary>

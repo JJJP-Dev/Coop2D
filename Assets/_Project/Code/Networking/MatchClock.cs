@@ -26,7 +26,7 @@ public class MatchClock : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server only. Counts again from 0, for a restarted match (#52).
+    /// Server only. Counts again from 0, for a restarted match.
     /// </summary>
     public void Restart()
     {

@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-// Temporary view of the synced health, until the real health bars exist (#59).
+// Temporary view of the synced health, until the real health bars exist.
 public class HealthDebugLabel : MonoBehaviour
 {
     [SerializeField] private Health _health;

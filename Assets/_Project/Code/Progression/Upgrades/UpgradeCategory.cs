@@ -1,4 +1,4 @@
-// The catalog's category of an upgrade (#78, catalog D). For now only the panel and the logs show it.
+// The catalog's category of an upgrade. For now only the panel and the logs show it.
 // Assets store the number, so never renumber one.
 public enum UpgradeCategory
 {

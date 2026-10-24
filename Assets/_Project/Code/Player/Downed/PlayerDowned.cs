@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// Whether this player is downed (#51). At 0 health a player doesn't die: it stays on the ground,
+// Whether this player is downed. At 0 health a player doesn't die: it stays on the ground,
 // can't move, shoot or cast, and waits for a teammate to get it up.
 // Downed is simply its Health at 0. It travels with the health every client already receives, so
 // there is no second value to keep in step, and whatever brings the health back (a revive, the

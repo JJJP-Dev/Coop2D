@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-// The group's experience bar and level in the HUD (#76). Only shows what RunExperience received.
+// The group's experience bar and level in the HUD. Only shows what RunExperience received.
 // The fill is a child stretched by its anchors, not an Image in Filled mode, so it needs no sprite
 // until the HUD art arrives.
 public class ExperienceBarView : MonoBehaviour

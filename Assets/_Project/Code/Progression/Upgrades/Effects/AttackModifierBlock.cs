@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-// Changes how the basic attack fires for the rest of the match (#161, catalog AttackModifier): more
+// Changes how the basic attack fires for the rest of the match (catalog AttackModifier): more
 // projectiles per attack and how wide they fan out. Doble disparo gives +1 projectile across 12°.
 // They're stats like any other (BasicProjectiles, BasicSpread), so stacks add up and the cap of +3
-// projectiles (A.2) is in PlayerStatSettings. The shooter fires the volley and the host checks it (A.5).
+// projectiles is in PlayerStatSettings. The shooter fires the volley and the host checks it.
 // Damage per projectile isn't here: that's a StatModifier on BasicDamage in the same upgrade.
 [Serializable]
 public class AttackModifierBlock : EffectBlock

@@ -14,7 +14,7 @@ public class PlayerMovement : NetworkBehaviour
     private PlayerDowned _downed;
     private NetworkTransform _networkTransform;
 
-    // Optional: without it the player moves at its settings' speed (#157).
+    // Optional: without it the player moves at its settings' speed.
     private PlayerStats _stats;
 
     private void Awake()
@@ -22,7 +22,7 @@ public class PlayerMovement : NetworkBehaviour
         _body = GetComponent<Rigidbody2D>();
         _input = GetComponent<PlayerInputReader>();
 
-        // Optional: without it the player can never be downed (#51).
+        // Optional: without it the player can never be downed.
         TryGetComponent(out _downed);
 
         TryGetComponent(out _networkTransform);
@@ -47,7 +47,7 @@ public class PlayerMovement : NetworkBehaviour
         if (!IsOwner || _settings == null)
             return;
 
-        // A downed player stays where it fell until someone gets it up (#51).
+        // A downed player stays where it fell until someone gets it up.
         if (_downed != null && _downed.IsDowned)
         {
             _body.linearVelocity = Vector2.zero;
@@ -58,7 +58,7 @@ public class PlayerMovement : NetworkBehaviour
     }
 
     /// <summary>
-    /// On the owner and on the host: top speed with the player's upgrades (#157). The owner uses its own
+    /// On the owner and on the host: top speed with the player's upgrades. The owner uses its own
     /// copy of the stats, so a speed upgrade is felt at once, without waiting for the host.
     /// </summary>
     public float MaxSpeed => _settings == null ? 0f
@@ -66,7 +66,7 @@ public class PlayerMovement : NetworkBehaviour
         : _settings.MaxSpeed;
 
     /// <summary>
-    /// Server only. Moves this player to a point, for a restarted match (#52). The owner moves its own
+    /// Server only. Moves this player to a point, for a restarted match. The owner moves its own
     /// player (its NetworkTransform is client authoritative), so the host asks the owner to do it.
     /// </summary>
     public void PlaceAt(Vector2 position)

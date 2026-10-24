@@ -1,6 +1,6 @@
 using System;
 
-// Everything one offer depends on besides the random stream (#78): the level of its level up, how
+// Everything one offer depends on besides the random stream: the level of its level up, how
 // many players there are and the player it is for. With the same context and the same stream, the
 // generator always draws the same offer.
 public class OfferContext

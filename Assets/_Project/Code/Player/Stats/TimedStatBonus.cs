@@ -1,4 +1,4 @@
-// A bonus that only lasts a while (#157): Tempo, Viento a favor. Between two ticks of the host's clock,
+// A bonus that only lasts a while: Tempo, Viento a favor. Between two ticks of the host's clock,
 // which the owner also follows, so both stop counting it on the same tick. Public fields, so FishNet
 // sends it without a serializer of our own.
 public struct TimedStatBonus

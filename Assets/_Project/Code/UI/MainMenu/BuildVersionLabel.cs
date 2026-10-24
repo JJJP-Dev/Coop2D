@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 
 // Shows the game's version, so testers can tell which build they have open.
-// It comes from Project Settings > Player > Version, the same one the host checks (#24).
+// It comes from Project Settings > Player > Version, the same one the host checks.
 [RequireComponent(typeof(TMP_Text))]
 public class BuildVersionLabel : MonoBehaviour
 {

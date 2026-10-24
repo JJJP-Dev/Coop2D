@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-// One skill of the local player in the HUD, with its key and how long until it's ready (#73).
+// One skill of the local player in the HUD, with its key and how long until it's ready.
 // It reads the owner's own cooldown, the same one that lets the cast through, so what it shows
 // matches what happens when you press the key, on the host and on a client alike.
 public class SkillSlotView : MonoBehaviour

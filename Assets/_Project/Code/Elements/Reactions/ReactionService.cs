@@ -30,7 +30,7 @@ public class ReactionService : MonoBehaviour
 
     /// <summary>
     /// Server only. A reaction resolved, after its effects. The upgrades of the two players who took
-    /// part listen to it (#161: Viento a favor, Relevo, Asistencia).
+    /// part listen to it (Viento a favor, Relevo, Asistencia).
     /// </summary>
     public event Action<ReactionInfo> Resolved;
 
@@ -102,7 +102,7 @@ public class ReactionService : MonoBehaviour
         foreach (Health link in _chain)
             link.TryTakeDamage(definition.ChainDamage, detonator, DamageKind.Reaction);
 
-        // Last, as the catalog orders it (A.5.2): the upgrades react to a reaction that already happened.
+        // Last: the upgrades react to a reaction that already happened.
         Resolved?.Invoke(reaction);
     }
 
@@ -256,7 +256,7 @@ public class ReactionService : MonoBehaviour
     }
 
     /// <summary>
-    /// Server only. Removes every cloud, for a restarted match (#52). They're only on the host:
+    /// Server only. Removes every cloud, for a restarted match. They're only on the host:
     /// the clients drew theirs when the reaction happened and those fade by themselves.
     /// </summary>
     public void ClearClouds()

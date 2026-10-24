@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// Turns this object's sprites white for a moment each time it takes a hit (#58).
+// Turns this object's sprites white for a moment each time it takes a hit.
 // It reacts to the hits the host confirmed, on every client, the host's included, so everyone sees
 // the same flashes. Only the picture changes: it swaps materials and touches nothing else.
 [RequireComponent(typeof(Health))]

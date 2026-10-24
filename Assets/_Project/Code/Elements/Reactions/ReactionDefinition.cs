@@ -58,7 +58,7 @@ public class ReactionDefinition : ScriptableObject
     [SerializeField, Min(0f)] private float _stunDuration;
 
     [Header("Look")]
-    [Tooltip("Color of its burst, cloud and chain. Placeholder until the shared palette is frozen (#44).")]
+    [Tooltip("Color of its burst, cloud and chain. Placeholder until the shared palette is frozen.")]
     [SerializeField] private Color _color = Color.white;
 
     [Tooltip("The headline's gradient, from the top of the letters to the bottom.")]

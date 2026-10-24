@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// An upgrade as data (#78). The fields follow catalog.json in the progression catalog, which is the
+// An upgrade as data. The fields follow catalog.json in the progression catalog, which is the
 // reference: the assets are made from it, and the game never reads the JSON.
-// The top part decides whether and how often it is offered (#78); Effects, what it does when taken (#161).
+// The top part decides whether and how often it is offered; Effects, what it does when taken.
 [CreateAssetMenu(fileName = "Upgrade", menuName = "Coop2D/Progression/Upgrade")]
 public class UpgradeDefinition : ScriptableObject
 {

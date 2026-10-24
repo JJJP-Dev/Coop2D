@@ -11,7 +11,7 @@ public readonly struct ShotRecord
     // In the host's Time.time.
     public float ExpiresAt { get; }
 
-    // The enemies already hit by the projectiles of the same volley (Doble disparo, #161), shared by all
+    // The enemies already hit by the projectiles of the same volley (Doble disparo), shared by all
     // of them. Null for a single projectile.
     public HashSet<Health> VolleyHits { get; }
 

@@ -1,7 +1,7 @@
 using System.Globalization;
 using UnityEngine;
 
-// How RunRandomService picks the seed of each run (#75). Only for testing: in a release build
+// How RunRandomService picks the seed of each run. Only for testing: in a release build
 // every run gets a new seed whatever this says, so a forgotten value can't ship.
 [CreateAssetMenu(fileName = "RunRandomSettings", menuName = "Coop2D/Core/Run Random Settings")]
 public class RunRandomSettings : ScriptableObject

@@ -1,8 +1,8 @@
 using UnityEngine;
 
-// Every playable character, and the one each player slot plays for now (#162).
-// The lobby (#173) will let each player choose; until then the slot decides,
-// as the element did before: J1 Brasa, J2 Marea, J3 Voltio, J4 Brasa.
+// Every playable character, and the one each player slot plays for now.
+// The lobby will let each player choose; until then the slot decides: J1 Brasa, J2 Marea, J3 Voltio,
+// J4 Brasa.
 [CreateAssetMenu(fileName = "PlayerCharacters", menuName = "Coop2D/Player/Player Characters")]
 public class PlayerCharacters : ScriptableObject
 {
@@ -10,7 +10,7 @@ public class PlayerCharacters : ScriptableObject
              "and each PC finds it here: a character missing from this list can't be played.")]
     [SerializeField] private CharacterDefinition[] _characters;
 
-    [Tooltip("The character of each player slot, from slot 0 (J1) to 3 (J4), until the lobby (#173).")]
+    [Tooltip("The character of each player slot, from slot 0 (J1) to 3 (J4), until the lobby.")]
     [SerializeField] private CharacterDefinition[] _bySlot = new CharacterDefinition[PlayerSlots.MaxPlayers];
 
     public CharacterDefinition GetForSlot(int slot)

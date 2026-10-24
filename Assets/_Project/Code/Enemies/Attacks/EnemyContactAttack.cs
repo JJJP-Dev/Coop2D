@@ -2,7 +2,7 @@ using FishNet.Connection;
 using FishNet.Object;
 using UnityEngine;
 
-// Hurts the living player this enemy touches (#51). Only the host runs it: it decides every hit, and
+// Hurts the living player this enemy touches. Only the host runs it: it decides every hit, and
 // the player's Health sends the result to everyone. Enemies that attack another way don't have it,
 // so each way of attacking is its own component with its own settings.
 // Touching is a distance check rather than physics: on the host the remote players are kinematic,
@@ -63,7 +63,7 @@ public class EnemyContactAttack : NetworkBehaviour
             _nextAttackTime = now + _settings.AttackInterval;
     }
 
-    // The nearest living player within range, or null. Downed players don't count (#51).
+    // The nearest living player within range, or null. Downed players don't count.
     private Health FindTouchedPlayer()
     {
         Vector2 position = transform.position;

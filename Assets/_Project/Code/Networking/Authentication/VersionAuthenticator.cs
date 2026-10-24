@@ -5,7 +5,7 @@ using FishNet.Managing;
 using FishNet.Transporting;
 using UnityEngine;
 
-// Lets in only clients with the host's exact version (#24). FishNet doesn't count a client as
+// Lets in only clients with the host's exact version. FishNet doesn't count a client as
 // authenticated, or load scenes for it, until this says so, and it kicks the ones it rejects.
 // It goes on the NetworkManager's object: the ServerManager finds it there by itself.
 public class VersionAuthenticator : Authenticator

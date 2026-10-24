@@ -16,7 +16,7 @@ public class EnemyDefinition : ScriptableObject
     [Tooltip("It stops getting closer when its feet are this far from its target's, in units.")]
     [SerializeField, Min(0f)] private float _stopDistance = 0.5f;
 
-    [Tooltip("Experience its orb is worth when it dies (#84). From the catalog: normal 1, veteran 3, elite 10, champion 20.")]
+    [Tooltip("Experience its orb is worth when it dies. From the catalog: normal 1, veteran 3, elite 10, champion 20.")]
     [SerializeField, Min(0)] private int _experience = 1;
 
     public string Id => _id;

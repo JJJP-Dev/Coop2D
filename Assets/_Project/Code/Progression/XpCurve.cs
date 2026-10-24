@@ -1,8 +1,8 @@
 using UnityEngine;
 
-// How much experience the group needs for each level (#76), from the progression catalog (B.1):
+// How much experience the group needs for each level, from the progression catalog:
 // round((Base + PerLevel × (L − 1)) × M), with M the multiplier for the number of players. It is the
-// same multiplier as the number of enemies (#80): with 1.5 times more enemies, 1.5 times more
+// same multiplier as the number of enemies: with 1.5 times more enemies, 1.5 times more
 // experience keeps the same pace.
 [CreateAssetMenu(fileName = "XpCurve", menuName = "Coop2D/Progression/Xp Curve")]
 public class XpCurve : ScriptableObject

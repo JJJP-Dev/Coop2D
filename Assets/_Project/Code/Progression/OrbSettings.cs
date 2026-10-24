@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// How experience orbs are picked up and how many there can be (#84).
+// How experience orbs are picked up and how many there can be.
 [CreateAssetMenu(fileName = "OrbSettings", menuName = "Coop2D/Progression/Orb Settings")]
 public class OrbSettings : ScriptableObject
 {

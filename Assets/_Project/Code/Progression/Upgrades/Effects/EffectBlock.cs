@@ -1,6 +1,6 @@
 using System;
 
-// One piece of what an upgrade does (#161), as the progression catalog writes them (A.1): a stat that
+// One piece of what an upgrade does, as the progression catalog writes them: a stat that
 // changes, something that happens on an event... An upgrade is a list of these in its asset, so a new
 // upgrade made of existing blocks needs no code.
 // Only the host runs them. The clients see the results through what already travels: health, stats,

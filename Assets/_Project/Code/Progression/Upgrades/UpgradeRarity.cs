@@ -1,6 +1,6 @@
-// How rare an upgrade is (#78, catalog C.2). Assets store the number, so never renumber one.
-// Common, Rare and Epic come from the rarity roll; Legendary is in the data with weight 0 until the 0.2.
-// Duo and Evolution never come from that roll: they have their own rules (C.4 and C.6).
+// How rare an upgrade is. Assets store the number, so never renumber one.
+// Common, Rare and Epic come from the rarity roll; Legendary is in the data with weight 0 for now.
+// Duo and Evolution never come from that roll: they have their own rules.
 public enum UpgradeRarity
 {
     Common = 0,

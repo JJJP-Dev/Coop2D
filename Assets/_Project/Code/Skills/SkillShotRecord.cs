@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-// What the host remembers about an accepted projectile skill (#162), to check what its caster reports.
+// What the host remembers about an accepted projectile skill, to check what its caster reports.
 // A class and not a struct: the hits left and the enemies already hit change with each report.
 public class SkillShotRecord
 {

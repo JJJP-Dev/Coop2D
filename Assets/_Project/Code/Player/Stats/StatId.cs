@@ -1,5 +1,5 @@
-// A stat of a player (#157), from the progression catalog's list (A.2). Upgrades change them with
-// StatModifier blocks (#161), and the systems that use them ask PlayerStats for the final value.
+// A stat of a player, from the progression catalog's list. Upgrades change them with
+// StatModifier blocks, and the systems that use them ask PlayerStats for the final value.
 // The numbers travel over the network and are stored in assets: never renumber one, add new ones at the end.
 public enum StatId : byte
 {
@@ -20,7 +20,7 @@ public enum StatId : byte
     BasicInterval = 5,
     BasicRange = 6,
 
-    // basic_projectiles: projectiles per basic attack. Its base is 1 (#161, Doble disparo).
+    // basic_projectiles: projectiles per basic attack. Its base is 1 (Doble disparo).
     BasicProjectiles = 7,
 
     // The degrees those projectiles fan out across. Its base is 0. Not in the catalog's list: it's how
@@ -28,15 +28,15 @@ public enum StatId : byte
     BasicSpread = 8,
 
     // aura_duration: seconds the auras this player applies last, one stat for each strength. Their bases
-    // are in AuraSettings (#161, Auras tenaces).
+    // are in AuraSettings (Auras tenaces).
     StrongAuraDuration = 9,
     WeakAuraDuration = 10,
 
     // How far around a skill's circle its aura also reaches, and on how many more enemies, without
-    // damage and without detonating. Both have base 0 (#161, Aura expansiva).
+    // damage and without detonating. Both have base 0 (Aura expansiva).
     SkillAuraExtraRadius = 11,
     SkillAuraExtraTargets = 12,
 
-    // skill_damage: the damage of each hit of a skill. Its base is the skill's own (#161, Cazador de auras).
+    // skill_damage: the damage of each hit of a skill. Its base is the skill's own (Cazador de auras).
     SkillDamage = 13,
 }

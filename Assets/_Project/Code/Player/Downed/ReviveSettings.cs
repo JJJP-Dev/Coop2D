@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// How a downed player gets back up (#51) and how often the group can do it (#79).
+// How a downed player gets back up and how often the group can do it.
 [CreateAssetMenu(fileName = "ReviveSettings", menuName = "Coop2D/Player/Revive Settings")]
 public class ReviveSettings : ScriptableObject
 {
@@ -10,15 +10,15 @@ public class ReviveSettings : ScriptableObject
     [Tooltip("Seconds the first revive of the match takes with one teammate close. If nobody is close, the progress is lost.")]
     [SerializeField, Min(0.1f)] private float _duration = 3f;
 
-    [Tooltip("Seconds each revive already used in the match adds to the next one: 3, 4, 5... (#79).")]
+    [Tooltip("Seconds each revive already used in the match adds to the next one: 3, 4, 5....")]
     [SerializeField, Min(0f)] private float _extraSecondsPerRevive = 1f;
 
     [Tooltip("How much faster it goes for each teammate close after the first: 0.5 makes two of them " +
-             "1.5 times as fast and three of them twice as fast (#79).")]
+             "1.5 times as fast and three of them twice as fast.")]
     [SerializeField, Min(0f)] private float _extraSpeedPerHelper = 0.5f;
 
     [Tooltip("Seconds a teammate stops helping after taking a hit. The others go on; if nobody is left " +
-             "helping, the progress is lost (#79). Enemies hit at most every 0.5 s, so 1 s keeps out " +
+             "helping, the progress is lost. Enemies hit at most every 0.5 s, so 1 s keeps out " +
              "anyone standing in a crowd.")]
     [SerializeField, Min(0f)] private float _hitLockout = 1f;
 
@@ -30,7 +30,7 @@ public class ReviveSettings : ScriptableObject
 
     [Tooltip("Revives the whole group can use in a match, by players: the first number for 1 player, the second " +
              "for 2... More players than numbers use the last one. It counts the most players the match has had, " +
-             "so someone leaving never takes charges away (#79).")]
+             "so someone leaving never takes charges away.")]
     [SerializeField] private int[] _chargesByPlayers = { 1, 2, 3, 3 };
 
     public float Radius => _radius;

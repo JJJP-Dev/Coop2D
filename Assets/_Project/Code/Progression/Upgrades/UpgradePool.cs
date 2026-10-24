@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Every upgrade the offers can draw from (#78), and Respiro, which is not in the pool: it only comes
-// when nothing else is left (catalog C.1). The host draws from it and the clients look up the ids
+// Every upgrade the offers can draw from, and Respiro, which is not in the pool: it only comes
+// when nothing else is left. The host draws from it and the clients look up the ids
 // they receive, so host and clients must have the same assets, which the same build guarantees.
 [CreateAssetMenu(fileName = "UpgradePool", menuName = "Coop2D/Progression/Upgrade Pool")]
 public class UpgradePool : ScriptableObject

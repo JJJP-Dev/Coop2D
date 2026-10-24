@@ -8,7 +8,7 @@ public class ElementDefinition : ScriptableObject
     [Tooltip("Shown to players.")]
     [SerializeField] private string _displayName;
 
-    [Tooltip("Placeholder until the shared palette is frozen (#44).")]
+    [Tooltip("Placeholder until the shared palette is frozen.")]
     [SerializeField] private Color _color = Color.white;
 
     public ElementType Type => _type;

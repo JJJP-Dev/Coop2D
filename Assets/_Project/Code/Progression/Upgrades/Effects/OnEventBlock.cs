@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Runs its actions when something happens (#161, catalog OnEvent): taking the upgrade, casting a skill or
+// Runs its actions when something happens (catalog OnEvent): taking the upgrade, casting a skill or
 // a reaction the player takes part in. PlayerUpgradeEvents tells it what happened and keeps, for each
 // player, when it can run again.
 [Serializable]
@@ -71,7 +71,7 @@ public class OnEventBlock : EffectBlock
     }
 
     /// <summary>
-    /// Owner only. What each action shows ahead of the host (#157).
+    /// Owner only. What each action shows ahead of the host.
     /// </summary>
     public void Predict(EffectContext context)
     {

@@ -228,7 +228,7 @@ public class DebugCheats : NetworkBehaviour
         ReportCheat(caller, "heal_all");
     }
 
-    // To the whole group: the experience is shared (#76).
+    // To the whole group: the experience is shared.
     [ServerRpc(RequireOwnership = false)]
     private void ServerGiveXp(NetworkConnection caller = null)
     {
@@ -247,7 +247,7 @@ public class DebugCheats : NetworkBehaviour
         ReportCheat(caller, "give_xp");
     }
 
-    // To every player, within the limit of 2 per match: it tests rerolls without waiting for minute 4 (#78).
+    // To every player, within the limit of 2 per match: it tests rerolls without waiting for minute 4.
     [ServerRpc(RequireOwnership = false)]
     private void ServerGiveReroll(NetworkConnection caller = null)
     {
@@ -266,7 +266,7 @@ public class DebugCheats : NetworkBehaviour
         ReportCheat(caller, "give_reroll");
     }
 
-    // Only to whoever asked (#162): the next skill of the library they don't have, so pressing it again goes
+    // Only to whoever asked: the next skill of the library they don't have, so pressing it again goes
     // through every skill. Into a free slot, or in place of the last one when the three are taken.
     [ServerRpc(RequireOwnership = false)]
     private void ServerGiveSkill(NetworkConnection caller = null)
@@ -308,7 +308,7 @@ public class DebugCheats : NetworkBehaviour
         ReportCheat(caller, "give_skill");
     }
 
-    // Estallido and Marca for the reaction tests, which were written for them (#162).
+    // Estallido and Marca for the reaction tests, which were written for them.
     [ServerRpc(RequireOwnership = false)]
     private void ServerSetTestSkills(NetworkConnection caller = null)
     {
